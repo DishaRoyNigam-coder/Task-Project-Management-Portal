@@ -3,14 +3,17 @@ import { Outlet, RouteObject, createBrowserRouter, useLocation } from 'react-rou
 import App from 'App';
 import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
+import Page404 from 'pages/errors/Page404';
 import PageLoader from 'components/loading/PageLoader';
 import paths, { rootPaths } from './paths';
 
-
-
-const AdminDashboard = lazy(() => import('pages/dashboard/AdminDashboard'));
+const Analytics = lazy(() => import('pages/dashboard/Analytics'));
+const UserList = lazy(() => import('pages/users/UserList'));
+const Starter = lazy(() => import('pages/others/Starter'));
+const Account = lazy(() => import('pages/others/Account'));
 
 const Login = lazy(() => import('pages/authentication/Login'));
+const Signup = lazy(() => import('pages/authentication/Signup'));
 
 export const SuspenseOutlet = () => {
   const location = useLocation();
@@ -35,10 +38,21 @@ export const routes: RouteObject[] = [
         ),
         children: [
           {
-            path: '/admin/dashboard',
-            element: <AdminDashboard />,
+            index: true,
+            element: <Analytics />,
           },
-         
+          {
+            path: paths.users,
+            element: <UserList />,
+          },
+          {
+            path: paths.account,
+            element: <Account />,
+          },
+          {
+            path: paths.starter,
+            element: <Starter />,
+          },
         ],
       },
       {
@@ -53,9 +67,21 @@ export const routes: RouteObject[] = [
             path: paths.login,
             element: <Login />,
           },
+          {
+            path: paths.signup,
+            element: <Signup />,
+          },
         ],
       },
 
+      {
+        path: paths['404'],
+        element: <Page404 />,
+      },
+      {
+        path: '*',
+        element: <Page404 />,
+      },
     ],
   },
 ];

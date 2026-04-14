@@ -1,5 +1,4 @@
 <<<<<<< HEAD
-
 # Aurora Free React Material UI Admin Template
 
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/themewagon/aurora-free/blob/main/LICENSE.md)
@@ -53,10 +52,8 @@ Distributed under the [MIT](https://github.com/themewagon/aurora-free/blob/main/
 
 ## Support
 
-# Email: support@themewagon.com
-
+Email: support@themewagon.com
+=======
 # Task-Project-Management-Portal
-
-Task &amp; Project Management Portal using react
-
-> > > > > > > 1ea4bf1eac8e8cdf2e56acbd8b5286ba714c0283
+Task &amp; Project Management Portal using react 
+>>>>>>> 1ea4bf1eac8e8cdf2e56acbd8b5286ba714c0283
