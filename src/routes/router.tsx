@@ -5,8 +5,9 @@ import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
 import AdminDashboard from 'pages/dashboard/AdminDashboard';
 import Page404 from 'pages/errors/Page404';
+import ProjectDetailPage from 'pages/projects/ProjectDetailPage';
 import ProjectFormPage from 'pages/projects/ProjectFormPage';
-import ProjectLinksPage from 'pages/projects/ProjectLinksPage';
+import TaskFormPage from 'pages/tasks/TaskFormPage';
 import PageLoader from 'components/loading/PageLoader';
 import paths, { rootPaths } from './paths';
 
@@ -44,8 +45,8 @@ export const routes: RouteObject[] = [
             element: <AdminDashboard />,
           },
           {
-            path: paths.projects.links,
-            element: <ProjectLinksPage />,
+            path: paths.projects.detail, // 👈 add this line
+            element: <ProjectDetailPage />,
           },
           { path: paths.projects.edit, element: <ProjectFormPage /> },
           {
@@ -63,6 +64,14 @@ export const routes: RouteObject[] = [
           {
             path: paths.projects.new,
             element: <ProjectFormPage />,
+          },
+          {
+            path: paths.tasks.new,
+            element: <TaskFormPage />,
+          },
+          {
+            path: paths.tasks.edit,
+            element: <TaskFormPage />,
           },
         ],
       },

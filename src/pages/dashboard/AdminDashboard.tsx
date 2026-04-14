@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   Add as AddIcon,
   Archive as ArchiveIcon,
@@ -42,6 +44,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+import paths from 'routes/paths';
 
 // ------------------------------
 // Type Definitions
@@ -147,6 +150,7 @@ const formatDate = (isoString: string) => new Date(isoString).toLocaleDateString
 // Main Component
 // ------------------------------
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   // State
   const [projects, setProjects] = useState<Project[]>(initialProjects);
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -287,16 +291,6 @@ const AdminDashboard = () => {
   // ----------------------------
   // Task Handlers
   // ----------------------------
-  const handleOpenTaskModal = () => {
-    setTaskForm({
-      projectId: projects.find((p) => p.status === 'Active')?.id || '',
-      title: '',
-      priority: 'Medium',
-      dueDate: '',
-      assignedTo: mockEmployees[0],
-    });
-    setTaskModalOpen(true);
-  };
 
   const handleSaveTask = () => {
     if (!taskForm.projectId || !taskForm.title || !taskForm.dueDate) {
@@ -342,7 +336,7 @@ const AdminDashboard = () => {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => handleOpenProjectModal()}
+          onClick={() => navigate(paths.projects.new)}
         >
           New Project
         </Button>
@@ -382,10 +376,14 @@ const AdminDashboard = () => {
                 {projects.map((project) => (
                   <TableRow key={project.id} hover>
                     <TableCell>
-                      <Typography variant="body2" fontWeight="500">
+                      <Button
+                        component={RouterLink}
+                        to={`/projects/${project.id}`}
+                        sx={{ textTransform: 'none', fontWeight: 'bold', p: 0, minWidth: 'auto' }}
+                      >
                         {project.projectName}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      </Button>
+                      <Typography variant="caption" color="text.secondary" display="block">
                         {project.projectNotes.substring(0, 40)}...
                       </Typography>
                     </TableCell>
@@ -474,7 +472,11 @@ const AdminDashboard = () => {
             title="Task Management"
             subheader="Assign tasks to team members"
             action={
-              <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenTaskModal}>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => navigate(paths.tasks.new)}
+              >
                 Assign Task
               </Button>
             }

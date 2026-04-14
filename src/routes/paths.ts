@@ -19,6 +19,11 @@ const paths = {
     new: '/projects/new',
     edit: '/projects/:id/edit',
     links: '/projects/:projectId/links',
+    detail: '/projects/:projectId',
+  },
+  tasks: {
+    new: '/tasks/new',
+    edit: '/tasks/:taskId/edit',
   },
   404: `/404`,
 };
