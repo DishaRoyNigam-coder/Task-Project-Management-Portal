@@ -14,7 +14,12 @@ const paths = {
   signup: `/${rootPaths.authRoot}/sign-up`,
   notifications: `/notifications`,
   documentation: documentationPath,
-
+  adminDashboard: `/admin/dashboard`,
+  projects: {
+    new: '/projects/new',
+    edit: '/projects/:id/edit',
+    links: '/projects/:projectId/links',
+  },
   404: `/404`,
 };
 

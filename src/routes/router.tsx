@@ -3,11 +3,13 @@ import { Outlet, RouteObject, createBrowserRouter, useLocation } from 'react-rou
 import App from 'App';
 import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
+import AdminDashboard from 'pages/dashboard/AdminDashboard';
 import Page404 from 'pages/errors/Page404';
+import ProjectFormPage from 'pages/projects/ProjectFormPage';
+import ProjectLinksPage from 'pages/projects/ProjectLinksPage';
 import PageLoader from 'components/loading/PageLoader';
 import paths, { rootPaths } from './paths';
 
-const Analytics = lazy(() => import('pages/dashboard/Analytics'));
 const UserList = lazy(() => import('pages/users/UserList'));
 const Starter = lazy(() => import('pages/others/Starter'));
 const Account = lazy(() => import('pages/others/Account'));
@@ -39,8 +41,13 @@ export const routes: RouteObject[] = [
         children: [
           {
             index: true,
-            element: <Analytics />,
+            element: <AdminDashboard />,
           },
+          {
+            path: paths.projects.links,
+            element: <ProjectLinksPage />,
+          },
+          { path: paths.projects.edit, element: <ProjectFormPage /> },
           {
             path: paths.users,
             element: <UserList />,
@@ -52,6 +59,10 @@ export const routes: RouteObject[] = [
           {
             path: paths.starter,
             element: <Starter />,
+          },
+          {
+            path: paths.projects.new,
+            element: <ProjectFormPage />,
           },
         ],
       },

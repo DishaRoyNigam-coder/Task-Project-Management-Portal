@@ -2,6 +2,8 @@ import { Dispatch, SetStateAction, SyntheticEvent, useEffect } from 'react';
 import { TabList } from '@mui/lab';
 import { InputAdornment, PaperProps, Stack, SxProps, Typography, tabsClasses } from '@mui/material';
 import { accountTabs } from 'data/account/account-tabs';
+import { useBreakpoints } from 'providers/BreakpointsProvider';
+import IconifyIcon from 'components/base/IconifyIcon';
 import StyledTextField from 'components/styled/StyledTextField';
 import AccountTab from './common/AccountTab';
 
