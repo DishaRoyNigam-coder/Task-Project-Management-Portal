@@ -31,10 +31,10 @@ const sitemap: MenuItem[] = [
     icon: 'material-symbols:view-quilt-outline',
     items: [
       {
-        name: 'Dashboard',
-        path: rootPaths.root,
-        pathName: 'dashboard',
-        icon: 'material-symbols:query-stats-rounded',
+        name: 'Admin Dashboard',
+        path: paths.admindashboard,
+        pathName: 'admin-dashboard',
+        icon: 'material-symbols:admin-panel-settings-outline-rounded',
         active: true,
       },
       {

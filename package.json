@@ -13,12 +13,13 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.1",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
     "@gsap/react": "2.1.2",
     "@iconify/react": "^6.0.2",
+    "@mui/icons-material": "7.3.10",
     "@mui/lab": "7.0.1-beta.18",
-    "@mui/material": "^7.3.4",
+    "@mui/material": "7.3.10",
     "@mui/system": "^7.3.3",
     "@mui/utils": "^7.3.3",
     "@mui/x-data-grid": "^8.14.1",

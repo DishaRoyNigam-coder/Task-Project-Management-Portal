@@ -3,7 +3,6 @@ import { Divider, IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
-import { useSettingsContext } from 'providers/SettingsProvider';
 import sitemap from 'routes/sitemap';
 import IconifyIcon from 'components/base/IconifyIcon';
 import Logo from 'components/common/Logo';
