@@ -1,29 +1,40 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Box,
   Button,
   Checkbox,
-  Divider,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   Link,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import paths from 'routes/paths';
 import PasswordTextField from 'components/common/PasswordTextField';
-import SocialAuth from './SocialAuth';
 
 interface LoginFormProps {
   defaultCredential?: { email: string; password: string };
 }
+
 const LoginForm = ({ defaultCredential }: LoginFormProps) => {
   const navigate = useNavigate();
+  const [role, setRole] = useState<'admin' | 'employee'>('employee'); // 👈 dev only
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate('/');
+
+    // In a real app: call API with email/password, get role from response
+    // For dev: navigate based on the selected role
+    if (role === 'admin') {
+      navigate('/admin/dashboard'); // adjust your admin route
+    } else {
+      navigate('/employee/dashboard'); // adjust your employee route
+    }
   };
 
   return (
@@ -58,51 +69,23 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
             }}
           >
             <Typography variant="h4">Log in</Typography>
-            <Typography
-              variant="subtitle2"
-              sx={{
-                color: 'text.secondary',
-              }}
-            >
-              Don&apos;t have an account?
-              <Link href={paths.signup} sx={{ ml: 1 }}>
-                Sign up
-              </Link>
-            </Typography>
           </Stack>
-        </Grid>
-
-        <Grid size={12}>
-          <SocialAuth />
-        </Grid>
-        <Grid size={12}>
-          <Divider sx={{ color: 'text.secondary' }}>or use email</Divider>
         </Grid>
 
         <Grid size={12}>
           <Box component="form" noValidate onSubmit={handleSubmit}>
             <Grid container>
-              <Grid
-                sx={{
-                  mb: 3,
-                }}
-                size={12}
-              >
+              <Grid sx={{ mb: 3 }} size={12}>
                 <TextField
                   fullWidth
                   size="large"
-                  id="email"
-                  type="email"
-                  label="Email"
+                  id="username"
+                  type="text"
+                  label="Username"
                   defaultValue={defaultCredential?.email}
                 />
               </Grid>
-              <Grid
-                sx={{
-                  mb: 2.5,
-                }}
-                size={12}
-              >
+              <Grid sx={{ mb: 2.5 }} size={12}>
                 <PasswordTextField
                   fullWidth
                   size="large"
@@ -111,12 +94,25 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
                   defaultValue={defaultCredential?.password}
                 />
               </Grid>
-              <Grid
-                sx={{
-                  mb: 6,
-                }}
-                size={12}
-              >
+
+              {/* 👇 DEV ONLY: role selector */}
+              <Grid sx={{ mb: 2 }} size={12}>
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" sx={{ typography: 'body2' }}>
+                    Demo role (remove in production)
+                  </FormLabel>
+                  <RadioGroup
+                    row
+                    value={role}
+                    onChange={(e) => setRole(e.target.value as 'admin' | 'employee')}
+                  >
+                    <FormControlLabel value="employee" control={<Radio />} label="Employee" />
+                    <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+
+              <Grid sx={{ mb: 6 }} size={12}>
                 <Stack
                   spacing={1}
                   sx={{
@@ -127,17 +123,11 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
                   <FormControlLabel
                     control={<Checkbox name="checked" color="primary" size="small" />}
                     label={
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          color: 'text.secondary',
-                        }}
-                      >
+                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
                         Remember this device
                       </Typography>
                     }
                   />
-
                   <Link href="#!" variant="subtitle2">
                     Forgot Password?
                   </Link>
