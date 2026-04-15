@@ -56,7 +56,7 @@ const DataGrid: Components<Omit<Theme, 'components'>>['MuiDataGrid'] = {
       ['& .MuiDataGrid-paper']: {
         borderRadius: theme.spacing(2),
         outline: 'none',
-        background: theme.vars.palette.background.menu,
+        background: theme.vars.palette.background.default,
         border: '1px solid',
         borderColor: theme.vars.palette.menuDivider,
         boxShadow: theme.vars.shadows[3],
@@ -92,7 +92,7 @@ const DataGrid: Components<Omit<Theme, 'components'>>['MuiDataGrid'] = {
       overflow: 'unset',
     },
     columnHeaders: ({ theme }) => ({
-      '--DataGrid-t-header-background-base': theme.vars.palette.background.elevation1,
+      '--DataGrid-t-header-background-base': theme.vars.palette.background.default,
       overflow: 'hidden',
       borderTopLeftRadius: 16,
       borderTopRightRadius: 16,
@@ -169,7 +169,7 @@ const DataGrid: Components<Omit<Theme, 'components'>>['MuiDataGrid'] = {
     }),
     selectedRowCount: { display: 'none' },
     footerContainer: ({ theme }) => ({
-      backgroundColor: theme.vars.palette.background.elevation1,
+      backgroundColor: theme.vars.palette.background.default,
       borderBottomLeftRadius: 16,
       borderBottomRightRadius: 16,
       border: 'none',

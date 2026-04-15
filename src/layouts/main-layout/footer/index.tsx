@@ -36,7 +36,7 @@ const Footer = () => {
           <Box component="span" whiteSpace="nowrap">
             Thank you for creating with
             <Box component="strong" mx={0.5}>
-              Aurora{' '}
+              kaivalya
             </Box>
           </Box>
 

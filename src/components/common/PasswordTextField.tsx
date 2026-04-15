@@ -2,7 +2,7 @@ import { SyntheticEvent, useState } from 'react';
 import { IconButton, InputAdornment, TextField, TextFieldProps } from '@mui/material';
 import IconifyIcon from 'components/base/IconifyIcon';
 
-const PasswordTextField = ({ ref, ...props }: TextFieldProps) => {
+const PasswordTextField = ({ ref, sx, ...props }: TextFieldProps) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const handlePasswordVisibilty = (event: SyntheticEvent) => {
@@ -14,6 +14,16 @@ const PasswordTextField = ({ ref, ...props }: TextFieldProps) => {
     <TextField
       type={isPasswordVisible ? 'text' : 'password'}
       ref={ref}
+      sx={[
+        {
+          '& .MuiOutlinedInput-root': {
+            '& fieldset': { borderColor: 'divider' },
+            '&:hover fieldset': { borderColor: 'primary.main' },
+            '&.Mui-focused fieldset': { borderColor: 'primary.main' },
+          },
+        },
+        ...(Array.isArray(sx) ? sx : [sx]),
+      ]}
       slotProps={{
         input: {
           endAdornment: (

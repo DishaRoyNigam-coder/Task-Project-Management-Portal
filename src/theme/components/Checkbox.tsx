@@ -23,7 +23,7 @@ const Checkbox: Components<Omit<Theme, 'components'>>['MuiCheckbox'] = {
         const paletteColor = theme.vars.palette[color];
         return {
           '&:hover': {
-            background: cssVarRgba(paletteColor.mainChannel, 0.12),
+            background: cssVarRgba(paletteColor.light, 0.12),
           },
         };
       },
@@ -34,7 +34,7 @@ const Checkbox: Components<Omit<Theme, 'components'>>['MuiCheckbox'] = {
         const theme = style.theme as Theme;
         return {
           '&:hover': {
-            background: theme.vars.palette.background.elevation2,
+            background: theme.vars.palette.background.default,
           },
         };
       },
@@ -63,7 +63,7 @@ const Checkbox: Components<Omit<Theme, 'components'>>['MuiCheckbox'] = {
         },
         [`&:not(.${checkboxClasses.checked})`]: {
           [`& .${svgIconClasses.root}`]: {
-            color: theme.vars.palette.background.elevation3,
+            color: theme.vars.palette.background.default,
           },
         },
       },
@@ -73,11 +73,11 @@ const Checkbox: Components<Omit<Theme, 'components'>>['MuiCheckbox'] = {
         },
       },
       '& .checkbox-blank-icon': {
-        color: theme.vars.palette.background.elevation4,
+        color: theme.vars.palette.background.default,
       },
       [`&.${checkboxClasses.disabled}`]: {
         '& .checkbox-blank-icon': {
-          color: theme.vars.palette.background.elevation3,
+          color: theme.vars.palette.background.default,
         },
       },
     }),

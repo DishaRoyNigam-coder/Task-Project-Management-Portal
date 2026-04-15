@@ -14,9 +14,9 @@ const Breadcrumbs: Components<Omit<Theme, 'components'>>['MuiBreadcrumbs'] = {
           color: theme.vars.palette.primary.main,
         },
         button: {
-          backgroundColor: theme.vars.palette.background.elevation2,
+          backgroundColor: theme.vars.palette.background.default,
           '&:hover': {
-            backgroundColor: theme.vars.palette.background.elevation3,
+            backgroundColor: theme.vars.palette.background.default,
           },
           [`& .${svgIconClasses.root}`]: {
             fill: theme.vars.palette.chGrey[700],

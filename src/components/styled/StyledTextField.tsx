@@ -155,7 +155,7 @@ const StyledTextField = styled(
       },
     },
     [`&.${inputBaseClasses.focused}`]: {
-      backgroundColor: theme.vars.palette.primary.lighter,
+      backgroundColor: theme.vars.palette.primary.light,
     },
   },
 }));

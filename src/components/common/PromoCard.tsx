@@ -78,19 +78,20 @@ const PromoCard = ({
             background: `
               radial-gradient(
                 120.77% 120.77% at 62.42% 14.25%,
-                ${cssVarRgba(vars.palette.chGreen['50Channel'], 0)} 51.22%,
-                ${cssVarRgba(vars.palette.chGreen['100Channel'], 0.48)} 69.8%
+                ${cssVarRgba((vars.palette.background.default as unknown as Record<string, string>)['50Channel'], 0)} 51.22%,
+                ${cssVarRgba((vars.palette.background.default as unknown as Record<string, string>)['100Channel'], 0.48)} 69.8%
               ),
               radial-gradient(
                 125.2% 221.14% at 103.41% -3.28%,
-                ${cssVarRgba(vars.palette.background.elevation1Channel, 1)} 52.92%,
-                ${cssVarRgba(vars.palette.chGreen['50Channel'], 0.48)} 67.23%,
-                ${cssVarRgba(vars.palette.chGreen['100Channel'], 0.48)} 100%
+                ${cssVarRgba(vars.palette.background.default, 1)} 52.92%,
+                ${cssVarRgba(vars.palette.success.mainChannel, 0.48)} 67.23%,
+                ${cssVarRgba(vars.palette.success.mainChannel, 0.48)} 100%
               ),
               linear-gradient(
                 309.91deg,
-                ${cssVarRgba(vars.palette.chGreen['100Channel'], 0.02)} 0.61%,
-                ${cssVarRgba(vars.palette.chGreen['200Channel'], 0.02)} 39.75%
+                ${cssVarRgba(vars.palette.success.mainChannel, 0.02)} 0%,
+                ${cssVarRgba(vars.palette.success.mainChannel, 0.02)} 0.61%,
+                ${cssVarRgba(vars.palette.success.mainChannel, 0.02)} 39.75%
               )
             `,
           },

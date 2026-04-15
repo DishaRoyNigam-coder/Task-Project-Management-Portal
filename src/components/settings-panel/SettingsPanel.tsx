@@ -62,7 +62,7 @@ const SettingsPanel = () => {
           <Button
             variant="soft"
             sx={({ vars }) => ({
-              bgcolor: cssVarRgba(vars.palette.common.whiteChannel, 0.1),
+              bgcolor: cssVarRgba(vars.palette.common.white, 0.1),
               color: vars.palette.common.white,
             })}
             startIcon={<IconifyIcon icon="material-symbols:reset-settings-rounded" />}
@@ -73,7 +73,7 @@ const SettingsPanel = () => {
           <Button
             variant="soft"
             sx={({ vars }) => ({
-              bgcolor: cssVarRgba(vars.palette.common.whiteChannel, 0.1),
+              bgcolor: cssVarRgba(vars.palette.common.white, 0.1),
               color: vars.palette.common.white,
             })}
             shape="square"

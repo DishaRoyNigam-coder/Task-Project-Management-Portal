@@ -37,6 +37,22 @@ const NumberTextField = ({
             MozAppearance: 'textfield',
           },
         },
+        {
+          '& .MuiOutlinedInput-root': {
+            '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+            '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+            '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+          },
+          '& .MuiFilledInput-root': {
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            backgroundColor: 'transparent',
+            '&:hover': { borderColor: 'primary.main', backgroundColor: 'transparent' },
+            '&.Mui-focused': { borderColor: 'primary.main', backgroundColor: 'transparent' },
+            '&:before, &:after': { display: 'none' },
+          },
+        },
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
       {...rest}

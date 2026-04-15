@@ -11,7 +11,7 @@ const CssBaseline: Components<Omit<Theme, 'components'>>['MuiCssBaseline'] = {
       scrollbarWidth: 'thin',
     },
     body: {
-      scrollbarColor: `${theme.vars.palette.background.elevation4} transparent`,
+      scrollbarColor: `${theme.vars.palette.background.default} transparent`,
       [`h1, h2, h3, h4, h5, h6, p`]: {
         margin: 0,
       },

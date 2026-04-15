@@ -57,7 +57,7 @@ const NavItemPopper = ({
           <Paper
             variant="elevation"
             sx={(theme) => ({
-              bgcolor: theme.vars.palette.background.menu,
+              bgcolor: theme.vars.palette.background.default,
               boxShadow: theme.vars.shadows[3],
               position: 'relative',
               borderRadius: 2,

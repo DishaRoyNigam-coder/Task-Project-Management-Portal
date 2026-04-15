@@ -52,6 +52,9 @@ export const themeOverrides = {
     light: {
       palette: paletteOptions,
       shadows: ['none', ...shadows],
+      background: {
+        default: '#F3EFE3', // your beige
+      },
     },
     dark: false,
   },

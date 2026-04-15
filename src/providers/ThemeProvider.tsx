@@ -13,7 +13,7 @@ const ThemeProvider = ({ children }: PropsWithChildren) => {
 
   const theme = createTheme({
     typography,
-    ...themeOverrides,
+    ...(themeOverrides as any),
   });
 
   return (

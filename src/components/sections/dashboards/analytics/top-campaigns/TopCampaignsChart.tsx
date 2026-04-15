@@ -43,7 +43,7 @@ const TopCampaignsChart = ({ sx, data }: TopCampaignsChartProps) => {
         data: data.map((item) => item.campaign),
         axisLine: {
           lineStyle: {
-            color: getThemeColor(vars.palette.dividerLight),
+            color: getThemeColor(vars.palette.dividerLight ?? ''),
           },
         },
         axisTick: {
@@ -69,7 +69,7 @@ const TopCampaignsChart = ({ sx, data }: TopCampaignsChartProps) => {
         },
         splitLine: {
           lineStyle: {
-            color: getThemeColor(vars.palette.dividerLight),
+            color: getThemeColor(vars.palette.dividerLight ?? ''),
           },
         },
       },

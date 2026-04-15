@@ -70,6 +70,9 @@ const PhoneTextfield = ({
                     px: '0 !important',
                   },
                 },
+                '& .MuiOutlinedInput-notchedOutline': { borderColor: 'divider' },
+                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: 'primary.main' },
               }}
               slotProps={{
                 input: {

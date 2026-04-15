@@ -54,7 +54,7 @@ const Paper: Components<Omit<Theme, 'components'>>['MuiPaper'] = {
   },
   styleOverrides: {
     elevation: ({ theme }) => ({
-      backgroundColor: theme.vars.palette.background.menu,
+      backgroundColor: theme.vars.palette.background.default,
       backgroundImage: 'none',
       borderWidth: 0,
       borderStyle: 'solid',

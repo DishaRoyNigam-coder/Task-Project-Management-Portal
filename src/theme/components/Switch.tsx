@@ -28,11 +28,11 @@ const Switch: Components<Omit<Theme, 'components'>>['MuiSwitch'] = {
     },
     thumb: ({ theme }) => ({
       boxShadow: 'none',
-      backgroundColor: theme.vars.palette.background.elevation1,
+      backgroundColor: theme.vars.palette.background.default,
     }),
 
     track: ({ theme }) => ({
-      backgroundColor: theme.vars.palette.background.elevation4,
+      backgroundColor: theme.vars.palette.background.default,
       opacity: '1 !important',
       borderRadius: 12,
     }),

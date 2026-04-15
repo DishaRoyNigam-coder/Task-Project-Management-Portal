@@ -59,9 +59,9 @@ export const FilledInput: Components<Omit<Theme, 'components'>>['MuiFilledInput'
     root: ({ theme }) => [
       {
         borderRadius: 8,
-        backgroundColor: theme.vars.palette.background.elevation2,
+        backgroundColor: theme.vars.palette.background.default,
         '&:hover': {
-          backgroundColor: theme.vars.palette.background.elevation3,
+          backgroundColor: theme.vars.palette.background.default,
         },
         '&:before, &:after': {
           display: 'none',

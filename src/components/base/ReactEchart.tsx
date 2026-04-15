@@ -31,7 +31,7 @@ const ReactEchart = ({ option, ref, ...rest }: ReactEchartProps) => {
       },
       backgroundColor: grey[800],
       borderWidth: 0,
-      borderColor: theme.vars.palette.menuDivider,
+      borderColor: theme.vars.palette.primary,
       extraCssText: 'box-shadow: none;',
       transitionDuration: 0,
       confine: true,

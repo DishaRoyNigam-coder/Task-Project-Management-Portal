@@ -11,7 +11,7 @@ const TablePagination: Components<Omit<Theme, 'components'>>['MuiTablePagination
   },
   styleOverrides: {
     root: ({ theme }) => ({
-      backgroundColor: theme.vars.palette.background.elevation1,
+      backgroundColor: theme.vars.palette.background.default,
       borderBottomLeftRadius: 16,
       borderBottomRightRadius: 16,
     }),

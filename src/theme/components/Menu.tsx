@@ -6,7 +6,7 @@ export const MenuItem: Components<Omit<Theme, 'components'>>['MuiMenuItem'] = {
   styleOverrides: {
     root: ({ theme }) => ({
       '&:hover': {
-        backgroundColor: theme.vars.palette.background.menuElevation1,
+        backgroundColor: theme.vars.palette.background.default,
       },
       padding: '8px 16px',
       [`& .${listItemIconClasses.root}`]: {

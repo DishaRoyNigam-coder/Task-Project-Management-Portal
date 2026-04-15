@@ -33,17 +33,17 @@ const chipSoftVariants: ComponentsVariants['MuiChip'] = chipColors.map((color) =
     const theme = style.theme as Theme;
 
     return {
-      background: cssVarRgba(theme.vars.palette[color].mainChannel, 0.15),
-      border: `1px solid ${cssVarRgba(theme.vars.palette[color].mainChannel, 0.25)}`,
+      background: cssVarRgba(theme.vars.palette[color].light, 0.15),
+      border: `1px solid ${cssVarRgba(theme.vars.palette[color].light, 0.25)}`,
       color: theme.vars.palette[color].dark,
       [`&.${chipClasses.clickable}`]: {
         '&:hover': {
-          background: cssVarRgba(theme.vars.palette[color].mainChannel, 0.36),
+          background: cssVarRgba(theme.vars.palette[color].light, 0.36),
         },
       },
       [`&.${chipClasses.deletable}`]: {
         [`& .${chipClasses.deleteIcon}`]: {
-          color: cssVarRgba(theme.vars.palette[color].darkChannel, 0.5),
+          color: cssVarRgba(theme.vars.palette[color].dark, 0.5),
           '&:hover': {
             color: theme.vars.palette[color].dark,
           },
@@ -58,17 +58,17 @@ chipSoftVariants.push({
   style: (style) => {
     const theme = style.theme as Theme;
     return {
-      background: theme.vars.palette.background.elevation2,
+      background: theme.vars.palette.background.default,
       color: theme.vars.palette.neutral.dark,
-      border: `1px solid ${theme.vars.palette.background.elevation3}`,
+      border: `1px solid ${theme.vars.palette.background.default}`,
       [`&.${chipClasses.clickable}`]: {
         '&:hover': {
-          background: theme.vars.palette.background.elevation3,
+          background: theme.vars.palette.background.default,
         },
       },
       [`&.${chipClasses.deletable}`]: {
         [`& .${chipClasses.deleteIcon}`]: {
-          color: cssVarRgba(theme.vars.palette.action.disabledChannel, 0.5),
+          color: cssVarRgba(theme.vars.palette.action.disabled, 0.5),
           '&:hover': {
             color: theme.vars.palette.text.disabled,
           },
@@ -86,7 +86,7 @@ const Chip: Components<Omit<Theme, 'components'>>['MuiChip'] = {
       style: (style) => {
         const theme = style.theme as Theme;
         return {
-          borderColor: theme.vars.palette.background.elevation4,
+          borderColor: theme.vars.palette.background.default,
           [`& .${chipClasses.label}`]: {
             color: theme.vars.palette.text.primary,
             overflow: 'hidden',
@@ -94,7 +94,7 @@ const Chip: Components<Omit<Theme, 'components'>>['MuiChip'] = {
           },
           [`&.${chipClasses.clickable}`]: {
             '&:hover': {
-              backgroundColor: theme.vars.palette.background.elevation4,
+              backgroundColor: theme.vars.palette.background.default,
             },
           },
           [`& .${chipClasses.deleteIcon}`]: {
@@ -112,16 +112,16 @@ const Chip: Components<Omit<Theme, 'components'>>['MuiChip'] = {
       props: { variant: 'outlined', color: color } as Partial<ChipProps>,
       style: ({ theme }: { theme: Omit<Theme, 'components'> }) => {
         return {
-          border: `1px solid ${cssVarRgba(theme.vars.palette[color].mainChannel, 0.5)}`,
+          border: `1px solid ${cssVarRgba(theme.vars.palette[color].light, 0.5)}`,
           [`&.${chipClasses.clickable}`]: {
             '&:hover': {
-              backgroundColor: cssVarRgba(theme.vars.palette[color].mainChannel, 0.12),
+              backgroundColor: cssVarRgba(theme.vars.palette[color].light, 0.12),
             },
           },
           [`& .${chipClasses.deleteIcon}`]: {
-            color: cssVarRgba(theme.vars.palette[color].mainChannel, 0.5),
+            color: cssVarRgba(theme.vars.palette[color].light, 0.5),
             '&:hover': {
-              color: cssVarRgba(theme.vars.palette[color].mainChannel, 1),
+              color: cssVarRgba(theme.vars.palette[color].light, 1),
             },
           },
         };
@@ -132,9 +132,9 @@ const Chip: Components<Omit<Theme, 'components'>>['MuiChip'] = {
       style: ({ theme }: { theme: Omit<Theme, 'components'> }) => {
         return {
           [`& .${chipClasses.deleteIcon}`]: {
-            color: cssVarRgba(theme.vars.palette[color].lighterChannel, 0.5),
+            color: cssVarRgba(theme.vars.palette[color].light, 0.5),
             '&:hover': {
-              color: cssVarRgba(theme.vars.palette[color].lighterChannel, 1),
+              color: cssVarRgba(theme.vars.palette[color].light, 1),
             },
           },
         };

@@ -28,7 +28,7 @@ const toggleBtnCustomVariants: ComponentsVariants['MuiToggleButton'] = toggleBtn
         backgroundColor: 'transparent',
         color: paletteColor.dark,
         '&:hover': {
-          backgroundColor: cssVarRgba(paletteColor.mainChannel, 0.15),
+          backgroundColor: cssVarRgba(paletteColor.main, 0.15),
         },
         '&.Mui-selected': {
           color: paletteColor.dark,
@@ -49,7 +49,7 @@ const toggleBtnGroupCustomVariants: ComponentsVariants['MuiToggleButtonGroup'] =
           color: paletteColor.light,
           '&.Mui-selected': {
             color: paletteColor.dark,
-            backgroundColor: cssVarRgba(paletteColor.mainChannel, 0.15),
+            backgroundColor: cssVarRgba(paletteColor.main, 0.15),
             '&:hover': {
               color: paletteColor.light,
             },
@@ -70,12 +70,12 @@ const ToggleButton: Components<Omit<Theme, 'components'>>['MuiToggleButton'] = {
           backgroundColor: 'transparent',
           color: theme.vars.palette.neutral.dark,
           '&:hover': {
-            backgroundColor: theme.vars.palette.background.elevation2,
+            backgroundColor: theme.vars.palette.background.default,
           },
           '&.Mui-selected': {
-            backgroundColor: theme.vars.palette.background.elevation2,
+            backgroundColor: theme.vars.palette.background.default,
             '&:hover': {
-              backgroundColor: theme.vars.palette.background.elevation2,
+              backgroundColor: theme.vars.palette.background.default,
             },
           },
         };
@@ -154,7 +154,7 @@ export const ToggleButtonGroup: Components<Omit<Theme, 'components'>>['MuiToggle
       padding: theme.spacing(0.5),
       gap: theme.spacing(0.25),
       width: 'max-content',
-      backgroundColor: theme.vars.palette.background.elevation1,
+      backgroundColor: theme.vars.palette.background.default,
       [`& .${toggleButtonClasses.root}`]: {
         borderRadius: theme.shape.borderRadius,
         border: 'none !important',

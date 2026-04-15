@@ -90,7 +90,7 @@ const SidenavCollapse = () => {
           strokeLinejoin="round"
           sx={{
             width: 24,
-            stroke: (theme) => theme.vars.palette.background.elevation4,
+            stroke: (theme) => theme.vars.palette.background.default,
             height: 24,
           }}
         >

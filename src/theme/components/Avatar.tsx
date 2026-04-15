@@ -6,7 +6,7 @@ export const Avatar: Components<Omit<Theme, 'components'>>['MuiAvatar'] = {
   defaultProps: {},
   styleOverrides: {
     root: ({ theme }) => ({
-      backgroundColor: theme.vars.palette.background.elevation4,
+      backgroundColor: theme.vars.palette.background.default,
       fontWeight: 500,
       lineHeight: 1.2,
     }),

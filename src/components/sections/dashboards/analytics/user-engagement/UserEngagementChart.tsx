@@ -52,7 +52,7 @@ const UserEngagementChart = ({ sx, data, activeTab, ref }: UserEngagementChartPr
         axisPointer: {
           type: 'line',
           lineStyle: {
-            color: getThemeColor(vars.palette.dividerLight),
+            color: getThemeColor(vars.palette.dividerLight ?? ''),
             type: 'solid',
           },
           z: 1,
@@ -86,7 +86,7 @@ const UserEngagementChart = ({ sx, data, activeTab, ref }: UserEngagementChartPr
           show: true,
           interval: 0,
           lineStyle: {
-            color: getThemeColor(vars.palette.dividerLight),
+            color: getThemeColor(vars.palette.dividerLight ?? ''),
           },
         },
       },

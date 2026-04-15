@@ -41,10 +41,10 @@ const btnCustomVariants: ComponentsVariants['MuiButton'] = btnColors.map((color)
     const theme = style.theme as Theme;
 
     return {
-      background: cssVarRgba(theme.vars.palette[color].mainChannel, 0.15),
+      background: cssVarRgba(theme.vars.palette[color].main, 0.15),
       color: theme.vars.palette[color].dark,
       '&:hover': {
-        background: cssVarRgba(theme.vars.palette[color].mainChannel, 0.2),
+        background: cssVarRgba(theme.vars.palette[color].main, 0.2),
       },
     };
   },
@@ -79,8 +79,8 @@ const outlineStyles = (theme: Theme) =>
       `&.${buttonClasses.outlined}.${buttonClasses[`color${capitalize(color)}` as keyof ButtonClasses]}`
     ] = {
       '&:hover': {
-        backgroundColor: cssVarRgba(paletteColor.mainChannel, 0.12),
-        borderColor: cssVarRgba(paletteColor.mainChannel, 0.5),
+        backgroundColor: cssVarRgba(paletteColor.main, 0.12),
+        borderColor: cssVarRgba(paletteColor.main, 0.5),
       },
     };
 
@@ -95,7 +95,7 @@ const textBtnStyles = (theme: Theme) =>
       `&.${buttonClasses.text}.${buttonClasses[`color${capitalize(color)}` as keyof ButtonClasses]}`
     ] = {
       '&:hover': {
-        backgroundColor: cssVarRgba(paletteColor.mainChannel, 0.12),
+        backgroundColor: cssVarRgba(paletteColor.main, 0.12),
       },
     };
 
@@ -111,9 +111,9 @@ const Button: Components<Omit<Theme, 'components'>>['MuiButton'] = {
       style: (style) => {
         const theme = style.theme as Theme;
         return {
-          borderColor: theme.vars.palette.background.elevation4,
+          borderColor: theme.vars.palette.background.default,
           '&:hover': {
-            backgroundColor: theme.vars.palette.background.elevation2,
+            backgroundColor: theme.vars.palette.background.default,
           },
         };
       },
@@ -123,10 +123,10 @@ const Button: Components<Omit<Theme, 'components'>>['MuiButton'] = {
       style: (style) => {
         const theme = style.theme as Theme;
         return {
-          background: theme.vars.palette.background.elevation2,
+          background: theme.vars.palette.background.default,
           color: theme.vars.palette.neutral.main,
           '&:hover': {
-            background: theme.vars.palette.background.elevation3,
+            background: theme.vars.palette.background.default,
           },
           ...theme.applyStyles('dark', {
             color: theme.vars.palette.neutral.dark,
