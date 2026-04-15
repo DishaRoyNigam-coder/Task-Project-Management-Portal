@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Box,
@@ -28,14 +28,17 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // In a real app: call API with email/password, get role from response
-    // For dev: navigate based on the selected role
-    if (role === 'admin') {
-      navigate('/admin/dashboard'); // adjust your admin route
-    } else {
-      navigate('/employee/dashboard'); // adjust your employee route
+    
+  const Login = () => {
+  const { login, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') navigate('/');
+      else navigate('/employee/dashboard');
     }
-  };
+  }, [user, navigate]);
 
   return (
     <Stack
