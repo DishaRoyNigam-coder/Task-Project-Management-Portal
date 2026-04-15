@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
+import { AuthProvider } from 'context/AuthContext';
 import { ProjectProvider } from 'context/ProjectContext';
 import { TaskProvider } from 'context/TaskContext';
 import BreakpointsProvider from 'providers/BreakpointsProvider';
@@ -15,11 +16,13 @@ createRoot(document.getElementById('root')!).render(
       <ThemeProvider>
         <BreakpointsProvider>
           <SettingsPanelProvider>
-            <ProjectProvider>
-              <TaskProvider>
-                <RouterProvider router={router} />
-              </TaskProvider>
-            </ProjectProvider>
+            <AuthProvider>
+              <ProjectProvider>
+                <TaskProvider>
+                  <RouterProvider router={router} />
+                </TaskProvider>
+              </ProjectProvider>
+            </AuthProvider>
           </SettingsPanelProvider>
         </BreakpointsProvider>
       </ThemeProvider>
