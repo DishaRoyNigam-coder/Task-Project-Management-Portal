@@ -2,7 +2,7 @@
 import React, { ReactNode, createContext, useContext, useState } from 'react';
 
 export interface Employee {
-  id: string;
+  id: number;
   name: string;
   email: string;
 }
@@ -31,11 +31,11 @@ const TaskContext = createContext<TaskContextType | undefined>(undefined);
 
 // Mock employees (same as in projects)
 const mockEmployees: Employee[] = [
-  { id: 'emp1', name: 'John Doe', email: 'john.doe@company.com' },
-  { id: 'emp2', name: 'Jane Smith', email: 'jane.smith@company.com' },
-  { id: 'emp3', name: 'Mike Johnson', email: 'mike.j@company.com' },
-  { id: 'emp4', name: 'Emily Davis', email: 'emily.davis@company.com' },
-  { id: 'emp5', name: 'Robert Brown', email: 'robert.brown@company.com' },
+  { id: 1, name: 'John Doe', email: 'john.doe@company.com' },
+  { id: 2, name: 'Jane Smith', email: 'jane.smith@company.com' },
+  { id: 3, name: 'Mike Johnson', email: 'mike.j@company.com' },
+  { id: 4, name: 'Emily Davis', email: 'emily.davis@company.com' },
+  { id: 5, name: 'Robert Brown', email: 'robert.brown@company.com' },
 ];
 
 const initialTasks: Task[] = [

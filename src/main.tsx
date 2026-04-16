@@ -2,8 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 import { AuthProvider } from 'context/AuthContext';
+import { MeetingProvider } from 'context/MeetingContext';
 import { ProjectProvider } from 'context/ProjectContext';
 import { TaskProvider } from 'context/TaskContext';
+import { UpdateProvider } from 'context/UpdateContext';
 import BreakpointsProvider from 'providers/BreakpointsProvider';
 import SettingsPanelProvider from 'providers/SettingsPanelProvider';
 import SettingsProvider from 'providers/SettingsProvider';
@@ -17,11 +19,15 @@ createRoot(document.getElementById('root')!).render(
         <BreakpointsProvider>
           <SettingsPanelProvider>
             <AuthProvider>
-              <ProjectProvider>
-                <TaskProvider>
-                  <RouterProvider router={router} />
-                </TaskProvider>
-              </ProjectProvider>
+              <UpdateProvider>
+                <ProjectProvider>
+                  <TaskProvider>
+                    <MeetingProvider>
+                      <RouterProvider router={router} />
+                    </MeetingProvider>
+                  </TaskProvider>
+                </ProjectProvider>
+              </UpdateProvider>
             </AuthProvider>
           </SettingsPanelProvider>
         </BreakpointsProvider>

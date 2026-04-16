@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Box,
@@ -15,10 +15,7 @@ import {
   Typography,
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import { useAuth } from 'context/AuthContext';
 import PasswordTextField from 'components/common/PasswordTextField';
-
-// ← Add this import
 
 interface LoginFormProps {
   defaultCredential?: { email: string; password: string };
@@ -26,32 +23,18 @@ interface LoginFormProps {
 
 const LoginForm = ({ defaultCredential }: LoginFormProps) => {
   const navigate = useNavigate();
-  const { login, user } = useAuth(); // ← Use real auth context
-  const [role, setRole] = useState<'admin' | 'employee'>('employee'); // dev only
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user) {
-      if (user.role === 'admin') {
-        navigate('/admin-dashboard'); // or '/' if you prefer
-      } else {
-        navigate('/employee/dashboard');
-      }
-    }
-  }, [user, navigate]);
+  const [role, setRole] = useState<'admin' | 'employee'>('employee'); // 👈 dev only
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // TODO: Replace with real login logic later
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('username') as string;
-
-    // Simulate login with selected role (for demo)
-    login({
-      email: email || defaultCredential?.email || '',
-      role: role,
-    });
+    // In a real app: call API with email/password, get role from response
+    // For dev: navigate based on the selected role
+    if (role === 'admin') {
+      navigate('/admin/dashboard'); // adjust your admin route
+    } else {
+      navigate('/employee/dashboard'); // adjust your employee route
+    }
   };
 
   return (
@@ -97,25 +80,22 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
                   fullWidth
                   size="large"
                   id="username"
-                  name="username"
                   type="text"
-                  label="Username / Email"
+                  label="Username"
                   defaultValue={defaultCredential?.email}
                 />
               </Grid>
-
               <Grid sx={{ mb: 2.5 }} size={12}>
                 <PasswordTextField
                   fullWidth
                   size="large"
                   id="password"
-                  name="password"
                   label="Password"
                   defaultValue={defaultCredential?.password}
                 />
               </Grid>
 
-              {/* DEV ONLY: Role selector - Remove in production */}
+              {/* 👇 DEV ONLY: role selector */}
               <Grid sx={{ mb: 2 }} size={12}>
                 <FormControl component="fieldset">
                   <FormLabel component="legend" sx={{ typography: 'body2' }}>
@@ -153,7 +133,6 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
                   </Link>
                 </Stack>
               </Grid>
-
               <Grid size={12}>
                 <Button fullWidth type="submit" size="large" variant="contained">
                   Log in
@@ -163,7 +142,6 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
           </Box>
         </Grid>
       </Grid>
-
       <Link href="#!" variant="subtitle2">
         Trouble signing in?
       </Link>

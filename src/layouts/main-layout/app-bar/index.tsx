@@ -15,7 +15,7 @@ const AppBar = () => {
   } = useSettingsContext();
 
   const { up } = useBreakpoints();
-  const upSm = up('sm');
+  const _upSm = up('sm');
   const upMd = up('md');
 
   return (
@@ -51,7 +51,7 @@ const AppBar = () => {
           </Button>
 
           <Box>
-            <Logo showName={upSm} />
+            <Logo />
           </Box>
         </Box>
 

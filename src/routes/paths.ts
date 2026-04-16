@@ -15,6 +15,8 @@ const paths = {
   notifications: `/notifications`,
   documentation: documentationPath,
   adminDashboard: `/admin/dashboard`,
+  employeeDashboard: `/employee/dashboard`,
+  employeeProjects: `/employee/projects/:id`,
   projects: {
     new: '/projects/new',
     edit: '/projects/:id/edit',

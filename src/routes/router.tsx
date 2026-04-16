@@ -4,6 +4,7 @@ import App from 'App';
 import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
 import AdminDashboard from 'pages/dashboard/AdminDashboard';
+import EmployeeDashboard from 'pages/employee/EmployeeDashboard';
 import Page404 from 'pages/errors/Page404';
 import ProjectDetailPage from 'pages/projects/ProjectDetailPage';
 import ProjectFormPage from 'pages/projects/ProjectFormPage';
@@ -44,8 +45,17 @@ export const routes: RouteObject[] = [
             index: true,
             element: <AdminDashboard />,
           },
+          // ✅ Added explicit admin dashboard route
           {
-            path: paths.projects.detail, // 👈 add this line
+            path: paths.adminDashboard,
+            element: <AdminDashboard />,
+          },
+          {
+            path: paths.employeeDashboard,
+            element: <EmployeeDashboard />,
+          },
+          {
+            path: paths.projects.detail,
             element: <ProjectDetailPage />,
           },
           { path: paths.projects.edit, element: <ProjectFormPage /> },

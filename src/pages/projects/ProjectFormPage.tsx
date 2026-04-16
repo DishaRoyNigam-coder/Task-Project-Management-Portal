@@ -19,14 +19,15 @@ import {
   Typography,
 } from '@mui/material';
 import { useProjects } from 'context/ProjectContext';
+import { Employee } from 'context/TaskContext';
 import paths from 'routes/paths';
 
-const mockEmployees = [
-  { id: 'emp1', name: 'John Doe', email: 'john.doe@company.com' },
-  { id: 'emp2', name: 'Jane Smith', email: 'jane.smith@company.com' },
-  { id: 'emp3', name: 'Mike Johnson', email: 'mike.j@company.com' },
-  { id: 'emp4', name: 'Emily Davis', email: 'emily.davis@company.com' },
-  { id: 'emp5', name: 'Robert Brown', email: 'robert.brown@company.com' },
+const mockEmployees: Employee[] = [
+  { id: 1, name: 'John Doe', email: 'john.doe@company.com' },
+  { id: 2, name: 'Jane Smith', email: 'jane.smith@company.com' },
+  { id: 3, name: 'Mike Johnson', email: 'mike.j@company.com' },
+  { id: 4, name: 'Emily Davis', email: 'emily.davis@company.com' },
+  { id: 5, name: 'Robert Brown', email: 'robert.brown@company.com' },
 ];
 
 const projectPhases = ['Planning', 'Development', 'Testing', 'Deployment', 'Maintenance'];
@@ -41,7 +42,7 @@ const ProjectFormPage = () => {
   const [formData, setFormData] = useState({
     projectName: '',
     clientName: '',
-    teamMembers: [] as typeof mockEmployees,
+    teamMembers: [] as Employee[],
     driveLink: '',
     projectNotes: '',
     projectPhase: 'Planning',

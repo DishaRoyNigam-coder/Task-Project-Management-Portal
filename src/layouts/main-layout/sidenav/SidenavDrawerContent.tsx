@@ -55,7 +55,7 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
             },
           ]}
         >
-          <Logo showName={expanded} />
+          <Logo />
           <IconButton sx={{ mt: 1, display: { md: 'none' } }} onClick={toggleNavbarDrawer}>
             <IconifyIcon icon="material-symbols:left-panel-close-outline" fontSize={20} />
           </IconButton>

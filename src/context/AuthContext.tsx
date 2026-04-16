@@ -1,10 +1,11 @@
 import { ReactNode, createContext, useContext, useState } from 'react';
 
-interface User {
-  id?: number;
+// Align with Employee type from TaskContext (id: number, role: 'admin' | 'employee')
+export interface User {
+  id: number; // ✅ changed from string to number
   name?: string;
   email?: string;
-  role?: string;
+  role: 'admin' | 'employee'; // ✅ strict union type
 }
 
 interface AuthContextType {
@@ -17,11 +18,26 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      // Ensure id is a number when reading from storage
+      if (parsed.id && typeof parsed.id === 'string') {
+        parsed.id = Number(parsed.id);
+      }
+      return parsed;
+    }
+    return null;
+  });
 
   const login = (userData: User) => {
+    // Validate that id is a number
+    if (typeof userData.id !== 'number') {
+      console.error('User id must be a number');
+      return;
+    }
     setUser(userData);
-    // You can also save to localStorage here if needed
     localStorage.setItem('user', JSON.stringify(userData));
   };
 
@@ -39,7 +55,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Custom hook to use auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

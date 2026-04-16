@@ -8,6 +8,7 @@ import {
   Edit as EditIcon,
   Link as LinkIcon,
   Task as TaskIcon,
+  Update as UpdateIcon, // <-- new import
 } from '@mui/icons-material';
 import {
   Alert,
@@ -44,7 +45,11 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
+// <-- new import
+import { useUpdates } from 'context/UpdateContext';
 import paths from 'routes/paths';
+
+// <-- new import
 
 // ------------------------------
 // Type Definitions
@@ -156,6 +161,8 @@ const AdminDashboard = () => {
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const [activeTab, setActiveTab] = useState(0);
 
+  // Context for task updates
+  const { updates, rejectUpdate } = useUpdates();
   // Project modal state
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -190,6 +197,9 @@ const AdminDashboard = () => {
     severity: 'success',
   });
 
+  // Helper to get task title (using local tasks state for consistency)
+  const getTaskTitle = (taskId: string) => tasks.find((t) => t.id === taskId)?.title || 'Unknown';
+
   // ----------------------------
   // Project Handlers
   // ----------------------------
@@ -221,7 +231,6 @@ const AdminDashboard = () => {
   };
 
   const handleSaveProject = () => {
-    // Validation
     if (!projectForm.projectName || !projectForm.clientName || !projectForm.driveLink) {
       setSnackbar({
         open: true,
@@ -233,7 +242,6 @@ const AdminDashboard = () => {
 
     const now = new Date().toISOString();
     if (editingProject) {
-      // Update existing
       setProjects(
         projects.map((p) =>
           p.id === editingProject.id
@@ -250,7 +258,6 @@ const AdminDashboard = () => {
       );
       setSnackbar({ open: true, message: 'Project updated successfully', severity: 'success' });
     } else {
-      // Create new
       const newProject: Project = {
         id: `proj_${Date.now()}`,
         projectName: projectForm.projectName!,
@@ -291,7 +298,6 @@ const AdminDashboard = () => {
   // ----------------------------
   // Task Handlers
   // ----------------------------
-
   const handleSaveTask = () => {
     if (!taskForm.projectId || !taskForm.title || !taskForm.dueDate) {
       setSnackbar({
@@ -319,9 +325,16 @@ const AdminDashboard = () => {
     setSnackbar({ open: true, message: 'Task deleted', severity: 'success' });
   };
 
-  // Helper: get project name by id
   const getProjectName = (projectId: string) =>
     projects.find((p) => p.id === projectId)?.projectName || 'Unknown';
+
+  // ----------------------------
+  // Update Reject Handler
+  // ----------------------------
+  const handleRejectUpdate = (updateId: string) => {
+    rejectUpdate(updateId);
+    setSnackbar({ open: true, message: 'Task update rejected', severity: 'success' });
+  };
 
   // ----------------------------
   // Rendering
@@ -347,6 +360,7 @@ const AdminDashboard = () => {
         <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
           <Tab label="Projects" icon={<TaskIcon />} iconPosition="start" />
           <Tab label="Tasks" icon={<AddIcon />} iconPosition="start" />
+          <Tab label="Task Updates" icon={<UpdateIcon />} iconPosition="start" /> {/* new tab */}
         </Tabs>
       </Paper>
 
@@ -535,6 +549,80 @@ const AdminDashboard = () => {
               </Typography>
             </Box>
           )}
+        </Card>
+      )}
+
+      {/* Task Updates Tab */}
+      {activeTab === 2 && (
+        <Card>
+          <CardHeader
+            title="Employee Task Updates"
+            subheader="Review and reject unsatisfactory updates"
+          />
+          <Divider />
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Task</TableCell>
+                  <TableCell>Employee</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Submitted</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell align="center">Action</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {updates
+                  .filter((up) => up.status === 'pending')
+                  .map((update) => {
+                    const task = tasks.find((t) => t.id === update.taskId);
+                    return (
+                      <TableRow key={update.id}>
+                        <TableCell>{getTaskTitle(update.taskId)}</TableCell>
+                        <TableCell>{task?.assignedTo.name || 'Unknown'}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={update.type}
+                            size="small"
+                            color={
+                              update.type === 'Completed'
+                                ? 'success'
+                                : update.type === 'Delayed'
+                                  ? 'error'
+                                  : 'warning'
+                            }
+                          />
+                        </TableCell>
+                        <TableCell>{update.description}</TableCell>
+                        <TableCell>{new Date(update.createdAt).toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Chip label="Pending" color="warning" size="small" />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleRejectUpdate(update.id)}
+                          >
+                            Reject
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                {updates.filter((up) => up.status === 'pending').length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center">
+                      No pending updates
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
         </Card>
       )}
 

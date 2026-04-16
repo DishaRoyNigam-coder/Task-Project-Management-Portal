@@ -1,45 +1,18 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 
-interface LogoProps {
-  showName?: boolean;
-}
-
-const Logo = ({ showName = true }: LogoProps) => {
+const Logo = () => {
   return (
     <Box
+      component="img"
+      src="/kaivalya-logo.jpeg"
+      alt="Kaivalya"
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1.5,
-        textDecoration: 'none',
-        color: 'inherit',
+        height: 150,
+        width: 'auto',
+        objectFit: 'contain',
+        maxWidth: '250px',
       }}
-    >
-      <Box
-        component="img"
-        src="/kaivalya-logo.jpeg" // ←←← Changed to .jpeg
-        alt="Kaivalya"
-        sx={{
-          height: 32,
-          width: 'auto',
-          objectFit: 'contain',
-          maxWidth: '140px',
-        }}
-      />
-
-      {showName && (
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 700,
-            letterSpacing: '-0.02em',
-            display: { xs: 'none', md: 'block' },
-          }}
-        >
-          Kaivalya
-        </Typography>
-      )}
-    </Box>
+    />
   );
 };
 
