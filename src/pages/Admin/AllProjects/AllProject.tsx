@@ -154,7 +154,7 @@ const formatDate = (isoString: string) => new Date(isoString).toLocaleDateString
 // ------------------------------
 // Main Component
 // ------------------------------
-const AdminDashboard = () => {
+const AllProjects = () => {
   const navigate = useNavigate();
   // State
   const [projects, setProjects] = useState<Project[]>(initialProjects);
@@ -343,9 +343,6 @@ const AdminDashboard = () => {
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-        <Typography variant="h4" fontWeight="600">
-          Admin Dashboard
-        </Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -825,4 +822,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default AllProjects;

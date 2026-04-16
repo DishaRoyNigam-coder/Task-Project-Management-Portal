@@ -66,7 +66,7 @@ const TaskFormPage = () => {
         });
       } else {
         setSnackbar({ open: true, message: 'Task not found', severity: 'error' });
-        navigate(paths.adminDashboard);
+        navigate(paths.allProjects);
       }
     }
   }, [taskId, isEditMode, getTask, navigate]);
@@ -105,7 +105,7 @@ const TaskFormPage = () => {
       });
       setSnackbar({ open: true, message: 'Task assigned successfully', severity: 'success' });
     }
-    setTimeout(() => navigate(paths.adminDashboard), 1500);
+    setTimeout(() => navigate(paths.allProjects), 1500);
   };
 
   // Filter only active projects for assignment
@@ -182,7 +182,7 @@ const TaskFormPage = () => {
             </Grid>
           </Grid>
           <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-            <Button variant="outlined" onClick={() => navigate(paths.adminDashboard)}>
+            <Button variant="outlined" onClick={() => navigate(paths.allProjects)}>
               Cancel
             </Button>
             <Button variant="contained" onClick={handleSubmit}>

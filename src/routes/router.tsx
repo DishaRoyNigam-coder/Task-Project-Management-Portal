@@ -3,12 +3,11 @@ import { Outlet, RouteObject, createBrowserRouter, useLocation } from 'react-rou
 import App from 'App';
 import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
-import AdminDashboard from 'pages/dashboard/AdminDashboard';
+import AllProjects from 'pages/Admin/AllProjects/AllProject';
+import ProjectDetailPage from 'pages/Admin/projects/ProjectDetailPage';
+import ProjectFormPage from 'pages/Admin/projects/ProjectFormPage';
+import TaskFormPage from 'pages/Admin/tasks/TaskFormPage';
 import EmployeeDashboard from 'pages/employee/EmployeeDashboard';
-import Page404 from 'pages/errors/Page404';
-import ProjectDetailPage from 'pages/projects/ProjectDetailPage';
-import ProjectFormPage from 'pages/projects/ProjectFormPage';
-import TaskFormPage from 'pages/tasks/TaskFormPage';
 import PageLoader from 'components/loading/PageLoader';
 import paths, { rootPaths } from './paths';
 
@@ -43,12 +42,11 @@ export const routes: RouteObject[] = [
         children: [
           {
             index: true,
-            element: <AdminDashboard />,
+            element: <AllProjects />,
           },
-          // ✅ Added explicit admin dashboard route
           {
-            path: paths.adminDashboard,
-            element: <AdminDashboard />,
+            path: paths.allProjects,
+            element: <AllProjects />,
           },
           {
             path: paths.employeeDashboard,
@@ -102,15 +100,6 @@ export const routes: RouteObject[] = [
             element: <Signup />,
           },
         ],
-      },
-
-      {
-        path: paths['404'],
-        element: <Page404 />,
-      },
-      {
-        path: '*',
-        element: <Page404 />,
       },
     ],
   },

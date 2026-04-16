@@ -7,6 +7,19 @@ export const rootPaths = {
 
 const paths = {
   root: rootPaths.root,
+  admindashboard: 'admin/dashboard',
+  reports: {
+    root: '/reports',
+    projectOverview: '/reports/project-overview',
+    delayedTasks: '/reports/delayed-tasks',
+    projectHealth: '/reports/project-health',
+    meetingTime: '/reports/meeting-time',
+  },
+  system: {
+    root: '/system',
+    notifications: '/system/notifications',
+    settings: '/system/settings',
+  },
   starter: `/starter`,
   users: `/users`,
   account: `/account`,
@@ -14,7 +27,7 @@ const paths = {
   signup: `/${rootPaths.authRoot}/sign-up`,
   notifications: `/notifications`,
   documentation: documentationPath,
-  adminDashboard: `/admin/dashboard`,
+  allProjects: `/projects`,
   employeeDashboard: `/employee/dashboard`,
   employeeProjects: `/employee/projects/:id`,
   projects: {
@@ -22,6 +35,7 @@ const paths = {
     edit: '/projects/:id/edit',
     links: '/projects/:projectId/links',
     detail: '/projects/:projectId',
+    meetings: '/projects/:projectId/meetings',
   },
   tasks: {
     new: '/tasks/new',

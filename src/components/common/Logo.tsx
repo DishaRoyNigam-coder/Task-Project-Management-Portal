@@ -10,7 +10,7 @@ const Logo = () => {
         height: 150,
         width: 'auto',
         objectFit: 'contain',
-        maxWidth: '250px',
+        maxWidth: '130px',
       }}
     />
   );
