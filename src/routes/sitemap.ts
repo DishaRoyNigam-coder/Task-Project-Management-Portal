@@ -16,7 +16,7 @@ export interface SubMenuItem {
   items?: SubMenuItem[];
 }
 
-interface MenuItem {
+export interface MenuItem {
   id: string;
   icon: string;
   subheader?: string;

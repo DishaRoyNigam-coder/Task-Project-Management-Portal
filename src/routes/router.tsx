@@ -15,13 +15,24 @@ import paths, { rootPaths } from './paths';
 const UserList = lazy(() => import('pages/users/UserList'));
 const Starter = lazy(() => import('pages/others/Starter'));
 const Account = lazy(() => import('pages/others/Account'));
-
+const SettingsPage = lazy(() => import('../pages/Admin/settings/SettingsPage'));
 const Login = lazy(() => import('pages/authentication/Login'));
 const Signup = lazy(() => import('pages/authentication/Signup'));
+const AdminNotifications = lazy(() => import('../pages/Admin/notification/AdminNotifications'));
+
+// Lazy load employee pages (now all will be used in routes)
+const EmployeeTaskList = lazy(() => import('../pages/employee/EmployeeTaskList'));
+const EmployeeTaskUpdate = lazy(() => import('../pages/employee/EmployeeTaskUpdate'));
+const EmployeeUpdateHistory = lazy(() => import('../pages/employee/EmployeeUpdateHistory'));
+const EmployeeProjectList = lazy(() => import('../pages/employee/EmployeeProjectList'));
+const EmployeeMeetingHistory = lazy(() => import('../pages/employee/EmployeeMeetingHistory'));
+const EmployeeProjectDetail = lazy(() => import('../pages/employee/EmployeeProjectDetail'));
+const EmployeeMeetingLog = lazy(() => import('../pages/employee/EmployeeMeetingLog'));
+const EmployeeNotifications = lazy(() => import('../pages/employee/EmployeeNotifications'));
+const EmployeeProfile = lazy(() => import('../pages/employee/EmployeeProfile'));
 
 export const SuspenseOutlet = () => {
   const location = useLocation();
-
   return (
     <Suspense key={location.pathname} fallback={<PageLoader />}>
       <Outlet />
@@ -53,15 +64,15 @@ export const routes: RouteObject[] = [
             path: paths.allProjects,
             element: <AllProjects />,
           },
-          {
-            path: paths.employeeDashboard,
-            element: <EmployeeDashboard />,
-          },
+          // Admin routes
           {
             path: paths.projects.detail,
             element: <ProjectDetailPage />,
           },
-          { path: paths.projects.edit, element: <ProjectFormPage /> },
+          {
+            path: paths.projects.edit,
+            element: <ProjectFormPage />,
+          },
           {
             path: paths.users,
             element: <UserList />,
@@ -85,6 +96,62 @@ export const routes: RouteObject[] = [
           {
             path: paths.tasks.edit,
             element: <TaskFormPage />,
+          },
+
+          // ======================
+          // EMPLOYEE ROUTES (added)
+          // ======================
+          {
+            path: paths.employee.dashboard,
+            element: <EmployeeDashboard />,
+          },
+          {
+            path: paths.employee.tasks,
+            element: <EmployeeTaskList />,
+          },
+          {
+            path: paths.employee.taskSubmitUpdate,
+            element: <EmployeeTaskUpdate />,
+          },
+          {
+            path: paths.employee.taskUpdateHistory,
+            element: <EmployeeUpdateHistory />,
+          },
+          {
+            path: paths.employee.projects,
+            element: <EmployeeProjectList />,
+          },
+          {
+            path: paths.employee.projectDetail,
+            element: <EmployeeProjectDetail />,
+          },
+          {
+            path: paths.employee.meetings,
+            element: <EmployeeMeetingHistory />,
+          },
+          {
+            path: paths.employee.meetingLog,
+            element: <EmployeeMeetingLog />,
+          },
+          {
+            path: paths.employee.meetingHistory,
+            element: <EmployeeMeetingHistory />,
+          },
+          {
+            path: paths.employee.notifications,
+            element: <EmployeeNotifications />,
+          },
+          {
+            path: paths.employee.profile,
+            element: <EmployeeProfile />,
+          },
+          {
+            path: paths.system.settings,
+            element: <SettingsPage />,
+          },
+          {
+            path: paths.system.notifications,
+            element: <AdminNotifications />,
           },
         ],
       },

@@ -3,7 +3,7 @@ import { ReactNode, createContext, useContext, useState } from 'react';
 
 export interface Meeting {
   id: string;
-  employeeId: number; // ✅ changed from string to number
+  employeeId: number;
   projectId?: string;
   date: string; // YYYY-MM-DD
   title: string;
@@ -12,21 +12,32 @@ export interface Meeting {
 
 interface MeetingContextType {
   meetings: Meeting[];
-  addMeeting: (meeting: Omit<Meeting, 'id'>) => void;
-  getMeetingsByEmployee: (employeeId: number) => Meeting[]; // ✅ parameter as number
+  loading: boolean; // ✅ added loading flag
+  addMeeting: (meeting: Omit<Meeting, 'id'>) => Promise<void>; // ✅ now async
+  getMeetingsByEmployee: (employeeId: number) => Meeting[];
 }
 
 const MeetingContext = createContext<MeetingContextType | undefined>(undefined);
 
 export const MeetingProvider = ({ children }: { children: ReactNode }) => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const addMeeting = (meeting: Omit<Meeting, 'id'>) => {
-    const newMeeting: Meeting = {
-      ...meeting,
-      id: `meeting_${Date.now()}`,
-    };
-    setMeetings((prev) => [...prev, newMeeting]);
+  // Simulate async operation (e.g., API call)
+  const addMeeting = async (meeting: Omit<Meeting, 'id'>) => {
+    setLoading(true);
+    try {
+      // Simulate network delay (remove in production or replace with real API)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const newMeeting: Meeting = {
+        ...meeting,
+        id: `meeting_${Date.now()}`,
+      };
+      setMeetings((prev) => [...prev, newMeeting]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getMeetingsByEmployee = (employeeId: number) => {
@@ -34,7 +45,14 @@ export const MeetingProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <MeetingContext.Provider value={{ meetings, addMeeting, getMeetingsByEmployee }}>
+    <MeetingContext.Provider
+      value={{
+        meetings,
+        loading,
+        addMeeting,
+        getMeetingsByEmployee,
+      }}
+    >
       {children}
     </MeetingContext.Provider>
   );

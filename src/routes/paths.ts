@@ -42,6 +42,20 @@ const paths = {
     edit: '/tasks/:taskId/edit',
   },
   404: `/404`,
+  // inside paths object
+  employee: {
+    dashboard: '/employee/dashboard',
+    tasks: '/employee/tasks',
+    taskSubmitUpdate: '/employee/tasks/submit-update',
+    taskUpdateHistory: '/employee/tasks/history',
+    projects: '/employee/projects',
+    projectDetail: '/employee/projects/:id',
+    meetings: '/employee/meetings',
+    meetingLog: '/employee/meetings/log',
+    meetingHistory: '/employee/meetings/history',
+    notifications: '/employee/notifications',
+    profile: '/employee/profile',
+  },
 };
 
 export default paths;

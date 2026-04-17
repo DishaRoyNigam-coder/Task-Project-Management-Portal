@@ -10,20 +10,20 @@ const PasswordTextField = ({ ref, sx, ...props }: TextFieldProps) => {
     setIsPasswordVisible(!isPasswordVisible);
   };
 
+  // Default styles (without background)
+  const defaultSx = {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': { borderColor: 'divider' },
+      '&:hover fieldset': { borderColor: 'primary.main' },
+      '&.Mui-focused fieldset': { borderColor: 'primary.main' },
+    },
+  };
+
   return (
     <TextField
       type={isPasswordVisible ? 'text' : 'password'}
       ref={ref}
-      sx={[
-        {
-          '& .MuiOutlinedInput-root': {
-            '& fieldset': { borderColor: 'divider' },
-            '&:hover fieldset': { borderColor: 'primary.main' },
-            '&.Mui-focused fieldset': { borderColor: 'primary.main' },
-          },
-        },
-        ...(Array.isArray(sx) ? sx : [sx]),
-      ]}
+      sx={[defaultSx, ...(Array.isArray(sx) ? sx : [sx])]}
       slotProps={{
         input: {
           endAdornment: (

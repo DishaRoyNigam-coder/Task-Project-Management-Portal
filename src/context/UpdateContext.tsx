@@ -14,7 +14,8 @@ type TaskUpdate = {
 
 interface UpdateContextType {
   updates: TaskUpdate[];
-  submitUpdate: (update: Omit<TaskUpdate, 'id' | 'createdAt' | 'status'>) => void;
+  loading: boolean; // ✅ added loading flag
+  submitUpdate: (update: Omit<TaskUpdate, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   rejectUpdate: (updateId: string) => void;
   getUpdatesForTask: (taskId: string) => TaskUpdate[];
   getUpdatesByEmployee: (employeeId: string) => TaskUpdate[];
@@ -47,19 +48,30 @@ export const UpdateProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
+  const [loading, setLoading] = useState<boolean>(false);
+
   const saveToLocalStorage = (newUpdates: TaskUpdate[]) => {
     localStorage.setItem('taskUpdates', JSON.stringify(newUpdates));
     setUpdates(newUpdates);
   };
 
-  const submitUpdate = (update: Omit<TaskUpdate, 'id' | 'createdAt' | 'status'>) => {
-    const newUpdate: TaskUpdate = {
-      ...update,
-      id: `upd_${Date.now()}_${Math.random()}`,
-      createdAt: new Date().toISOString(),
-      status: 'pending',
-    };
-    saveToLocalStorage([newUpdate, ...updates]);
+  // ✅ Made async, added loading state
+  const submitUpdate = async (update: Omit<TaskUpdate, 'id' | 'createdAt' | 'status'>) => {
+    setLoading(true);
+    try {
+      // Simulate async operation (e.g., API call) – replace with real API if needed
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const newUpdate: TaskUpdate = {
+        ...update,
+        id: `upd_${Date.now()}_${Math.random()}`,
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+      };
+      saveToLocalStorage([newUpdate, ...updates]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const rejectUpdate = (updateId: string) => {
@@ -81,7 +93,14 @@ export const UpdateProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <UpdateContext.Provider
-      value={{ updates, submitUpdate, rejectUpdate, getUpdatesForTask, getUpdatesByEmployee }}
+      value={{
+        updates,
+        loading,
+        submitUpdate,
+        rejectUpdate,
+        getUpdatesForTask,
+        getUpdatesByEmployee,
+      }}
     >
       {children}
     </UpdateContext.Provider>

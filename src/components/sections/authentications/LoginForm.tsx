@@ -17,25 +17,38 @@ import {
 import Grid from '@mui/material/Grid';
 import PasswordTextField from 'components/common/PasswordTextField';
 
-interface LoginFormProps {
-  defaultCredential?: { email: string; password: string };
-}
-
-const LoginForm = ({ defaultCredential }: LoginFormProps) => {
+const LoginForm = () => {
   const navigate = useNavigate();
-  const [role, setRole] = useState<'admin' | 'employee'>('employee'); // 👈 dev only
+  const [role, setRole] = useState<'admin' | 'employee'>('employee');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // In a real app: call API with email/password, get role from response
-    // For dev: navigate based on the selected role
-    if (role === 'admin') {
-      navigate('/admin/dashboard'); // adjust your admin route
-    } else {
-      navigate('/employee/dashboard'); // adjust your employee route
-    }
+    navigate(role === 'admin' ? '/admin/dashboard' : '/employee/dashboard');
   };
+
+  // ----- CUSTOM STYLES (adjust colors here) -----
+  const inputBackground = '#e3f2fd'; // light blue background for fields
+  const inputBorder = '#e0e0e0'; // subtle border
+  const focusBorder = '#1e88e5'; // blue border on focus
+  const accentColor = '#1e88e5'; // color for checked checkbox/radio
+  const formBgColor = '#fafafa'; // light background for the form container
+
+  const textFieldSx = {
+    '& .MuiOutlinedInput-root': {
+      backgroundColor: inputBackground,
+      '& fieldset': { borderColor: inputBorder, transition: 'border-color 0.2s' },
+      '&:hover fieldset': { borderColor: '#bdbdbd' },
+      '&.Mui-focused fieldset': { borderColor: focusBorder, borderWidth: 2 },
+    },
+    '& .MuiInputLabel-root': { color: '#666' },
+    '& .MuiInputLabel-root.Mui-focused': { color: accentColor },
+  };
+
+  const controlSx = {
+    color: '#9e9e9e', // unchecked border color
+    '&.Mui-checked': { color: accentColor },
+  };
+  // ---------------------------------------------
 
   return (
     <Stack
@@ -43,96 +56,81 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
       sx={{
         height: 1,
         alignItems: 'center',
-        justifyContent: 'space-between',
-        pt: { md: 10 },
-        pb: 10,
+        justifyContent: 'center',
+        p: 3,
       }}
     >
-      <div />
-
       <Grid
         container
         sx={{
           maxWidth: '35rem',
           rowGap: 4,
           p: { xs: 3, sm: 5 },
-          mb: 5,
+          borderRadius: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+          bgcolor: formBgColor,
         }}
       >
         <Grid size={12}>
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={1}
-            sx={{
-              justifyContent: 'space-between',
-              alignItems: { xs: 'flex-start', sm: 'flex-end' },
-            }}
-          >
-            <Typography variant="h4">Log in</Typography>
-          </Stack>
+          <Typography variant="h4" fontWeight={500}>
+            Log in
+          </Typography>
         </Grid>
 
         <Grid size={12}>
           <Box component="form" noValidate onSubmit={handleSubmit}>
-            <Grid container>
-              <Grid sx={{ mb: 3 }} size={12}>
+            <Grid container spacing={2.5}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
-                  size="large"
-                  id="username"
-                  type="text"
-                  label="Username"
-                  defaultValue={defaultCredential?.email}
+                  label="Email"
+                  type="email"
+                  defaultValue="demo@aurora.com"
+                  sx={textFieldSx}
                 />
               </Grid>
-              <Grid sx={{ mb: 2.5 }} size={12}>
+              <Grid size={12}>
                 <PasswordTextField
                   fullWidth
-                  size="large"
-                  id="password"
                   label="Password"
-                  defaultValue={defaultCredential?.password}
+                  defaultValue="password123"
+                  sx={textFieldSx}
                 />
               </Grid>
 
-              {/* 👇 DEV ONLY: role selector */}
-              <Grid sx={{ mb: 2 }} size={12}>
+              {/* Role selector (demo only) */}
+              <Grid size={12}>
                 <FormControl component="fieldset">
-                  <FormLabel component="legend" sx={{ typography: 'body2' }}>
-                    Demo role (remove in production)
-                  </FormLabel>
-                  <RadioGroup
-                    row
-                    value={role}
-                    onChange={(e) => setRole(e.target.value as 'admin' | 'employee')}
-                  >
-                    <FormControlLabel value="employee" control={<Radio />} label="Employee" />
-                    <FormControlLabel value="admin" control={<Radio />} label="Admin" />
+                  <FormLabel>Demo role</FormLabel>
+                  <RadioGroup row value={role} onChange={(e) => setRole(e.target.value as any)}>
+                    <FormControlLabel
+                      value="employee"
+                      control={<Radio sx={controlSx} />}
+                      label="Employee"
+                    />
+                    <FormControlLabel
+                      value="admin"
+                      control={<Radio sx={controlSx} />}
+                      label="Admin"
+                    />
                   </RadioGroup>
                 </FormControl>
               </Grid>
 
-              <Grid sx={{ mb: 6 }} size={12}>
-                <Stack
-                  spacing={1}
-                  sx={{
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
+              <Grid size={12}>
+                <Stack direction="row" justifyContent="space-between" alignItems="center">
                   <FormControlLabel
-                    control={<Checkbox name="checked" color="primary" size="small" />}
-                    label={
-                      <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
-                        Remember this device
-                      </Typography>
-                    }
+                    control={<Checkbox sx={controlSx} />}
+                    label="Remember this device"
                   />
-                  <Link href="#!" variant="subtitle2">
+                  <Link href="#" underline="hover">
                     Forgot Password?
                   </Link>
                 </Stack>
               </Grid>
+
               <Grid size={12}>
                 <Button fullWidth type="submit" size="large" variant="contained">
                   Log in
@@ -142,9 +140,6 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
           </Box>
         </Grid>
       </Grid>
-      <Link href="#!" variant="subtitle2">
-        Trouble signing in?
-      </Link>
     </Stack>
   );
 };

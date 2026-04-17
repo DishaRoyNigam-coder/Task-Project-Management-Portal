@@ -1,8 +1,7 @@
-import { defaultAuthCredentials } from 'config';
 import LoginForm from 'components/sections/authentications/LoginForm';
 
 const Login = () => {
-  return <LoginForm defaultCredential={defaultAuthCredentials} />;
+  return <LoginForm />;
 };
 
 export default Login;
