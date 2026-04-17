@@ -91,7 +91,7 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
                     dense
                     key={menu.id}
                     sx={{
-                      mb: 3,
+                      mb: 0.25,
                       pb: 0,
                       display: 'flex',
                       flexDirection: 'column',

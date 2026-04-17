@@ -131,6 +131,18 @@ const NavItem = ({ item, level }: NavItemProps) => {
                 [`& .${listItemTextClasses.primary}`]: {
                   color: 'primary.main',
                 },
+                [`& .${listItemIconClasses.root}`]: {
+                  color: 'primary.main',
+                },
+              },
+              '&:hover': {
+                [`& .${listItemTextClasses.primary}`]: {
+                  color: 'primary.main',
+                },
+                [`& .${listItemIconClasses.root}`]: {
+                  color: 'primary.main',
+                },
+                backgroundColor: ({ vars }) => cssVarRgba(vars.palette.primary.mainChannel, 0.1),
               },
             }),
             !item.active && {
@@ -164,8 +176,13 @@ const NavItem = ({ item, level }: NavItemProps) => {
           {item.icon && (
             <ListItemIcon
               sx={{
-                '& .iconify': {
-                  fontSize: sidenavCollapsed ? 24 : 14,
+                display: 'inline-flex',
+                alignItems: 'center',
+                minWidth: sidenavCollapsed ? 0 : 28,
+                '& .iconify, & svg': {
+                  fontSize: sidenavCollapsed ? 24 : 20,
+                  width: sidenavCollapsed ? 24 : 20,
+                  height: sidenavCollapsed ? 24 : 20,
                 },
               }}
             >

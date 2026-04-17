@@ -4,6 +4,7 @@ import App from 'App';
 import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
 import AllProjects from 'pages/Admin/AllProjects/AllProject';
+import AdminDashboard from 'pages/Admin/dashboard/AdminDashboard';
 import ProjectDetailPage from 'pages/Admin/projects/ProjectDetailPage';
 import ProjectFormPage from 'pages/Admin/projects/ProjectFormPage';
 import TaskFormPage from 'pages/Admin/tasks/TaskFormPage';
@@ -40,6 +41,10 @@ export const routes: RouteObject[] = [
           </MainLayout>
         ),
         children: [
+          {
+            path: paths.admindashboard,
+            element: <AdminDashboard />,
+          },
           {
             index: true,
             element: <AllProjects />,
