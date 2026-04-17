@@ -40,9 +40,15 @@ const EmployeeDashboard = () => {
   const [description, setDescription] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '' });
   const [meetingModalOpen, setMeetingModalOpen] = useState(false);
-  const [meetingForm, setMeetingForm] = useState({ projectId: '', title: '', notes: '', date: '' });
+  const [meetingForm, setMeetingForm] = useState({
+    projectId: '',
+    title: '',
+    notes: '',
+    date: '',
+    duration: 30,
+  });
 
-  // ✅ Fixed: Compare numbers directly (assume user.id is number)
+  // Filter tasks assigned to current user
   const myTasks = tasks.filter((t) => t.assignedTo.id === user?.id);
 
   const handleSubmitUpdate = () => {
@@ -53,7 +59,7 @@ const EmployeeDashboard = () => {
     }
     submitUpdate({
       taskId: selectedTaskId,
-      employeeId: String(user.id), // if UpdateContext expects string, adjust accordingly
+      employeeId: String(user.id),
       type: updateType,
       description,
     });
@@ -63,8 +69,11 @@ const EmployeeDashboard = () => {
   };
 
   const handleLogMeeting = () => {
-    if (!meetingForm.title || !meetingForm.notes || !meetingForm.date) {
-      setSnackbar({ open: true, message: 'Please fill all fields' });
+    if (!meetingForm.title || !meetingForm.notes || !meetingForm.date || meetingForm.duration < 1) {
+      setSnackbar({
+        open: true,
+        message: 'Please fill all fields and ensure duration >= 1 minute',
+      });
       return;
     }
     addMeeting({
@@ -73,9 +82,10 @@ const EmployeeDashboard = () => {
       date: meetingForm.date,
       title: meetingForm.title,
       notes: meetingForm.notes,
+      duration: meetingForm.duration,
     });
     setMeetingModalOpen(false);
-    setMeetingForm({ projectId: '', title: '', notes: '', date: '' });
+    setMeetingForm({ projectId: '', title: '', notes: '', date: '', duration: 30 });
     setSnackbar({ open: true, message: 'Meeting logged' });
   };
 
@@ -215,7 +225,9 @@ const EmployeeDashboard = () => {
                 getMeetingsByEmployee(user.id).map((meeting) => (
                   <Box key={meeting.id} sx={{ mt: 1, p: 1, bgcolor: '#f9f9f9', borderRadius: 1 }}>
                     <Typography variant="subtitle2">{meeting.title}</Typography>
-                    <Typography variant="caption">{meeting.date}</Typography>
+                    <Typography variant="caption">
+                      {meeting.date} • {meeting.duration} min
+                    </Typography>
                     <Typography variant="body2">{meeting.notes}</Typography>
                   </Box>
                 ))}
@@ -244,7 +256,7 @@ const EmployeeDashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Meeting Modal */}
+      {/* Meeting Modal with Duration Field */}
       <Dialog open={meetingModalOpen} onClose={() => setMeetingModalOpen(false)}>
         <DialogTitle>Log Meeting</DialogTitle>
         <DialogContent>
@@ -281,6 +293,14 @@ const EmployeeDashboard = () => {
                     ))}
               </Select>
             </FormControl>
+            <TextField
+              label="Duration (minutes)"
+              type="number"
+              fullWidth
+              value={meetingForm.duration}
+              onChange={(e) => setMeetingForm({ ...meetingForm, duration: Number(e.target.value) })}
+              InputProps={{ inputProps: { min: 1 } }}
+            />
             <TextField
               label="Notes"
               multiline

@@ -19,8 +19,10 @@ const SettingsPage = lazy(() => import('../pages/Admin/settings/SettingsPage'));
 const Login = lazy(() => import('pages/authentication/Login'));
 const Signup = lazy(() => import('pages/authentication/Signup'));
 const AdminNotifications = lazy(() => import('../pages/Admin/notification/AdminNotifications'));
+const MeetingTimeReport = lazy(() => import('../pages/Admin/reports/MeetingTimeByProject'));
+const ProjectHealth = lazy(() => import('../pages/Admin/reports/ProjectHealth'));
 
-// Lazy load employee pages (now all will be used in routes)
+// Lazy load employee pages
 const EmployeeTaskList = lazy(() => import('../pages/employee/EmployeeTaskList'));
 const EmployeeTaskUpdate = lazy(() => import('../pages/employee/EmployeeTaskUpdate'));
 const EmployeeUpdateHistory = lazy(() => import('../pages/employee/EmployeeUpdateHistory'));
@@ -52,6 +54,7 @@ export const routes: RouteObject[] = [
           </MainLayout>
         ),
         children: [
+          // Admin routes
           {
             path: paths.admindashboard,
             element: <AdminDashboard />,
@@ -64,7 +67,6 @@ export const routes: RouteObject[] = [
             path: paths.allProjects,
             element: <AllProjects />,
           },
-          // Admin routes
           {
             path: paths.projects.detail,
             element: <ProjectDetailPage />,
@@ -98,9 +100,7 @@ export const routes: RouteObject[] = [
             element: <TaskFormPage />,
           },
 
-          // ======================
-          // EMPLOYEE ROUTES (added)
-          // ======================
+          // Employee routes
           {
             path: paths.employee.dashboard,
             element: <EmployeeDashboard />,
@@ -145,6 +145,8 @@ export const routes: RouteObject[] = [
             path: paths.employee.profile,
             element: <EmployeeProfile />,
           },
+
+          // Admin system routes
           {
             path: paths.system.settings,
             element: <SettingsPage />,
@@ -153,6 +155,17 @@ export const routes: RouteObject[] = [
             path: paths.system.notifications,
             element: <AdminNotifications />,
           },
+
+          // Report routes
+          {
+            path: paths.reports.meetingTime,
+            element: <MeetingTimeReport />,
+          },
+          {
+            path: paths.reports.projectHealth,
+            element: <ProjectHealth />,
+          },
+          // Additional report routes can be added here (projectOverview, delayedTasks)
         ],
       },
       {

@@ -8,13 +8,15 @@ export interface Meeting {
   date: string; // YYYY-MM-DD
   title: string;
   notes: string;
+  duration: number;
 }
 
 interface MeetingContextType {
   meetings: Meeting[];
-  loading: boolean; // ✅ added loading flag
-  addMeeting: (meeting: Omit<Meeting, 'id'>) => Promise<void>; // ✅ now async
+  loading: boolean;
+  addMeeting: (meeting: Omit<Meeting, 'id'>) => Promise<void>;
   getMeetingsByEmployee: (employeeId: number) => Meeting[];
+  getMeetingsByProject: (projectId: string) => Meeting[]; // ✅ added
 }
 
 const MeetingContext = createContext<MeetingContextType | undefined>(undefined);
@@ -23,13 +25,10 @@ export const MeetingProvider = ({ children }: { children: ReactNode }) => {
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  // Simulate async operation (e.g., API call)
   const addMeeting = async (meeting: Omit<Meeting, 'id'>) => {
     setLoading(true);
     try {
-      // Simulate network delay (remove in production or replace with real API)
       await new Promise((resolve) => setTimeout(resolve, 500));
-
       const newMeeting: Meeting = {
         ...meeting,
         id: `meeting_${Date.now()}`,
@@ -44,6 +43,11 @@ export const MeetingProvider = ({ children }: { children: ReactNode }) => {
     return meetings.filter((m) => m.employeeId === employeeId);
   };
 
+  // ✅ Implement getMeetingsByProject
+  const getMeetingsByProject = (projectId: string) => {
+    return meetings.filter((m) => m.projectId === projectId);
+  };
+
   return (
     <MeetingContext.Provider
       value={{
@@ -51,6 +55,7 @@ export const MeetingProvider = ({ children }: { children: ReactNode }) => {
         loading,
         addMeeting,
         getMeetingsByEmployee,
+        getMeetingsByProject, // ✅ include it
       }}
     >
       {children}

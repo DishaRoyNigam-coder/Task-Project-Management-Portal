@@ -43,6 +43,7 @@ const EmployeeMeetingLog = () => {
   const [title, setTitle] = useState('');
   const [projectId, setProjectId] = useState('');
   const [notes, setNotes] = useState('');
+  const [duration, setDuration] = useState<number>(30); // default 30 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +70,10 @@ const EmployeeMeetingLog = () => {
       setError('Meeting date is required');
       return;
     }
+    if (duration < 1) {
+      setError('Duration must be at least 1 minute');
+      return;
+    }
 
     setIsSubmitting(true);
     setError(null);
@@ -80,6 +85,7 @@ const EmployeeMeetingLog = () => {
         date,
         title: title.trim(),
         notes: notes.trim(),
+        duration,
       });
       setSubmitSuccess(true);
       // Reset form (keep project selection maybe)
@@ -87,6 +93,7 @@ const EmployeeMeetingLog = () => {
       setNotes('');
       setDate(new Date().toISOString().slice(0, 10));
       setProjectId('');
+      setDuration(30);
       // Auto-hide success after 3 seconds
       setTimeout(() => setSubmitSuccess(false), 3000);
     } catch (err) {
@@ -109,6 +116,13 @@ const EmployeeMeetingLog = () => {
     if (!pid) return 'General (no project)';
     const proj = projects.find((p) => p.id === pid);
     return proj?.projectName || 'Unknown project';
+  };
+
+  const formatDuration = (minutes: number) => {
+    if (minutes < 60) return `${minutes} min`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
   };
 
   return (
@@ -158,6 +172,15 @@ const EmployeeMeetingLog = () => {
                 </Select>
               </FormControl>
               <TextField
+                label="Duration (minutes) *"
+                type="number"
+                fullWidth
+                value={duration}
+                onChange={(e) => setDuration(Number(e.target.value))}
+                InputProps={{ inputProps: { min: 1 } }}
+                required
+              />
+              <TextField
                 label="Meeting Notes / Summary *"
                 multiline
                 rows={4}
@@ -173,7 +196,7 @@ const EmployeeMeetingLog = () => {
                 variant="contained"
                 startIcon={isSubmitting ? <CircularProgress size={20} /> : <AddIcon />}
                 onClick={handleSubmit}
-                disabled={isSubmitting || !title.trim() || !notes.trim()}
+                disabled={isSubmitting || !title.trim() || !notes.trim() || duration < 1}
               >
                 {isSubmitting ? 'Logging...' : 'Log Meeting'}
               </Button>
@@ -234,6 +257,12 @@ const EmployeeMeetingLog = () => {
                                 size="small"
                                 variant="outlined"
                                 color="info"
+                              />
+                              <Chip
+                                label={formatDuration(meeting.duration)}
+                                size="small"
+                                variant="outlined"
+                                color="default"
                               />
                             </Stack>
                           }
