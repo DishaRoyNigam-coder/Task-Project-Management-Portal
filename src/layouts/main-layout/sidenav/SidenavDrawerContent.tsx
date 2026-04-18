@@ -1,9 +1,12 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router';
 import { Divider, IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
 import Toolbar from '@mui/material/Toolbar';
+import { useAuth } from 'context/AuthContext';
 import { useSettingsContext } from 'providers/SettingsProvider';
+import employeeSitemap from 'routes/employeeSitemap';
 import sitemap from 'routes/sitemap';
 import IconifyIcon from 'components/base/IconifyIcon';
 import Logo from 'components/common/Logo';
@@ -21,10 +24,19 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
     config: { sidenavCollapsed, openNavbarDrawer },
     setConfig,
   } = useSettingsContext();
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+
+  // Choose sitemap based on user role, with path fallback
+  const currentSitemap = useMemo(() => {
+    if (user?.role === 'employee') return employeeSitemap;
+    if (pathname.startsWith('/employee')) return employeeSitemap; // fallback
+    return sitemap;
+  }, [user, pathname]);
 
   const expanded = useMemo(
     () => variant === 'temporary' || (variant === 'permanent' && !sidenavCollapsed),
-    [sidenavCollapsed],
+    [sidenavCollapsed, variant],
   );
 
   const toggleNavbarDrawer = () => {
@@ -32,6 +44,12 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
       openNavbarDrawer: !openNavbarDrawer,
     });
   };
+
+  // Optional: remove after verifying correct behavior
+  useEffect(() => {
+    console.log('User role:', user?.role);
+    console.log('Using sitemap:', currentSitemap === employeeSitemap ? 'employee' : 'admin');
+  }, [user, currentSitemap]);
 
   return (
     <>
@@ -80,13 +98,9 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
             ]}
           >
             <div>
-              {sitemap.map((menu) => (
+              {currentSitemap.map((menu) => (
                 <Box key={menu.id}>
-                  {menu.subheader === 'Docs' && !sidenavCollapsed && (
-                    <>
-                      <Divider sx={{ mb: 4 }} />
-                    </>
-                  )}
+                  {menu.subheader === 'Docs' && !sidenavCollapsed && <Divider sx={{ mb: 4 }} />}
                   <List
                     dense
                     key={menu.id}

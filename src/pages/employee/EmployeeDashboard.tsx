@@ -1,330 +1,430 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useMemo } from 'react';
 import {
+  CheckCircle as CompletedIcon,
+  MeetingRoom as MeetingIcon,
+  TaskAlt as TaskIcon,
+  Update as UpdateIcon,
+  Warning as WarningIcon,
+} from '@mui/icons-material';
+import {
+  Avatar,
   Box,
-  Button,
   Card,
   CardContent,
   Chip,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControl,
   Grid,
-  InputLabel,
-  MenuItem,
-  Select,
-  Snackbar,
+  LinearProgress,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material';
 import { useAuth } from 'context/AuthContext';
 import { useMeetings } from 'context/MeetingContext';
 import { useProjects } from 'context/ProjectContext';
 import { useTasks } from 'context/TaskContext';
-import { UpdateType, useUpdates } from 'context/UpdateContext';
+import { useUpdates } from 'context/UpdateContext';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+
+const COLORS = ['#0088FE', '#FFBB28', '#00C49F', '#FF8042'];
 
 const EmployeeDashboard = () => {
   const { user } = useAuth();
   const { tasks } = useTasks();
+  const { updates } = useUpdates();
+  const { getMeetingsByEmployee } = useMeetings();
   const { projects } = useProjects();
-  const { submitUpdate, getUpdatesForTask } = useUpdates();
-  const { addMeeting, getMeetingsByEmployee } = useMeetings();
-  const navigate = useNavigate();
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [updateType, setUpdateType] = useState<UpdateType>('Pending');
-  const [description, setDescription] = useState('');
-  const [snackbar, setSnackbar] = useState({ open: false, message: '' });
-  const [meetingModalOpen, setMeetingModalOpen] = useState(false);
-  const [meetingForm, setMeetingForm] = useState({
-    projectId: '',
-    title: '',
-    notes: '',
-    date: '',
-    duration: 30,
-  });
-
-  // Filter tasks assigned to current user
+  // Filter data for current employee
   const myTasks = tasks.filter((t) => t.assignedTo.id === user?.id);
+  const myUpdates = updates.filter((u) => u.employeeId === String(user?.id));
+  const myMeetings = user ? getMeetingsByEmployee(user.id) : [];
 
-  const handleSubmitUpdate = () => {
-    if (!selectedTaskId || !user) return;
-    if (!description.trim()) {
-      setSnackbar({ open: true, message: 'Please provide a description' });
-      return;
-    }
-    submitUpdate({
-      taskId: selectedTaskId,
-      employeeId: String(user.id),
-      type: updateType,
-      description,
+  // Task status counts
+  const taskStatusCounts = useMemo(() => {
+    const counts = { Pending: 0, 'In progress': 0, Done: 0 };
+    myTasks.forEach((task) => {
+      if (task.status === 'Pending') counts.Pending++;
+      else if (task.status === 'In progress') counts['In progress']++;
+      else if (task.status === 'Done') counts.Done++;
     });
-    setSnackbar({ open: true, message: 'Update submitted (cannot be edited later)' });
-    setSelectedTaskId(null);
-    setDescription('');
-  };
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [myTasks]);
 
-  const handleLogMeeting = () => {
-    if (!meetingForm.title || !meetingForm.notes || !meetingForm.date || meetingForm.duration < 1) {
-      setSnackbar({
-        open: true,
-        message: 'Please fill all fields and ensure duration >= 1 minute',
-      });
-      return;
-    }
-    addMeeting({
-      employeeId: user!.id,
-      projectId: meetingForm.projectId || undefined,
-      date: meetingForm.date,
-      title: meetingForm.title,
-      notes: meetingForm.notes,
-      duration: meetingForm.duration,
+  // Task priority counts
+  const taskPriorityData = useMemo(() => {
+    const counts = { High: 0, Medium: 0, Low: 0 };
+    myTasks.forEach((task) => {
+      counts[task.priority]++;
     });
-    setMeetingModalOpen(false);
-    setMeetingForm({ projectId: '', title: '', notes: '', date: '', duration: 30 });
-    setSnackbar({ open: true, message: 'Meeting logged' });
-  };
+    return Object.entries(counts).map(([priority, count]) => ({ priority, count }));
+  }, [myTasks]);
+
+  // Update activity over last 7 days
+  const updateActivity = useMemo(() => {
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toISOString().slice(0, 10);
+    }).reverse();
+
+    return last7Days.map((date) => ({
+      date,
+      updates: myUpdates.filter((u) => u.createdAt.startsWith(date)).length,
+    }));
+  }, [myUpdates]);
+
+  // Meeting hours per project
+  const meetingHoursPerProject = useMemo(() => {
+    const projMap: Record<string, number> = {};
+    myMeetings.forEach((m) => {
+      const projId = m.projectId || 'No Project';
+      projMap[projId] = (projMap[projId] || 0) + m.duration / 60;
+    });
+    return Object.entries(projMap).map(([projectId, hours]) => {
+      let name = projectId;
+      if (projectId !== 'No Project') {
+        const proj = projects.find((p) => p.id === projectId);
+        name = proj ? proj.projectName : projectId;
+      }
+      return { project: name, hours: parseFloat(hours.toFixed(1)) };
+    });
+  }, [myMeetings, projects]);
+
+  // Pending updates (not yet approved/rejected? In your system updates have status 'pending')
+  const pendingUpdates = myUpdates.filter((u) => u.status === 'pending').length;
+  const rejectedUpdates = myUpdates.filter((u) => u.status === 'rejected').length;
+  const completedTasks = myTasks.filter((t) => t.status === 'Done').length;
+  const totalTasks = myTasks.length;
+  const totalMeetings = myMeetings.length;
+  const totalMeetingHours = myMeetings.reduce((sum, m) => sum + m.duration, 0) / 60;
+
+  // Task completion rate
+  const completionRate = totalTasks ? (completedTasks / totalTasks) * 100 : 0;
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ p: 3, bgcolor: 'background.default', minHeight: '100vh' }}>
+      <Typography variant="h4" gutterBottom fontWeight="bold">
         Employee Dashboard
       </Typography>
-      <Typography variant="subtitle1" gutterBottom>
-        Welcome, {user?.name}
+      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+        Welcome back, {user?.name || 'Employee'} 👋
       </Typography>
 
-      <Grid container spacing={3}>
-        {/* Tasks Section */}
-        <Grid size={{ xs: 12, md: 8 }}>
-          <Card>
+      {/* Metrics Cards */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card elevation={2} sx={{ borderRadius: 3 }}>
             <CardContent>
-              <Typography variant="h6">My Tasks</Typography>
-              {myTasks.length === 0 && (
-                <Typography color="text.secondary">No tasks assigned.</Typography>
-              )}
-              {myTasks.map((task) => {
-                const taskUpdates = getUpdatesForTask(task.id);
-                const project = projects.find((p) => p.id === task.projectId);
-                return (
-                  <Card key={task.id} variant="outlined" sx={{ mb: 2, p: 2 }}>
-                    <Typography variant="subtitle1">
-                      <strong>{task.title}</strong>
-                    </Typography>
-                    <Typography variant="body2">
-                      Project: {project?.projectName || 'Unknown'}
-                    </Typography>
-                    <Typography variant="body2">
-                      Priority: {task.priority} | Due: {new Date(task.dueDate).toLocaleDateString()}
-                    </Typography>
-                    <Divider sx={{ my: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      Updates:
-                    </Typography>
-                    {taskUpdates.length === 0 && (
-                      <Typography variant="caption">No updates yet.</Typography>
-                    )}
-                    {taskUpdates.map((up) => (
-                      <Box key={up.id} sx={{ bgcolor: '#f5f5f5', p: 1, my: 1, borderRadius: 1 }}>
-                        <Chip
-                          label={up.type}
-                          size="small"
-                          color={
-                            up.type === 'Completed'
-                              ? 'success'
-                              : up.type === 'Delayed'
-                                ? 'error'
-                                : 'warning'
-                          }
-                        />
-                        <Typography variant="caption" display="block">
-                          {new Date(up.createdAt).toLocaleString()}
-                        </Typography>
-                        <Typography variant="body2">{up.description}</Typography>
-                        {up.status === 'rejected' && (
-                          <Chip
-                            label="Rejected by Admin"
-                            size="small"
-                            color="error"
-                            sx={{ mt: 0.5 }}
-                          />
-                        )}
-                      </Box>
-                    ))}
-                    {selectedTaskId === task.id ? (
-                      <Stack spacing={2} sx={{ mt: 2 }}>
-                        <FormControl fullWidth size="small">
-                          <InputLabel>Update Type</InputLabel>
-                          <Select
-                            value={updateType}
-                            label="Update Type"
-                            onChange={(e) => setUpdateType(e.target.value as UpdateType)}
-                          >
-                            <MenuItem value="Completed">Completed – Describe work done</MenuItem>
-                            <MenuItem value="Delayed">Delayed – Explain why</MenuItem>
-                            <MenuItem value="Pending">Pending – Work done + remaining</MenuItem>
-                          </Select>
-                        </FormControl>
-                        <TextField
-                          fullWidth
-                          multiline
-                          rows={3}
-                          label={
-                            updateType === 'Completed'
-                              ? 'What work was completed?'
-                              : updateType === 'Delayed'
-                                ? 'Reason for delay'
-                                : 'Work done so far & remaining tasks'
-                          }
-                          value={description}
-                          onChange={(e) => setDescription(e.target.value)}
-                        />
-                        <Stack direction="row" spacing={1}>
-                          <Button variant="contained" onClick={handleSubmitUpdate}>
-                            Submit Update
-                          </Button>
-                          <Button variant="outlined" onClick={() => setSelectedTaskId(null)}>
-                            Cancel
-                          </Button>
-                        </Stack>
-                      </Stack>
-                    ) : (
-                      <Button
-                        size="small"
-                        onClick={() => setSelectedTaskId(task.id)}
-                        sx={{ mt: 1 }}
-                      >
-                        ➕ Daily Update
-                      </Button>
-                    )}
-                  </Card>
-                );
-              })}
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'primary.light', width: 48, height: 48 }}>
+                  <TaskIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Total Tasks
+                  </Typography>
+                  <Typography variant="h4" fontWeight="bold">
+                    {totalTasks}
+                  </Typography>
+                </Box>
+              </Stack>
             </CardContent>
           </Card>
         </Grid>
-
-        {/* Right Sidebar: Meetings & Project Info */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card elevation={2} sx={{ borderRadius: 3 }}>
             <CardContent>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography variant="h6">Meetings</Typography>
-                <Button size="small" onClick={() => setMeetingModalOpen(true)}>
-                  + Log Meeting
-                </Button>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'success.light', width: 48, height: 48 }}>
+                  <CompletedIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Completed Tasks
+                  </Typography>
+                  <Typography variant="h4" fontWeight="bold">
+                    {completedTasks}
+                  </Typography>
+                </Box>
               </Stack>
-              {user && getMeetingsByEmployee(user.id).length === 0 && (
-                <Typography color="text.secondary">No meetings logged.</Typography>
-              )}
-              {user &&
-                getMeetingsByEmployee(user.id).map((meeting) => (
-                  <Box key={meeting.id} sx={{ mt: 1, p: 1, bgcolor: '#f9f9f9', borderRadius: 1 }}>
-                    <Typography variant="subtitle2">{meeting.title}</Typography>
-                    <Typography variant="caption">
-                      {meeting.date} • {meeting.duration} min
-                    </Typography>
-                    <Typography variant="body2">{meeting.notes}</Typography>
-                  </Box>
-                ))}
+              <LinearProgress
+                variant="determinate"
+                value={completionRate}
+                sx={{ mt: 1, height: 8, borderRadius: 4 }}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {completionRate.toFixed(0)}% completion
+              </Typography>
             </CardContent>
           </Card>
-
-          <Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card elevation={2} sx={{ borderRadius: 3 }}>
             <CardContent>
-              <Typography variant="h6">My Projects</Typography>
-              {user &&
-                projects
-                  .filter((p) => p.teamMembers.some((m) => m.id === user.id))
-                  .map((project) => (
-                    <Button
-                      key={project.id}
-                      fullWidth
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'warning.light', width: 48, height: 48 }}>
+                  <UpdateIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Pending Updates
+                  </Typography>
+                  <Typography variant="h4" fontWeight="bold">
+                    {pendingUpdates}
+                  </Typography>
+                  {rejectedUpdates > 0 && (
+                    <Chip
+                      size="small"
+                      label={`${rejectedUpdates} rejected`}
+                      color="error"
                       variant="outlined"
-                      sx={{ mb: 1, justifyContent: 'flex-start' }}
-                      onClick={() => navigate(`/employee/projects/${project.id}`)}
-                    >
-                      {project.projectName}
-                    </Button>
-                  ))}
+                      sx={{ mt: 0.5 }}
+                    />
+                  )}
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card elevation={2} sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Stack direction="row" alignItems="center" spacing={2}>
+                <Avatar sx={{ bgcolor: 'info.light', width: 48, height: 48 }}>
+                  <MeetingIcon />
+                </Avatar>
+                <Box>
+                  <Typography variant="body2" color="text.secondary">
+                    Meetings
+                  </Typography>
+                  <Typography variant="h4" fontWeight="bold">
+                    {totalMeetings}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {totalMeetingHours.toFixed(1)} hours logged
+                  </Typography>
+                </Box>
+              </Stack>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Meeting Modal with Duration Field */}
-      <Dialog open={meetingModalOpen} onClose={() => setMeetingModalOpen(false)}>
-        <DialogTitle>Log Meeting</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField
-              label="Date"
-              type="date"
-              fullWidth
-              InputLabelProps={{ shrink: true }}
-              value={meetingForm.date}
-              onChange={(e) => setMeetingForm({ ...meetingForm, date: e.target.value })}
-            />
-            <TextField
-              label="Title"
-              fullWidth
-              value={meetingForm.title}
-              onChange={(e) => setMeetingForm({ ...meetingForm, title: e.target.value })}
-            />
-            <FormControl fullWidth>
-              <InputLabel>Project (optional)</InputLabel>
-              <Select
-                value={meetingForm.projectId}
-                label="Project (optional)"
-                onChange={(e) => setMeetingForm({ ...meetingForm, projectId: e.target.value })}
-              >
-                <MenuItem value="">None</MenuItem>
-                {user &&
-                  projects
-                    .filter((p) => p.teamMembers.some((m) => m.id === user.id))
-                    .map((p) => (
-                      <MenuItem key={p.id} value={p.id}>
-                        {p.projectName}
-                      </MenuItem>
+      {/* Charts Row 1 */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ borderRadius: 3, height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Task Status Distribution
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={taskStatusCounts}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {taskStatusCounts.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
-              </Select>
-            </FormControl>
-            <TextField
-              label="Duration (minutes)"
-              type="number"
-              fullWidth
-              value={meetingForm.duration}
-              onChange={(e) => setMeetingForm({ ...meetingForm, duration: Number(e.target.value) })}
-              InputProps={{ inputProps: { min: 1 } }}
-            />
-            <TextField
-              label="Notes"
-              multiline
-              rows={3}
-              fullWidth
-              value={meetingForm.notes}
-              onChange={(e) => setMeetingForm({ ...meetingForm, notes: e.target.value })}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setMeetingModalOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleLogMeeting}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ borderRadius: 3, height: '100%' }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Task Priority Breakdown
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={taskPriorityData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="priority" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="count" fill="#8884d8" name="Number of Tasks" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={4000}
-        onClose={() => setSnackbar({ open: false, message: '' })}
-        message={snackbar.message}
-      />
+      {/* Charts Row 2 */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Update Activity (Last 7 Days)
+              </Typography>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={updateActivity}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="updates"
+                    stroke="#8884d8"
+                    name="Updates Submitted"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Meeting Hours by Project
+              </Typography>
+              {meetingHoursPerProject.length === 0 ? (
+                <Typography color="text.secondary" sx={{ textAlign: 'center', py: 5 }}>
+                  No meeting data yet.
+                </Typography>
+              ) : (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={meetingHoursPerProject} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" unit="h" />
+                    <YAxis type="category" dataKey="project" width={100} />
+                    <Tooltip formatter={(value) => `${value} hours`} />
+                    <Legend />
+                    <Bar dataKey="hours" fill="#82ca9d" name="Hours Spent" />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Recent Updates & Overdue Tasks */}
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Recent Updates
+              </Typography>
+              {myUpdates.slice(0, 5).map((update) => {
+                const task = tasks.find((t) => t.id === update.taskId);
+                return (
+                  <Box
+                    key={update.id}
+                    sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 2 }}
+                  >
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Chip
+                        label={update.type}
+                        size="small"
+                        color={
+                          update.type === 'Completed'
+                            ? 'success'
+                            : update.type === 'Delayed'
+                              ? 'error'
+                              : 'warning'
+                        }
+                      />
+                      <Typography variant="caption" color="text.secondary">
+                        {new Date(update.createdAt).toLocaleDateString()}
+                      </Typography>
+                    </Stack>
+                    <Typography variant="body2" noWrap>
+                      {task?.title} – {update.description.substring(0, 80)}...
+                    </Typography>
+                    {update.status === 'rejected' && (
+                      <Chip label="Rejected" size="small" color="error" sx={{ mt: 0.5 }} />
+                    )}
+                  </Box>
+                );
+              })}
+              {myUpdates.length === 0 && (
+                <Typography color="text.secondary">No updates submitted yet.</Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Card sx={{ borderRadius: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Overdue / High Priority Tasks
+              </Typography>
+              {myTasks
+                .filter(
+                  (task) =>
+                    (new Date(task.dueDate) < new Date() && task.status !== 'Done') ||
+                    task.priority === 'High',
+                )
+                .slice(0, 5)
+                .map((task) => (
+                  <Box key={task.id} sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 2 }}>
+                    <Stack direction="row" spacing={1} alignItems="center">
+                      <Chip
+                        label={task.priority}
+                        size="small"
+                        color={task.priority === 'High' ? 'error' : 'default'}
+                      />
+                      <Typography variant="body2" fontWeight="medium">
+                        {task.title}
+                      </Typography>
+                    </Stack>
+                    <Typography variant="caption" color="text.secondary">
+                      Due: {new Date(task.dueDate).toLocaleDateString()}
+                    </Typography>
+                    {new Date(task.dueDate) < new Date() && task.status !== 'Done' && (
+                      <Chip
+                        icon={<WarningIcon />}
+                        label="Overdue"
+                        size="small"
+                        color="error"
+                        variant="outlined"
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </Box>
+                ))}
+              {myTasks.filter(
+                (t) =>
+                  (new Date(t.dueDate) < new Date() && t.status !== 'Done') ||
+                  t.priority === 'High',
+              ).length === 0 && (
+                <Typography color="text.secondary">No overdue or high priority tasks.</Typography>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

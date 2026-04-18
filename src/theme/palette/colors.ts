@@ -72,7 +72,6 @@ export const green = {
   900: '#0F3300',
   950: '#071A00',
 };
-
 export const basic = {
   white: '#FFFFFF',
   black: '#111417',
