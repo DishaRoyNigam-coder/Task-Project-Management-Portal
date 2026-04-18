@@ -50,7 +50,7 @@ const sitemap: MenuItem[] = [
         items: [
           {
             name: 'Project Detail',
-            path: '#',
+            path: paths.projects.detail,
             pathName: 'project-detail',
             icon: 'material-symbols:article',
             active: false,
@@ -58,13 +58,13 @@ const sitemap: MenuItem[] = [
           {
             name: 'Create / Edit Project',
             path: paths.projects.new,
-            pathName: 'project-create',
+            pathName: 'project-links-notes',
             icon: 'material-symbols:edit',
             active: true,
           },
           {
             name: 'Project Links & Notes',
-            path: '#',
+            path: '/project-links-notes',
             pathName: 'project-links',
             icon: 'material-symbols:link',
             active: false,

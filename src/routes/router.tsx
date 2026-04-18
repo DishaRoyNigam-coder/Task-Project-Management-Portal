@@ -7,12 +7,15 @@ import AllProjects from 'pages/Admin/AllProjects/AllProject';
 import AdminDashboard from 'pages/Admin/dashboard/AdminDashboard';
 import ProjectDetailPage from 'pages/Admin/projects/ProjectDetailPage';
 import ProjectFormPage from 'pages/Admin/projects/ProjectFormPage';
+import TaskUpdatesReview from 'pages/Admin/taskUpdates/TaskUpdatesReview';
 import TaskFormPage from 'pages/Admin/tasks/TaskFormPage';
 import EmployeeDashboard from 'pages/employee/EmployeeDashboard';
 import PageLoader from 'components/loading/PageLoader';
+import ProjectLinksNotes from '../pages/Admin/projects/ProjectLinksNotes';
 import paths, { rootPaths } from './paths';
 
-const UserList = lazy(() => import('pages/users/UserList'));
+// Lazy load user list and other pages
+
 const Starter = lazy(() => import('pages/others/Starter'));
 const Account = lazy(() => import('pages/others/Account'));
 const SettingsPage = lazy(() => import('../pages/Admin/settings/SettingsPage'));
@@ -21,6 +24,9 @@ const Signup = lazy(() => import('pages/authentication/Signup'));
 const AdminNotifications = lazy(() => import('../pages/Admin/notification/AdminNotifications'));
 const MeetingTimeReport = lazy(() => import('../pages/Admin/reports/MeetingTimeByProject'));
 const ProjectHealth = lazy(() => import('../pages/Admin/reports/ProjectHealth'));
+const DelayedTasksReport = lazy(() => import('../pages/Admin/reports/DelayedTasksReport'));
+const ProjectOverviewReport = lazy(() => import('../pages/Admin/reports/ProjectOverviewReport'));
+const UserList = lazy(() => import('../pages/Admin/employeeList/UserList'));
 
 // Lazy load employee pages
 const EmployeeTaskList = lazy(() => import('../pages/employee/EmployeeTaskList'));
@@ -84,6 +90,14 @@ export const routes: RouteObject[] = [
             element: <Account />,
           },
           {
+            path: '/project-links-notes',
+            element: <ProjectLinksNotes />,
+          },
+          {
+            path: '/task-updates',
+            element: <TaskUpdatesReview />,
+          },
+          {
             path: paths.starter,
             element: <Starter />,
           },
@@ -112,6 +126,10 @@ export const routes: RouteObject[] = [
           {
             path: paths.employee.taskSubmitUpdate,
             element: <EmployeeTaskUpdate />,
+          },
+          {
+            path: '/project-links-notes',
+            element: <ProjectLinksNotes />,
           },
           {
             path: paths.employee.taskUpdateHistory,
@@ -158,14 +176,21 @@ export const routes: RouteObject[] = [
 
           // Report routes
           {
-            path: paths.reports.meetingTime,
-            element: <MeetingTimeReport />,
+            path: paths.reports.projectOverview,
+            element: <ProjectOverviewReport />,
+          },
+          {
+            path: paths.reports.delayedTasks,
+            element: <DelayedTasksReport />,
           },
           {
             path: paths.reports.projectHealth,
             element: <ProjectHealth />,
           },
-          // Additional report routes can be added here (projectOverview, delayedTasks)
+          {
+            path: paths.reports.meetingTime,
+            element: <MeetingTimeReport />,
+          },
         ],
       },
       {
