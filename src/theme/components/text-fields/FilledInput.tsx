@@ -84,6 +84,7 @@ export const FilledInput: Components<Omit<Theme, 'components'>>['MuiFilledInput'
       },
     ],
     input: () => ({
+      backgroundColor: 'var(--aurora-palette-primary-lighter)',
       paddingTop: 19,
       paddingBottom: 5,
       height: '1.5rem',

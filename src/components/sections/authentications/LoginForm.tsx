@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import PasswordTextField from 'components/common/PasswordTextField';
+import { blue } from '../../../theme/palette/colors';
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -27,26 +28,43 @@ const LoginForm = () => {
   };
 
   // ----- CUSTOM STYLES (adjust colors here) -----
-  const inputBackground = '#e3f2fd'; // light blue background for fields
+  const inputBackground = blue[50]; // light blue background for fields
   const inputBorder = '#e0e0e0'; // subtle border
   const focusBorder = '#1e88e5'; // blue border on focus
   const accentColor = '#1e88e5'; // color for checked checkbox/radio
   const formBgColor = '#fafafa'; // light background for the form container
 
   const textFieldSx = {
+    // Remove any background from the root (so it doesn't interfere)
     '& .MuiOutlinedInput-root': {
-      backgroundColor: inputBackground,
+      backgroundColor: 'transparent',
       '& fieldset': { borderColor: inputBorder, transition: 'border-color 0.2s' },
       '&:hover fieldset': { borderColor: '#bdbdbd' },
       '&.Mui-focused fieldset': { borderColor: focusBorder, borderWidth: 2 },
     },
+    // Apply the light blue background directly to the input element
+    '& .MuiInputBase-input': {
+      backgroundColor: `${inputBackground} !important`,
+      // Optional: add some padding if needed
+      padding: '12px 14px',
+    },
+    // Make sure the label stays readable
     '& .MuiInputLabel-root': { color: '#666' },
     '& .MuiInputLabel-root.Mui-focused': { color: accentColor },
   };
 
+  // 👇 UPDATED controlSx for blue borders
   const controlSx = {
-    color: '#9e9e9e', // unchecked border color
-    '&.Mui-checked': { color: accentColor },
+    '&.Mui-checked': {
+      color: accentColor,
+    },
+    '& .MuiSvgIcon-root': {
+      color: accentColor,
+    },
+    '&:hover .MuiSvgIcon-root': {
+      color: accentColor,
+      opacity: 0.8,
+    },
   };
   // ---------------------------------------------
 

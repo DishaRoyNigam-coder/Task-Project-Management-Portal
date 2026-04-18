@@ -1,8 +1,6 @@
 // src/routes/employeeSitemap.ts
 import { MenuItem } from './sitemap';
 
-// reuse the same interface
-
 const employeeSitemap: MenuItem[] = [
   {
     id: 'dashboard',
@@ -73,7 +71,7 @@ const employeeSitemap: MenuItem[] = [
           },
           {
             name: 'Project Detail',
-            path: '/employee/projects/:id', // dynamic, handled in router
+            path: '/employee/projects/:id',
             pathName: 'employee-project-detail',
             icon: 'material-symbols:article',
             active: false,
@@ -128,22 +126,7 @@ const employeeSitemap: MenuItem[] = [
         icon: 'material-symbols:account-circle',
         pathName: 'employee-account',
         active: true,
-        items: [
-          {
-            name: 'Notifications',
-            path: '/employee/notifications',
-            pathName: 'employee-notifications',
-            icon: 'material-symbols:notifications',
-            active: true,
-          },
-          {
-            name: 'My Profile',
-            path: '/employee/profile',
-            pathName: 'employee-profile',
-            icon: 'material-symbols:manage-accounts',
-            active: true,
-          },
-        ],
+        // No nested children – the Account page itself contains Profile and Notifications tabs
       },
     ],
   },

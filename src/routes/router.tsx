@@ -37,6 +37,7 @@ const EmployeeMeetingHistory = lazy(() => import('../pages/employee/EmployeeMeet
 const EmployeeProjectDetail = lazy(() => import('../pages/employee/EmployeeProjectDetail'));
 const EmployeeMeetingLog = lazy(() => import('../pages/employee/EmployeeMeetingLog'));
 const EmployeeNotifications = lazy(() => import('../pages/employee/EmployeeNotifications'));
+const EmployeeAccount = lazy(() => import('../pages/employee/EmployeeAccount'));
 const EmployeeProfile = lazy(() => import('../pages/employee/EmployeeProfile'));
 
 export const SuspenseOutlet = () => {
@@ -190,6 +191,10 @@ export const routes: RouteObject[] = [
           {
             path: paths.reports.meetingTime,
             element: <MeetingTimeReport />,
+          },
+          {
+            path: paths.employee.account,
+            element: <EmployeeAccount />,
           },
         ],
       },

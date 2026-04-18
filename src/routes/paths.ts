@@ -55,6 +55,7 @@ const paths = {
     meetingHistory: '/employee/meetings/history',
     notifications: '/employee/notifications',
     profile: '/employee/profile',
+    account: '/employee/account',
     users: `/users`,
   },
 };

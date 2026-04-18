@@ -1,6 +1,6 @@
 import { Theme } from '@mui/material';
 import { Components } from '@mui/material/styles';
-
+import { blue } from '../../palette/colors';
 declare module '@mui/material' {
   interface TextFieldPropsSizeOverrides {
     large: true;
