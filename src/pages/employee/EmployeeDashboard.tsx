@@ -123,10 +123,10 @@ const EmployeeDashboard = () => {
         Welcome back, {user?.name || 'Employee'} 👋
       </Typography>
 
-      {/* Metrics Cards */}
+      {/* Metrics Cards - Equal Height */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card elevation={2} sx={{ borderRadius: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: 3 }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'primary.light', width: 48, height: 48 }}>
@@ -145,7 +145,7 @@ const EmployeeDashboard = () => {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card elevation={2} sx={{ borderRadius: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: 3 }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'success.light', width: 48, height: 48 }}>
@@ -172,7 +172,7 @@ const EmployeeDashboard = () => {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card elevation={2} sx={{ borderRadius: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: 3 }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'warning.light', width: 48, height: 48 }}>
@@ -200,7 +200,7 @@ const EmployeeDashboard = () => {
           </Card>
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card elevation={2} sx={{ borderRadius: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: 3 }}>
             <CardContent>
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Avatar sx={{ bgcolor: 'info.light', width: 48, height: 48 }}>

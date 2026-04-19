@@ -73,7 +73,7 @@ const EmployeeAccount = () => {
   };
 
   return (
-    <Box sx={{ p: 3, maxWidth: 900, mx: 'auto' }}>
+    <Box sx={{ p: 2, maxWidth: 2000, mx: 'auto' }}>
       <Typography variant="h4" gutterBottom>
         Account Settings
       </Typography>
@@ -90,7 +90,7 @@ const EmployeeAccount = () => {
 
           {/* Profile Tab */}
           <TabPanel value={tabValue} index={0}>
-            <Stack spacing={3} sx={{ maxWidth: 500 }}>
+            <Stack spacing={1} sx={{ maxWidth: 20000 }}>
               {successMsg && <Alert severity="success">{successMsg}</Alert>}
               {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
               <TextField
@@ -99,6 +99,7 @@ const EmployeeAccount = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+              <br />
               <TextField
                 label="Email"
                 fullWidth

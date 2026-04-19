@@ -35,10 +35,9 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const SettingsPage = () => {
-  const { user } = useAuth(); // updateUser removed – not in context
+  const { user } = useAuth();
   const [tabValue, setTabValue] = useState(0);
 
-  // Profile form state – load from localStorage or user context
   const [profile, setProfile] = useState({
     name: user?.name || localStorage.getItem('admin_name') || '',
     email: user?.email || localStorage.getItem('admin_email') || '',
@@ -46,7 +45,6 @@ const SettingsPage = () => {
   const [pin, setPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
 
-  // Notification preferences
   const [notifPrefs, setNotifPrefs] = useState({
     emailOnTaskAssigned: true,
     emailOnPriorityChange: true,
@@ -54,12 +52,10 @@ const SettingsPage = () => {
     emailOnTaskOverdue: false,
   });
 
-  // System preferences (without themeMode – config doesn't support it)
   const [sysPrefs, setSysPrefs] = useState({
     defaultProjectPhase: 'Planning',
   });
 
-  // Snackbar
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -70,7 +66,6 @@ const SettingsPage = () => {
     setTabValue(newValue);
   };
 
-  // Profile save – store in localStorage
   const handleSaveProfile = () => {
     if (profile.name && profile.email) {
       localStorage.setItem('admin_name', profile.name);
@@ -96,19 +91,16 @@ const SettingsPage = () => {
     setConfirmPin('');
   };
 
-  // Save notification preferences
   const handleSaveNotifications = () => {
     localStorage.setItem('admin_notif_prefs', JSON.stringify(notifPrefs));
     setSnackbar({ open: true, message: 'Notification preferences saved', severity: 'success' });
   };
 
-  // Save system preferences (without themeMode)
   const handleSaveSystem = () => {
     localStorage.setItem('admin_sys_prefs', JSON.stringify(sysPrefs));
     setSnackbar({ open: true, message: 'System preferences saved', severity: 'success' });
   };
 
-  // Load saved preferences on mount
   useEffect(() => {
     const savedNotif = localStorage.getItem('admin_notif_prefs');
     if (savedNotif) setNotifPrefs(JSON.parse(savedNotif));
@@ -147,7 +139,15 @@ const SettingsPage = () => {
                     label="Full Name"
                     value={profile.name}
                     onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                    sx={{ mb: 2 }}
+                    sx={{
+                      mb: 2,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        '& fieldset': {
+                          borderRadius: '8px',
+                        },
+                      },
+                    }}
                   />
                   <TextField
                     fullWidth
@@ -155,7 +155,15 @@ const SettingsPage = () => {
                     type="email"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    sx={{ mb: 2 }}
+                    sx={{
+                      mb: 2,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        '& fieldset': {
+                          borderRadius: '8px',
+                        },
+                      },
+                    }}
                   />
                   <Button variant="contained" onClick={handleSaveProfile}>
                     Save Changes
@@ -176,7 +184,15 @@ const SettingsPage = () => {
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     inputProps={{ maxLength: 6, pattern: '[0-9]*' }}
-                    sx={{ mb: 2 }}
+                    sx={{
+                      mb: 2,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        '& fieldset': {
+                          borderRadius: '8px',
+                        },
+                      },
+                    }}
                   />
                   <TextField
                     fullWidth
@@ -185,7 +201,15 @@ const SettingsPage = () => {
                     value={confirmPin}
                     onChange={(e) => setConfirmPin(e.target.value)}
                     inputProps={{ maxLength: 6, pattern: '[0-9]*' }}
-                    sx={{ mb: 2 }}
+                    sx={{
+                      mb: 2,
+                      '& .MuiOutlinedInput-root': {
+                        borderRadius: '8px',
+                        '& fieldset': {
+                          borderRadius: '8px',
+                        },
+                      },
+                    }}
                   />
                   <Button variant="contained" onClick={handleChangePin}>
                     Update PIN
@@ -196,7 +220,7 @@ const SettingsPage = () => {
           </Grid>
         </TabPanel>
 
-        {/* Notifications Tab - with light blue border around each toggle button */}
+        {/* Notifications Tab */}
         <TabPanel value={tabValue} index={1}>
           <Card variant="outlined">
             <CardContent>
@@ -266,7 +290,7 @@ const SettingsPage = () => {
           </Card>
         </TabPanel>
 
-        {/* System Tab – dark mode removed (config doesn't support it) */}
+        {/* System Tab */}
         <TabPanel value={tabValue} index={2}>
           <Card variant="outlined">
             <CardContent>

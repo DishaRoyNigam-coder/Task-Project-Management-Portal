@@ -22,6 +22,7 @@ const TextField: Components<Omit<Theme, 'components'>>['MuiTextField'] = {
         pointerEvents: 'none',
         position: 'absolute',
         right: 0,
+        
       },
     },
   },

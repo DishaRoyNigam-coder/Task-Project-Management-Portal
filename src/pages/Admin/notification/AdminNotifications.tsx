@@ -207,8 +207,8 @@ const AdminNotifications = () => {
             label={`All (${notifications.length})`}
             sx={{
               '&.Mui-selected': {
-                border: '1px solid lightblue',
-                borderRadius: '16px',
+                // border: '1px solid lightblue',
+                // borderRadius: '16px',
               },
             }}
           />
@@ -216,8 +216,8 @@ const AdminNotifications = () => {
             label={`Unread (${unreadCount})`}
             sx={{
               '&.Mui-selected': {
-                border: '1px solid lightblue',
-                borderRadius: '16px',
+                // border: '1px solid lightblue',
+                // borderRadius: '16px',
               },
             }}
           />
