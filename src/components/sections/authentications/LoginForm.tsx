@@ -103,9 +103,9 @@ const LoginForm = () => {
               <Grid size={12}>
                 <TextField
                   fullWidth
-                  label="Email"
-                  type="email"
-                  defaultValue="demo@aurora.com"
+                  label="Username "
+                  type="text"
+                  defaultValue="demo"
                   sx={textFieldSx}
                 />
               </Grid>

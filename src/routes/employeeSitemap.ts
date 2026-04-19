@@ -21,7 +21,6 @@ const employeeSitemap: MenuItem[] = [
     items: [
       {
         name: 'My Tasks',
-        path: '/employee/tasks',
         icon: 'material-symbols:task-alt',
         pathName: 'employee-tasks',
         active: true,

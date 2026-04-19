@@ -196,7 +196,7 @@ const SettingsPage = () => {
           </Grid>
         </TabPanel>
 
-        {/* Notifications Tab */}
+        {/* Notifications Tab - with light blue border around each toggle button */}
         <TabPanel value={tabValue} index={1}>
           <Card variant="outlined">
             <CardContent>
@@ -213,6 +213,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnTaskAssigned: e.target.checked })
                     }
+                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
                   />
                 }
                 label="Task Assigned"
@@ -225,6 +226,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnPriorityChange: e.target.checked })
                     }
+                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
                   />
                 }
                 label="Task Priority Changed"
@@ -237,6 +239,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnUpdateRejected: e.target.checked })
                     }
+                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
                   />
                 }
                 label="Task Update Rejected"
@@ -249,6 +252,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnTaskOverdue: e.target.checked })
                     }
+                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
                   />
                 }
                 label="Task Overdue Reminder"

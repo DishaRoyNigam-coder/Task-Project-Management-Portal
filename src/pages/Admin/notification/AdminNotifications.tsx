@@ -197,9 +197,30 @@ const AdminNotifications = () => {
       </Stack>
 
       <Card>
-        <Tabs value={tabValue} onChange={(_, v) => setTabValue(v)}>
-          <Tab label={`All (${notifications.length})`} />
-          <Tab label={`Unread (${unreadCount})`} />
+        {/* Tabs with light blue border on active tab */}
+        <Tabs
+          value={tabValue}
+          onChange={(_, v) => setTabValue(v)}
+          TabIndicatorProps={{ style: { display: 'none' } }} // Hide default underline
+        >
+          <Tab
+            label={`All (${notifications.length})`}
+            sx={{
+              '&.Mui-selected': {
+                border: '1px solid lightblue',
+                borderRadius: '16px',
+              },
+            }}
+          />
+          <Tab
+            label={`Unread (${unreadCount})`}
+            sx={{
+              '&.Mui-selected': {
+                border: '1px solid lightblue',
+                borderRadius: '16px',
+              },
+            }}
+          />
         </Tabs>
         <Divider />
         <CardContent>
