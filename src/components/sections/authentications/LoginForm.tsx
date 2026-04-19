@@ -45,6 +45,7 @@ const LoginForm = () => {
     // Apply the light blue background directly to the input element
     '& .MuiInputBase-input': {
       backgroundColor: `${inputBackground} !important`,
+      borderRadius: 2,
       // Optional: add some padding if needed
       padding: '12px 14px',
     },
@@ -121,7 +122,7 @@ const LoginForm = () => {
               {/* Role selector (demo only) */}
               <Grid size={12}>
                 <FormControl component="fieldset">
-                  <FormLabel>Demo role</FormLabel>
+                  <FormLabel>Role</FormLabel>
                   <RadioGroup row value={role} onChange={(e) => setRole(e.target.value as any)}>
                     <FormControlLabel
                       value="employee"
