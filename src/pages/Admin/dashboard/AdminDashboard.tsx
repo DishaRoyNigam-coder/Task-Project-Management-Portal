@@ -19,7 +19,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Line,
   LineChart,
   Pie,
@@ -54,9 +53,9 @@ const AdminDashboard = () => {
     const inProgress = tasks.filter((t) => t.status === 'In progress').length;
     const done = tasks.filter((t) => t.status === 'Done').length;
     return [
-      { name: 'Pending', value: pending },
-      { name: 'In Progress', value: inProgress },
-      { name: 'Done', value: done },
+      { name: 'Pending', value: pending, fill: COLORS[0] },
+      { name: 'In Progress', value: inProgress, fill: COLORS[1] },
+      { name: 'Done', value: done, fill: COLORS[2] },
     ].filter((d) => d.value > 0);
   }, [tasks]);
 
@@ -121,6 +120,17 @@ const AdminDashboard = () => {
     });
     return Array.from(projectMap.entries()).map(([name, count]) => ({ name, count }));
   }, [meetings, projects]);
+
+  // Custom label renderer for pie chart with smaller font
+  const getHealthColor = (health: string): 'success' | 'warning' | 'error' => {
+    if (health === 'Healthy') return 'success';
+    if (health === 'Attention') return 'warning';
+    return 'error';
+  };
+
+  const renderPieLabel = ({ name, percent }: { name?: string; percent?: number }) => {
+    return `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`;
+  };
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
@@ -194,29 +204,26 @@ const AdminDashboard = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
+                  label={renderPieLabel}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                >
-                  {taskStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
+                  style={{ fontSize: '12px', fontWeight: 'normal' }}
+                ></Pie>
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
           </Paper>
         </Grid>
 
-        {/* Task Priority Distribution (Bar) */}
+        {/* Task Priority Distribution (Bar) - REDUCED SIZE */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Tasks by Priority
             </Typography>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={priorityData}>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={priorityData} barSize={40}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="priority" />
                 <YAxis />
@@ -281,13 +288,7 @@ const AdminDashboard = () => {
                   <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
                     <Chip
                       label={project.health}
-                      color={
-                        project.health === 'Healthy'
-                          ? 'success'
-                          : project.health === 'Attention'
-                            ? 'warning'
-                            : 'error'
-                      }
+                      color={getHealthColor(project.health)}
                       size="small"
                     />
                     <Typography variant="body2">Overdue tasks: {project.overdue}</Typography>

@@ -34,7 +34,7 @@ const paths = {
     new: '/projects/new',
     edit: '/projects/:id/edit',
     links: '/projects/:projectId/links',
-    detail: '/projects/:projectId',
+    detail: '/project-detail',
     meetings: '/projects/:projectId/meetings',
   },
   tasks: {

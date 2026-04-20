@@ -48,16 +48,33 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
 
   const textFieldBorderSx = {
     '& .MuiOutlinedInput-root': {
+      backgroundColor: '#E6F0FF',
       borderRadius: 2,
+      transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
       '& fieldset': {
-        borderColor: 'grey.400', // light gray border
-        borderWidth: 1,
-      },
-      '&:hover fieldset': {
-        borderColor: 'grey.600',
-      },
-      '&.Mui-focused fieldset': {
         borderColor: accentColor,
+        borderWidth: '1.5px',
+      },
+      '&:hover': {
+        backgroundColor: '#dce9ff',
+        '& fieldset': {
+          borderColor: '#1A4CC4',
+          borderWidth: '2px',
+        },
+      },
+      '&.Mui-focused': {
+        backgroundColor: '#dce9ff',
+        boxShadow: `0 0 0 3px ${accentColor}28`,
+        '& fieldset': {
+          borderColor: accentColor,
+          borderWidth: '2px',
+        },
+      },
+    },
+    '& .MuiInputLabel-root': {
+      color: '#4a6fa5',
+      '&.Mui-focused': {
+        color: accentColor,
       },
     },
   };
@@ -108,11 +125,13 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
               >
                 <TextField
                   fullWidth
+                  variant="outlined"
                   size="large"
                   id="text"
                   type="text"
                   label="Username"
                   defaultValue={defaultCredential?.username}
+                  sx={textFieldBorderSx}
                 />
               </Grid>
               <Grid
@@ -122,6 +141,7 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
                 size={12}
               >
                 <PasswordTextField
+                  variant="outlined"
                   fullWidth
                   size="large"
                   id="password"

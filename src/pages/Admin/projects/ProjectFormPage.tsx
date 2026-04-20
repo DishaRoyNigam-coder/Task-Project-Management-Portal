@@ -8,6 +8,7 @@ import {
   Button,
   Card,
   CardContent,
+  Divider,
   FormControl,
   Grid,
   InputLabel,
@@ -22,6 +23,7 @@ import { useProjects } from 'context/ProjectContext';
 import { Employee } from 'context/TaskContext';
 import paths from 'routes/paths';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
 const mockEmployees: Employee[] = [
   { id: 1, name: 'John Doe', email: 'john.doe@company.com' },
   { id: 2, name: 'Jane Smith', email: 'jane.smith@company.com' },
@@ -33,6 +35,77 @@ const mockEmployees: Employee[] = [
 const projectPhases = ['Planning', 'Development', 'Testing', 'Deployment', 'Maintenance'];
 const statusOptions = ['Active', 'Completed', 'Archived'];
 
+// ─── Primary Blue (#1E58E6) – matches your theme palette: blue[400/500] ───────
+const PRIMARY_BLUE = '#1E58E6';
+const PRIMARY_BLUE_DARK = '#1A4CC4';
+const PRIMARY_BLUE_LIGHT = '#E6F0FF'; // blue[50]
+
+// ─── Reusable sx: permanent blue outlined border on every field ───────────────
+// "jo jo changes hover effect par ho rhe h use permanent kr do"
+// → default border = blue, hover = deeper blue + bg, focused = glow
+const fieldSx = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: PRIMARY_BLUE_LIGHT,
+    borderRadius: '8px',
+    transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+
+    // DEFAULT: always visible blue border
+    '& fieldset': {
+      borderColor: PRIMARY_BLUE,
+      borderWidth: '1.5px',
+    },
+
+    // HOVER: deeper blue + background change (now permanent feel)
+    '&:hover': {
+      backgroundColor: '#dce9ff',
+      '& fieldset': {
+        borderColor: PRIMARY_BLUE_DARK,
+        borderWidth: '2px',
+      },
+    },
+
+    // FOCUSED: glow ring + deep blue border
+    '&.Mui-focused': {
+      backgroundColor: '#dce9ff',
+      boxShadow: `0 0 0 3px ${PRIMARY_BLUE}28`,
+      '& fieldset': {
+        borderColor: PRIMARY_BLUE,
+        borderWidth: '2px',
+      },
+    },
+  },
+
+  // Label follows border color
+  '& .MuiInputLabel-root': {
+    color: '#4a6fa5',
+    fontWeight: 500,
+    fontSize: '14px',
+    '&.Mui-focused': {
+      color: PRIMARY_BLUE,
+      fontWeight: 600,
+    },
+  },
+
+  // Helper text
+  '& .MuiFormHelperText-root': {
+    marginTop: '4px',
+    fontSize: '12px',
+    color: '#4a6fa5',
+  },
+};
+
+// Same sx but also styles the Select arrow icon
+const selectSx = {
+  ...fieldSx,
+  '& .MuiOutlinedInput-root': {
+    ...fieldSx['& .MuiOutlinedInput-root'],
+    '& .MuiSelect-icon': {
+      color: PRIMARY_BLUE,
+    },
+  },
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 const ProjectFormPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -48,6 +121,7 @@ const ProjectFormPage = () => {
     projectPhase: 'Planning',
     status: 'Active' as 'Active' | 'Completed' | 'Archived',
   });
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -91,15 +165,7 @@ const ProjectFormPage = () => {
     const now = new Date().toISOString();
     if (isEditMode) {
       setProjects((prev) =>
-        prev.map((p) =>
-          p.id === id
-            ? {
-                ...p,
-                ...formData,
-                updatedAt: now,
-              }
-            : p,
-        ),
+        prev.map((p) => (p.id === id ? { ...p, ...formData, updatedAt: now } : p)),
       );
       setSnackbar({ open: true, message: 'Project updated successfully', severity: 'success' });
     } else {
@@ -116,32 +182,69 @@ const ProjectFormPage = () => {
     setTimeout(() => navigate(paths.root), 1500);
   };
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <Box sx={{ p: 3 }}>
-      <Card>
-        <CardContent>
-          <Typography variant="h5" gutterBottom>
-            {isEditMode ? 'Edit Project' : 'Create New Project'}
-          </Typography>
-          <Grid container spacing={2} sx={{ mt: 1 }}>
+    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Card
+        elevation={0}
+        sx={{
+          border: '1px solid #d0e0ff',
+          borderRadius: '12px',
+          overflow: 'visible',
+        }}
+      >
+        <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+          {/* Header */}
+          <Box sx={{ mb: 3 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                color: '#0f2a6e',
+                fontSize: { xs: '1.2rem', sm: '1.4rem' },
+              }}
+            >
+              {isEditMode ? 'Edit Project' : 'Create New Project'}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#4a6fa5', mt: 0.5 }}>
+              {isEditMode
+                ? 'Update the project details below.'
+                : 'Fill in the details below to create a new project.'}
+            </Typography>
+          </Box>
+
+          <Divider sx={{ mb: 3, borderColor: '#d0e0ff' }} />
+
+          {/* Form Grid */}
+          <Grid container spacing={2.5}>
+            {/* Row 1: Project Name | Client Name */}
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Project Name *"
+                variant="outlined"
+                label="Project Name **"
+                placeholder="e.g. Website Redesign"
                 value={formData.projectName}
                 onChange={(e) => handleChange('projectName', e.target.value)}
                 required
+                sx={fieldSx}
               />
             </Grid>
+
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
-                label="Client Name *"
+                variant="outlined"
+                label="Client Name **"
+                placeholder="e.g. Acme Corp"
                 value={formData.clientName}
                 onChange={(e) => handleChange('clientName', e.target.value)}
                 required
+                sx={fieldSx}
               />
             </Grid>
+
+            {/* Row 2: Team Members (full width) */}
             <Grid size={12}>
               <Autocomplete
                 multiple
@@ -150,34 +253,72 @@ const ProjectFormPage = () => {
                 value={formData.teamMembers}
                 onChange={(_, newValue) => handleChange('teamMembers', newValue)}
                 renderInput={(params) => (
-                  <TextField {...params} label="Team Members" placeholder="Select employees" />
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Team Members"
+                    placeholder="Select employees"
+                    sx={fieldSx}
+                  />
                 )}
+                sx={{
+                  '& .MuiAutocomplete-tag': {
+                    backgroundColor: PRIMARY_BLUE_LIGHT,
+                    border: `1px solid ${PRIMARY_BLUE}`,
+                    color: PRIMARY_BLUE,
+                    fontWeight: 500,
+                    borderRadius: '6px',
+                  },
+                  '& .MuiAutocomplete-clearIndicator, & .MuiAutocomplete-popupIndicator': {
+                    color: PRIMARY_BLUE,
+                  },
+                }}
               />
             </Grid>
+
+            {/* Row 3: Google Drive Link (full width) */}
             <Grid size={12}>
               <TextField
                 fullWidth
-                label="Google Drive Link *"
+                variant="outlined"
+                label="Google Drive Link **"
+                placeholder="https://drive.google.com/drive/folders/..."
                 value={formData.driveLink}
                 onChange={(e) => handleChange('driveLink', e.target.value)}
                 required
                 helperText="Mandatory Google Drive folder link"
+                sx={fieldSx}
               />
             </Grid>
+
+            {/* Row 4: Project Notes (full width) */}
             <Grid size={12}>
               <TextField
                 fullWidth
+                variant="outlined"
                 label="Project Notes"
+                placeholder="Add any relevant notes, goals, or context…"
                 multiline
-                rows={3}
+                rows={4}
                 value={formData.projectNotes}
                 onChange={(e) => handleChange('projectNotes', e.target.value)}
+                sx={{
+                  ...fieldSx,
+                  '& .MuiOutlinedInput-root': {
+                    ...fieldSx['& .MuiOutlinedInput-root'],
+                    alignItems: 'flex-start',
+                    paddingTop: '4px',
+                  },
+                }}
               />
             </Grid>
+
+            {/* Row 5: Project Phase | Status */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={selectSx}>
                 <InputLabel>Project Phase</InputLabel>
                 <Select
+                  variant="outlined"
                   value={formData.projectPhase}
                   label="Project Phase"
                   onChange={(e) => handleChange('projectPhase', e.target.value)}
@@ -190,10 +331,12 @@ const ProjectFormPage = () => {
                 </Select>
               </FormControl>
             </Grid>
+
             <Grid size={{ xs: 12, md: 6 }}>
-              <FormControl fullWidth>
+              <FormControl fullWidth sx={selectSx}>
                 <InputLabel>Status</InputLabel>
                 <Select
+                  variant="outlined"
                   value={formData.status}
                   label="Status"
                   onChange={(e) => handleChange('status', e.target.value)}
@@ -207,16 +350,55 @@ const ProjectFormPage = () => {
               </FormControl>
             </Grid>
           </Grid>
-          <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-            <Button variant="outlined" onClick={() => navigate(paths.root)}>
+
+          {/* Action Buttons */}
+          <Divider sx={{ mt: 3.5, mb: 2.5, borderColor: '#d0e0ff' }} />
+
+          <Stack direction="row" spacing={2} justifyContent="flex-end">
+            <Button
+              variant="outlined"
+              onClick={() => navigate(paths.root)}
+              sx={{
+                borderColor: PRIMARY_BLUE,
+                color: PRIMARY_BLUE,
+                fontWeight: 600,
+                px: 3,
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontSize: '14px',
+                '&:hover': {
+                  borderColor: PRIMARY_BLUE_DARK,
+                  backgroundColor: PRIMARY_BLUE_LIGHT,
+                  color: PRIMARY_BLUE_DARK,
+                },
+              }}
+            >
               Cancel
             </Button>
-            <Button variant="contained" onClick={handleSubmit}>
+            <Button
+              variant="contained"
+              onClick={handleSubmit}
+              sx={{
+                backgroundColor: PRIMARY_BLUE,
+                fontWeight: 600,
+                px: 3.5,
+                borderRadius: '8px',
+                textTransform: 'none',
+                fontSize: '14px',
+                boxShadow: `0 4px 12px ${PRIMARY_BLUE}40`,
+                '&:hover': {
+                  backgroundColor: PRIMARY_BLUE_DARK,
+                  boxShadow: `0 6px 16px ${PRIMARY_BLUE}55`,
+                },
+              }}
+            >
               {isEditMode ? 'Update Project' : 'Create Project'}
             </Button>
           </Stack>
         </CardContent>
       </Card>
+
+      {/* Snackbar */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={4000}
@@ -226,6 +408,7 @@ const ProjectFormPage = () => {
         <Alert
           severity={snackbar.severity}
           onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+          sx={{ borderRadius: '8px' }}
         >
           {snackbar.message}
         </Alert>
