@@ -15,9 +15,9 @@ import { useAuth } from 'context/AuthContext';
 import EmployeeNotifications from './EmployeeNotifications';
 
 interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
+  readonly children?: React.ReactNode;
+  readonly index: number;
+  readonly value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
