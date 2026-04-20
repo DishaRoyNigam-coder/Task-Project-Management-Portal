@@ -24,7 +24,6 @@ import {
   LineChart,
   Pie,
   PieChart,
-  PieLabelRenderProps,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -109,7 +108,7 @@ const AdminDashboard = () => {
     });
   }, [tasks]);
 
-  // --- Meetings per project (bar chart) with additional stats ---
+  // --- Meetings per project (bar chart) ---
   const meetingsPerProject = useMemo(() => {
     const projectMap = new Map();
     meetings.forEach((m) => {
@@ -122,19 +121,6 @@ const AdminDashboard = () => {
     });
     return Array.from(projectMap.entries()).map(([name, count]) => ({ name, count }));
   }, [meetings, projects]);
-
-  const totalMeetings = meetings.length;
-  const projectsWithMeetings = meetingsPerProject.length;
-  const avgMeetingsPerProject = projectsWithMeetings
-    ? (totalMeetings / projectsWithMeetings).toFixed(1)
-    : 0;
-
-  // Custom label renderer for pie chart with proper type handling
-  const renderPieLabel = (props: PieLabelRenderProps) => {
-    const { name, percent } = props;
-    if (!name || percent === undefined) return null;
-    return `${name}: ${(percent * 100).toFixed(0)}%`;
-  };
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
@@ -208,11 +194,10 @@ const AdminDashboard = () => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={renderPieLabel}
+                  label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
-                  style={{ fontSize: '12px', fontWeight: 'normal' }}
                 >
                   {taskStatusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -224,14 +209,14 @@ const AdminDashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Task Priority Distribution (Bar) - REDUCED SIZE */}
+        {/* Task Priority Distribution (Bar) */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
             <Typography variant="h6" gutterBottom>
               Tasks by Priority
             </Typography>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={priorityData} barSize={40}>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={priorityData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="priority" />
                 <YAxis />
@@ -263,41 +248,21 @@ const AdminDashboard = () => {
           </Paper>
         </Grid>
 
-        {/* Meetings per Project - Enhanced with summary stats */}
+        {/* Meetings per Project */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Paper sx={{ p: 2 }}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              alignItems="center"
-              sx={{ mb: 1 }}
-            >
-              <Typography variant="h6">Meetings per Project</Typography>
-              <Chip
-                label={`Total: ${totalMeetings} meetings`}
-                color="primary"
-                size="small"
-                variant="outlined"
-              />
-            </Stack>
-            <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
-              Average {avgMeetingsPerProject} meetings per project (across {projectsWithMeetings}{' '}
-              projects)
+            <Typography variant="h6" gutterBottom>
+              Meetings per Project
             </Typography>
-            <ResponsiveContainer width="100%" height={260}>
+            <ResponsiveContainer width="100%" height={300}>
               <BarChart data={meetingsPerProject} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
-                <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 12 }} />
+                <YAxis dataKey="name" type="category" width={100} />
                 <Tooltip />
                 <Bar dataKey="count" fill="#FFBB28" />
               </BarChart>
             </ResponsiveContainer>
-            {meetingsPerProject.length === 0 && (
-              <Typography variant="body2" color="textSecondary" align="center" sx={{ mt: 2 }}>
-                No meetings scheduled yet.
-              </Typography>
-            )}
           </Paper>
         </Grid>
       </Grid>

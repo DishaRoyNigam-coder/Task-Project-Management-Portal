@@ -45,7 +45,7 @@ const TaskFormPage = () => {
     title: '',
     priority: 'Medium' as 'High' | 'Medium' | 'Low',
     dueDate: '',
-    assignedTo: mockEmployees[0],
+    assignedTo: mockEmployees[0] as Employee,
   });
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -86,7 +86,7 @@ const TaskFormPage = () => {
     }
 
     if (isEditMode) {
-      updateTask(taskId, {
+      updateTask(taskId!, {
         projectId: formData.projectId,
         title: formData.title,
         priority: formData.priority,
@@ -167,7 +167,7 @@ const TaskFormPage = () => {
                 label="Due Date *"
                 value={formData.dueDate}
                 onChange={(e) => handleChange('dueDate', e.target.value)}
-                slotProps={{ inputLabel: { shrink: true } }}
+                InputLabelProps={{ shrink: true }}
                 required
               />
             </Grid>

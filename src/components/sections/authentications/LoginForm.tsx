@@ -18,18 +18,40 @@ import Grid from '@mui/material/Grid';
 import PasswordTextField from 'components/common/PasswordTextField';
 import { blue } from '../../../theme/palette/colors';
 
-interface LoginFormProps {
-  defaultCredential?: { email: string; password: string };
-}
-const LoginForm = ({ defaultCredential }: LoginFormProps) => {
+const LoginForm = () => {
   const navigate = useNavigate();
-
-  const [role, setRole] = useState<'admin' | 'employee'>('admin');
-  const accentColor = blue[400];
+  const [role, setRole] = useState<'admin' | 'employee'>('employee');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    navigate('/');
+    navigate(role === 'admin' ? '/admin/dashboard' : '/employee/dashboard');
+  };
+
+  // ----- CUSTOM STYLES (adjust colors here) -----
+  const inputBackground = blue[50]; // light blue background for fields
+  const inputBorder = '#e0e0e0'; // subtle border
+  const focusBorder = '#1e88e5'; // blue border on focus
+  const accentColor = '#1e88e5'; // color for checked checkbox/radio
+  const formBgColor = '#fafafa'; // light background for the form container
+
+  const textFieldSx = {
+    // Remove any background from the root (so it doesn't interfere)
+    '& .MuiOutlinedInput-root': {
+      backgroundColor: 'transparent',
+      '& fieldset': { borderColor: inputBorder, transition: 'border-color 0.2s' },
+      '&:hover fieldset': { borderColor: '#bdbdbd' },
+      '&.Mui-focused fieldset': { borderColor: focusBorder, borderWidth: 2 },
+    },
+    // Apply the light blue background directly to the input element
+    '& .MuiInputBase-input': {
+      backgroundColor: `${inputBackground} !important`,
+      borderRadius: 2,
+      // Optional: add some padding if needed
+      padding: '12px 14px',
+    },
+    // Make sure the label stays readable
+    '& .MuiInputLabel-root': { color: '#666' },
+    '& .MuiInputLabel-root.Mui-focused': { color: accentColor },
   };
 
   // 👇 UPDATED controlSx for blue borders
@@ -45,6 +67,7 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
       opacity: 0.8,
     },
   };
+  // ---------------------------------------------
 
   return (
     <Stack
@@ -52,65 +75,47 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
       sx={{
         height: 1,
         alignItems: 'center',
-        justifyContent: 'space-between',
-        pt: { md: 10 },
-        pb: 10,
+        justifyContent: 'center',
+        p: 3,
       }}
     >
-      <div />
-
       <Grid
         container
         sx={{
           maxWidth: '35rem',
           rowGap: 4,
           p: { xs: 3, sm: 5 },
-          mb: 5,
+          borderRadius: 4,
+          border: '1px solid',
+          borderColor: 'divider',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+          bgcolor: formBgColor,
         }}
       >
         <Grid size={12}>
-          <Stack
-            direction={{ xs: 'column', sm: 'row' }}
-            spacing={1}
-            sx={{
-              justifyContent: 'space-between',
-              alignItems: { xs: 'flex-start', sm: 'flex-end' },
-            }}
-          >
-            <Typography variant="h4">Log in</Typography>
-          </Stack>
+          <Typography variant="h4" fontWeight={500}>
+            Log in
+          </Typography>
         </Grid>
 
         <Grid size={12}>
           <Box component="form" noValidate onSubmit={handleSubmit}>
-            <Grid container>
-              <Grid
-                sx={{
-                  mb: 3,
-                }}
-                size={12}
-              >
+            <Grid container spacing={2.5}>
+              <Grid size={12}>
                 <TextField
                   fullWidth
-                  size="large"
-                  id="email"
-                  type="email"
-                  label="Email"
-                  defaultValue={defaultCredential?.email}
+                  label="Username "
+                  type="text"
+                  defaultValue="demo"
+                  sx={textFieldSx}
                 />
               </Grid>
-              <Grid
-                sx={{
-                  mb: 2.5,
-                }}
-                size={12}
-              >
+              <Grid size={12}>
                 <PasswordTextField
                   fullWidth
-                  size="large"
-                  id="password"
                   label="Password"
-                  defaultValue={defaultCredential?.password}
+                  defaultValue="password123"
+                  sx={textFieldSx}
                 />
               </Grid>
 
@@ -139,12 +144,12 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
                     control={<Checkbox sx={controlSx} />}
                     label="Remember this device"
                   />
-
-                  <Link href="#!" variant="subtitle2">
+                  <Link href="#" underline="hover">
                     Forgot Password?
                   </Link>
                 </Stack>
               </Grid>
+
               <Grid size={12}>
                 <Button fullWidth type="submit" size="large" variant="contained">
                   Log in
@@ -154,9 +159,6 @@ const LoginForm = ({ defaultCredential }: LoginFormProps) => {
           </Box>
         </Grid>
       </Grid>
-      <Link href="#!" variant="subtitle2">
-        Trouble signing in?
-      </Link>
     </Stack>
   );
 };
