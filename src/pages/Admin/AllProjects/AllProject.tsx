@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   Add as AddIcon,
-  Archive as ArchiveIcon,
   DeleteOutline as DeleteIcon,
   Edit as EditIcon,
   Link as LinkIcon,
   Task as TaskIcon,
-  Update as UpdateIcon, // <-- new import
+  Update as UpdateIcon,
 } from '@mui/icons-material';
 import {
   Alert,
@@ -45,11 +44,8 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-// <-- new import
 import { useUpdates } from 'context/UpdateContext';
 import paths from 'routes/paths';
-
-// <-- new import
 
 // ------------------------------
 // Type Definitions
@@ -277,13 +273,19 @@ const AllProjects = () => {
     setProjectModalOpen(false);
   };
 
-  const handleArchiveProject = (projectId: string) => {
-    setProjects(
-      projects.map((p) =>
-        p.id === projectId ? { ...p, status: 'Archived', updatedAt: new Date().toISOString() } : p,
-      ),
-    );
-    setSnackbar({ open: true, message: 'Project archived', severity: 'success' });
+  const handleDeleteProject = (projectId: string) => {
+    // Confirm deletion
+    if (
+      window.confirm(
+        'Are you sure you want to delete this project? This will also delete all associated tasks.',
+      )
+    ) {
+      // Remove project
+      setProjects(projects.filter((p) => p.id !== projectId));
+      // Remove associated tasks
+      setTasks(tasks.filter((t) => t.projectId !== projectId));
+      setSnackbar({ open: true, message: 'Project deleted successfully', severity: 'success' });
+    }
   };
 
   const handleStatusChange = (projectId: string, newStatus: Project['status']) => {
@@ -357,17 +359,14 @@ const AllProjects = () => {
         <Tabs value={activeTab} onChange={(_, newValue) => setActiveTab(newValue)}>
           <Tab label="Projects" icon={<TaskIcon />} iconPosition="start" />
           <Tab label="Tasks" icon={<AddIcon />} iconPosition="start" />
-          <Tab label="Task Updates" icon={<UpdateIcon />} iconPosition="start" /> {/* new tab */}
+          <Tab label="Task Updates" icon={<UpdateIcon />} iconPosition="start" />
         </Tabs>
       </Paper>
 
       {/* Projects Tab */}
       {activeTab === 0 && (
         <Card>
-          <CardHeader
-            title="All Projects"
-            subheader="Manage projects, change status, archive or edit"
-          />
+          <CardHeader title="All Projects" subheader="Manage projects, change status, or delete" />
           <Divider />
           <TableContainer>
             <Table>
@@ -454,9 +453,9 @@ const AllProjects = () => {
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Archive">
-                          <IconButton size="small" onClick={() => handleArchiveProject(project.id)}>
-                            <ArchiveIcon fontSize="small" />
+                        <Tooltip title="Delete">
+                          <IconButton size="small" onClick={() => handleDeleteProject(project.id)}>
+                            <DeleteIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
                       </Stack>
