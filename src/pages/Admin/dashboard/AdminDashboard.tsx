@@ -243,7 +243,7 @@ const AdminDashboard = () => {
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Page Header */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>
           Admin Dashboard
         </Typography>
         <Typography variant="body2" sx={{ color: '#4a6fa5', mt: 0.5 }}>
@@ -415,7 +415,7 @@ const AdminDashboard = () => {
       {/* Project Health Summary */}
       <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px', mb: 3 }}>
         <CardContent sx={{ p: 2.5 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2.5 }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 2.5 }}>
             Project Health Summary
           </Typography>
           {projectHealth.length === 0 ? (
