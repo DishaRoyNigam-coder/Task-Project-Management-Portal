@@ -22,16 +22,12 @@ import {
   List,
   ListItem,
   ListItemButton,
+  ListItemSecondaryAction,
   ListItemText,
   Paper,
   TextField,
   Typography,
 } from '@mui/material';
-
-// Theme colors (matching the blue theme)
-const PRIMARY_BLUE = '#1E58E6';
-const PRIMARY_BLUE_LIGHT = '#E6F0FF';
-const PRIMARY_BLUE_DARK = '#1A4CC4';
 
 // Mock project data (replace with real data from your ProjectContext or API)
 interface Project {
@@ -165,51 +161,30 @@ const ProjectLinksNotes = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
-      <Typography variant="h4" gutterBottom fontWeight={700} color="#0f2a6e">
+      <Typography variant="h4" gutterBottom>
         Project Links & Notes
       </Typography>
-      <Typography variant="body2" color="#4a6fa5" sx={{ mb: 3 }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
         Manage external links and internal notes for each project.
       </Typography>
 
-      {/* Two-column layout */}
+      {/* Replace Grid with flex Box */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
         {/* Project List - left column */}
         <Box sx={{ flex: '1 1 300px', minWidth: 250 }}>
-          <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px' }}>
-            <CardContent sx={{ p: 2.5 }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2 }}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
                 Projects
               </Typography>
-              <List disablePadding>
+              <List>
                 {projects.map((project) => (
-                  <ListItem key={project.id} disablePadding sx={{ mb: 1 }}>
+                  <ListItem key={project.id} disablePadding>
                     <ListItemButton
                       selected={selectedProject?.id === project.id}
                       onClick={() => handleSelectProject(project)}
-                      sx={{
-                        borderRadius: '8px',
-                        transition: 'all 0.15s ease',
-                        '&:hover': {
-                          backgroundColor: PRIMARY_BLUE_LIGHT,
-                          color: PRIMARY_BLUE,
-                        },
-                        '&.Mui-selected': {
-                          backgroundColor: PRIMARY_BLUE_LIGHT,
-                          color: PRIMARY_BLUE,
-                          borderLeft: `3px solid ${PRIMARY_BLUE}`,
-                          '&:hover': {
-                            backgroundColor: PRIMARY_BLUE_LIGHT,
-                          },
-                        },
-                      }}
                     >
-                      <ListItemText
-                        primary={project.name}
-                        slotProps={{
-                          primary: { sx: { fontWeight: 500, fontSize: '0.95rem' } },
-                        }}
-                      />
+                      <ListItemText primary={project.name} />
                     </ListItemButton>
                   </ListItem>
                 ))}
@@ -226,9 +201,9 @@ const ProjectLinksNotes = () => {
         {/* Links & Notes for selected project - right column */}
         <Box sx={{ flex: '2 1 500px', minWidth: 400 }}>
           {selectedProject ? (
-            <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px' }}>
-              <CardContent sx={{ p: 2.5 }}>
-                <Typography variant="h5" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h5" gutterBottom>
                   {selectedProject.name}
                 </Typography>
 
@@ -242,86 +217,55 @@ const ProjectLinksNotes = () => {
                       mb: 2,
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#0f2a6e' }}>
-                      <LinkIcon sx={{ mr: 1, verticalAlign: 'middle', color: PRIMARY_BLUE }} />
+                    <Typography variant="h6">
+                      <LinkIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                       Links
                     </Typography>
                     <Button
                       startIcon={<AddIcon />}
                       size="small"
                       onClick={() => handleOpenLinkDialog()}
-                      sx={{
-                        color: PRIMARY_BLUE,
-                        fontWeight: 600,
-                        borderRadius: '8px',
-                        textTransform: 'none',
-                        '&:hover': { backgroundColor: PRIMARY_BLUE_LIGHT },
-                      }}
                     >
                       Add Link
                     </Button>
                   </Box>
                   {selectedProject.links.length === 0 ? (
-                    <Alert severity="info" sx={{ borderRadius: '8px' }}>
-                      No links added yet.
-                    </Alert>
+                    <Alert severity="info">No links added yet.</Alert>
                   ) : (
-                    <List disablePadding>
+                    <List>
                       {selectedProject.links.map((link) => (
-                        <ListItem
-                          key={link.id}
-                          divider
-                          sx={{
-                            borderRadius: '8px',
-                            mb: 1,
-                            bgcolor: '#f8fbff',
-                            border: '1px solid #d0e0ff',
-                          }}
-                        >
+                        <ListItem key={link.id} divider>
                           <ListItemText
                             primary={
-                              <a
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{
-                                  color: PRIMARY_BLUE,
-                                  fontWeight: 600,
-                                  textDecoration: 'none',
-                                }}
-                              >
+                              <a href={link.url} target="_blank" rel="noopener noreferrer">
                                 {link.title}
                               </a>
                             }
-                            secondary={
-                              <Typography sx={{ fontSize: '12px', color: '#4a6fa5' }}>
-                                {link.url}
-                              </Typography>
-                            }
+                            secondary={link.url}
                           />
-                          <IconButton
-                            edge="end"
-                            size="small"
-                            onClick={() => handleOpenLinkDialog(link)}
-                            sx={{ color: PRIMARY_BLUE }}
-                          >
-                            <EditIcon />
-                          </IconButton>
-                          <IconButton
-                            edge="end"
-                            size="small"
-                            onClick={() => handleDeleteLink(link.id)}
-                            sx={{ color: '#e53935' }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                          <ListItemSecondaryAction>
+                            <IconButton
+                              edge="end"
+                              size="small"
+                              onClick={() => handleOpenLinkDialog(link)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                            <IconButton
+                              edge="end"
+                              size="small"
+                              onClick={() => handleDeleteLink(link.id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
                         </ListItem>
                       ))}
                     </List>
                   )}
                 </Box>
 
-                <Divider sx={{ my: 2, borderColor: '#d0e0ff' }} />
+                <Divider sx={{ my: 2 }} />
 
                 {/* Notes Section */}
                 <Box>
@@ -333,58 +277,33 @@ const ProjectLinksNotes = () => {
                       mb: 2,
                     }}
                   >
-                    <Typography variant="h6" sx={{ fontWeight: 600, color: '#0f2a6e' }}>
-                      <NoteIcon sx={{ mr: 1, verticalAlign: 'middle', color: PRIMARY_BLUE }} />
+                    <Typography variant="h6">
+                      <NoteIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                       Notes
                     </Typography>
-                    <Button
-                      startIcon={<AddIcon />}
-                      size="small"
-                      onClick={handleOpenNoteDialog}
-                      sx={{
-                        color: PRIMARY_BLUE,
-                        fontWeight: 600,
-                        borderRadius: '8px',
-                        textTransform: 'none',
-                        '&:hover': { backgroundColor: PRIMARY_BLUE_LIGHT },
-                      }}
-                    >
+                    <Button startIcon={<AddIcon />} size="small" onClick={handleOpenNoteDialog}>
                       Add Note
                     </Button>
                   </Box>
                   {selectedProject.notes.length === 0 ? (
-                    <Alert severity="info" sx={{ borderRadius: '8px' }}>
-                      No notes yet.
-                    </Alert>
+                    <Alert severity="info">No notes yet.</Alert>
                   ) : (
-                    <List disablePadding>
+                    <List>
                       {selectedProject.notes.map((note) => (
-                        <ListItem
-                          key={note.id}
-                          divider
-                          sx={{
-                            borderRadius: '8px',
-                            mb: 1,
-                            bgcolor: '#f8fbff',
-                            border: '1px solid #d0e0ff',
-                          }}
-                        >
+                        <ListItem key={note.id} divider>
                           <ListItemText
                             primary={note.content}
                             secondary={`Added on ${note.createdAt}`}
-                            slotProps={{
-                              primary: { sx: { fontWeight: 500 } },
-                              secondary: { sx: { fontSize: '11px', color: '#4a6fa5' } },
-                            }}
                           />
-                          <IconButton
-                            edge="end"
-                            size="small"
-                            onClick={() => handleDeleteNote(note.id)}
-                            sx={{ color: '#e53935' }}
-                          >
-                            <DeleteIcon />
-                          </IconButton>
+                          <ListItemSecondaryAction>
+                            <IconButton
+                              edge="end"
+                              size="small"
+                              onClick={() => handleDeleteNote(note.id)}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
                         </ListItem>
                       ))}
                     </List>
@@ -393,16 +312,8 @@ const ProjectLinksNotes = () => {
               </CardContent>
             </Card>
           ) : (
-            <Paper
-              elevation={0}
-              sx={{
-                p: 4,
-                textAlign: 'center',
-                border: '1px solid #d0e0ff',
-                borderRadius: '12px',
-              }}
-            >
-              <Typography variant="body1" color="#4a6fa5">
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="body1" color="text.secondary">
                 Select a project from the left to manage its links and notes.
               </Typography>
             </Paper>
@@ -411,18 +322,9 @@ const ProjectLinksNotes = () => {
       </Box>
 
       {/* Add/Edit Link Dialog */}
-      <Dialog
-        open={openLinkDialog}
-        onClose={handleCloseLinkDialog}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: '12px' } }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-          {editingLink.id ? 'Edit Link' : 'Add Link'}
-        </DialogTitle>
-        <Divider sx={{ borderColor: '#d0e0ff' }} />
-        <DialogContent sx={{ pt: 2 }}>
+      <Dialog open={openLinkDialog} onClose={handleCloseLinkDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingLink.id ? 'Edit Link' : 'Add Link'}</DialogTitle>
+        <DialogContent>
           <TextField
             autoFocus
             margin="dense"
@@ -441,30 +343,12 @@ const ProjectLinksNotes = () => {
             onChange={(e) => setEditingLink({ ...editingLink, url: e.target.value })}
           />
         </DialogContent>
-        <Divider sx={{ borderColor: '#d0e0ff' }} />
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={handleCloseLinkDialog}
-            sx={{
-              color: PRIMARY_BLUE,
-              fontWeight: 600,
-              borderRadius: '8px',
-              textTransform: 'none',
-            }}
-          >
-            Cancel
-          </Button>
+        <DialogActions>
+          <Button onClick={handleCloseLinkDialog}>Cancel</Button>
           <Button
             onClick={handleSaveLink}
             variant="contained"
             disabled={!editingLink.title || !editingLink.url}
-            sx={{
-              backgroundColor: PRIMARY_BLUE,
-              fontWeight: 600,
-              borderRadius: '8px',
-              textTransform: 'none',
-              '&:hover': { backgroundColor: PRIMARY_BLUE_DARK },
-            }}
           >
             Save
           </Button>
@@ -472,16 +356,9 @@ const ProjectLinksNotes = () => {
       </Dialog>
 
       {/* Add Note Dialog */}
-      <Dialog
-        open={openNoteDialog}
-        onClose={handleCloseNoteDialog}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: '12px' } }}
-      >
-        <DialogTitle sx={{ fontWeight: 700, color: '#0f2a6e' }}>Add Note</DialogTitle>
-        <Divider sx={{ borderColor: '#d0e0ff' }} />
-        <DialogContent sx={{ pt: 2 }}>
+      <Dialog open={openNoteDialog} onClose={handleCloseNoteDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Note</DialogTitle>
+        <DialogContent>
           <TextField
             autoFocus
             margin="dense"
@@ -494,31 +371,9 @@ const ProjectLinksNotes = () => {
             onChange={(e) => setNewNote(e.target.value)}
           />
         </DialogContent>
-        <Divider sx={{ borderColor: '#d0e0ff' }} />
-        <DialogActions sx={{ p: 2 }}>
-          <Button
-            onClick={handleCloseNoteDialog}
-            sx={{
-              color: PRIMARY_BLUE,
-              fontWeight: 600,
-              borderRadius: '8px',
-              textTransform: 'none',
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSaveNote}
-            variant="contained"
-            disabled={!newNote.trim()}
-            sx={{
-              backgroundColor: PRIMARY_BLUE,
-              fontWeight: 600,
-              borderRadius: '8px',
-              textTransform: 'none',
-              '&:hover': { backgroundColor: PRIMARY_BLUE_DARK },
-            }}
-          >
+        <DialogActions>
+          <Button onClick={handleCloseNoteDialog}>Cancel</Button>
+          <Button onClick={handleSaveNote} variant="contained" disabled={!newNote.trim()}>
             Add
           </Button>
         </DialogActions>

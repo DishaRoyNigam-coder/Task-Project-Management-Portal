@@ -202,7 +202,7 @@ const ProjectFormPage = () => {
               variant="h5"
               sx={{
                 fontWeight: 700,
-                color: '#171c27',
+                color: '#0f2a6e',
                 fontSize: { xs: '1.2rem', sm: '1.4rem' },
               }}
             >
