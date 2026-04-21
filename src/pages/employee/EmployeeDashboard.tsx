@@ -1,3 +1,4 @@
+// src/pages/employee/EmployeeDashboard.tsx — Professional blue-themed
 import { useMemo } from 'react';
 import {
   CheckCircle as CompletedIcon,
@@ -14,6 +15,7 @@ import {
   Chip,
   Grid,
   LinearProgress,
+  Paper,
   Stack,
   Typography,
 } from '@mui/material';
@@ -26,7 +28,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
   Legend,
   Line,
   LineChart,
@@ -38,8 +39,105 @@ import {
   YAxis,
 } from 'recharts';
 
-const COLORS = ['#0088FE', '#FFBB28', '#00C49F', '#FF8042'];
+// ─── Theme ────────────────────────────────────────────────────────────────────
+const PRIMARY_BLUE = '#1E58E6';
+const PRIMARY_BLUE_LIGHT = '#E6F0FF';
+const COLORS = ['#1E58E6', '#FFBB28', '#00C49F', '#FF8042'];
 
+// ─── Sub-components ───────────────────────────────────────────────────────────
+const KpiCard = ({
+  label,
+  value,
+  icon,
+  avatarBg,
+  progress,
+  caption,
+  badge,
+  valueColor,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  avatarBg: string;
+  progress?: number;
+  caption?: string;
+  badge?: React.ReactNode;
+  valueColor?: string;
+}) => (
+  <Card
+    elevation={0}
+    sx={{
+      height: '100%',
+      border: '1px solid #d0e0ff',
+      borderRadius: '12px',
+      transition: 'box-shadow 0.2s',
+      '&:hover': { boxShadow: `0 4px 20px ${PRIMARY_BLUE}20` },
+    }}
+  >
+    <CardContent sx={{ p: 2.5 }}>
+      <Stack direction="row" alignItems="center" spacing={2}>
+        <Avatar sx={{ bgcolor: avatarBg, width: 48, height: 48 }}>{icon}</Avatar>
+        <Box>
+          <Typography variant="body2" sx={{ color: '#4a6fa5', fontWeight: 500 }}>
+            {label}
+          </Typography>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 700, color: valueColor || '#0f2a6e', lineHeight: 1.2 }}
+          >
+            {value}
+          </Typography>
+          {badge}
+        </Box>
+      </Stack>
+      {progress !== undefined && (
+        <>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{
+              mt: 1.5,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: PRIMARY_BLUE_LIGHT,
+              '& .MuiLinearProgress-bar': { backgroundColor: PRIMARY_BLUE },
+            }}
+          />
+          {caption && (
+            <Typography variant="caption" sx={{ color: '#4a6fa5', mt: 0.5, display: 'block' }}>
+              {caption}
+            </Typography>
+          )}
+        </>
+      )}
+    </CardContent>
+  </Card>
+);
+
+const ChartCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <Card elevation={0} sx={{ height: '100%', border: '1px solid #d0e0ff', borderRadius: '12px' }}>
+    <CardContent sx={{ p: 2.5 }}>
+      <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2 }}>
+        {title}
+      </Typography>
+      {children}
+    </CardContent>
+  </Card>
+);
+
+const getUpdateTypeColor = (type: string): 'success' | 'error' | 'warning' => {
+  if (type === 'Completed') return 'success';
+  if (type === 'Delayed') return 'error';
+  return 'warning';
+};
+
+const getPriorityFill = (priority: string) => {
+  if (priority === 'High') return '#f44336';
+  if (priority === 'Medium') return '#ff9800';
+  return PRIMARY_BLUE;
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 const EmployeeDashboard = () => {
   const { user } = useAuth();
   const { tasks } = useTasks();
@@ -47,46 +145,48 @@ const EmployeeDashboard = () => {
   const { getMeetingsByEmployee } = useMeetings();
   const { projects } = useProjects();
 
-  // Filter data for current employee
   const myTasks = tasks.filter((t) => t.assignedTo.id === user?.id);
-  const myUpdates = updates.filter((u) => u.employeeId === String(user?.id));
+  const myUpdates = updates.filter((u) => !!user && u.employeeId === String(user.id));
   const myMeetings = user ? getMeetingsByEmployee(user.id) : [];
 
-  // Task status counts
   const taskStatusCounts = useMemo(() => {
     const counts = { Pending: 0, 'In progress': 0, Done: 0 };
     myTasks.forEach((task) => {
-      if (task.status === 'Pending') counts.Pending++;
-      else if (task.status === 'In progress') counts['In progress']++;
-      else if (task.status === 'Done') counts.Done++;
+      if (Object.prototype.hasOwnProperty.call(counts, task.status)) {
+        counts[task.status]++;
+      }
     });
-    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+    return Object.entries(counts).map(([name, value], index) => ({
+      name,
+      value,
+      fill: COLORS[index % COLORS.length],
+    }));
   }, [myTasks]);
 
-  // Task priority counts
   const taskPriorityData = useMemo(() => {
     const counts = { High: 0, Medium: 0, Low: 0 };
     myTasks.forEach((task) => {
       counts[task.priority]++;
     });
-    return Object.entries(counts).map(([priority, count]) => ({ priority, count }));
+    return Object.entries(counts).map(([priority, count]) => ({
+      priority,
+      count,
+      fill: getPriorityFill(priority),
+    }));
   }, [myTasks]);
 
-  // Update activity over last 7 days
   const updateActivity = useMemo(() => {
     const last7Days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - i);
       return d.toISOString().slice(0, 10);
     }).reverse();
-
     return last7Days.map((date) => ({
-      date,
+      date: date.slice(5),
       updates: myUpdates.filter((u) => u.createdAt.startsWith(date)).length,
     }));
   }, [myUpdates]);
 
-  // Meeting hours per project
   const meetingHoursPerProject = useMemo(() => {
     const projMap: Record<string, number> = {};
     myMeetings.forEach((m) => {
@@ -99,327 +199,293 @@ const EmployeeDashboard = () => {
         const proj = projects.find((p) => p.id === projectId);
         name = proj ? proj.projectName : projectId;
       }
-      return { project: name, hours: parseFloat(hours.toFixed(1)) };
+      return { project: name, hours: Number.parseFloat(hours.toFixed(1)) };
     });
   }, [myMeetings, projects]);
 
-  // Pending updates (not yet approved/rejected? In your system updates have status 'pending')
   const pendingUpdates = myUpdates.filter((u) => u.status === 'pending').length;
   const rejectedUpdates = myUpdates.filter((u) => u.status === 'rejected').length;
   const completedTasks = myTasks.filter((t) => t.status === 'Done').length;
   const totalTasks = myTasks.length;
   const totalMeetings = myMeetings.length;
   const totalMeetingHours = myMeetings.reduce((sum, m) => sum + m.duration, 0) / 60;
-
-  // Task completion rate
   const completionRate = totalTasks ? (completedTasks / totalTasks) * 100 : 0;
 
-  return (
-    <Box sx={{ p: 3, bgcolor: 'background.default', minHeight: '100vh' }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold">
-        Employee Dashboard
-      </Typography>
-      <Typography variant="subtitle1" color="text.secondary" gutterBottom>
-        Welcome back, {user?.name || 'Employee'} 👋
-      </Typography>
+  const overduePriorityTasks = myTasks.filter(
+    (task) =>
+      (new Date(task.dueDate) < new Date() && task.status !== 'Done') || task.priority === 'High',
+  );
 
-      {/* Metrics Cards - Equal Height */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+  return (
+    <Box sx={{ p: { xs: 2, md: 3 } }}>
+      {/* Header */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+          Employee Dashboard
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#4a6fa5', mt: 0.5 }}>
+          Welcome back, {user?.name || 'Employee'} 👋 — here's your activity overview.
+        </Typography>
+      </Box>
+
+      {/* KPI Cards */}
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%', borderRadius: 3 }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'primary.light', width: 48, height: 48 }}>
-                  <TaskIcon />
-                </Avatar>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Total Tasks
-                  </Typography>
-                  <Typography variant="h4" fontWeight="bold">
-                    {totalTasks}
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
+          <KpiCard
+            label="Total Tasks"
+            value={totalTasks}
+            icon={<TaskIcon />}
+            avatarBg={`${PRIMARY_BLUE}22`}
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%', borderRadius: 3 }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'success.light', width: 48, height: 48 }}>
-                  <CompletedIcon />
-                </Avatar>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Completed Tasks
-                  </Typography>
-                  <Typography variant="h4" fontWeight="bold">
-                    {completedTasks}
-                  </Typography>
-                </Box>
-              </Stack>
-              <LinearProgress
-                variant="determinate"
-                value={completionRate}
-                sx={{ mt: 1, height: 8, borderRadius: 4 }}
-              />
-              <Typography variant="caption" color="text.secondary">
-                {completionRate.toFixed(0)}% completion
-              </Typography>
-            </CardContent>
-          </Card>
+          <KpiCard
+            label="Completed Tasks"
+            value={completedTasks}
+            icon={<CompletedIcon />}
+            avatarBg="#00C49F22"
+            progress={completionRate}
+            caption={`${completionRate.toFixed(0)}% completion rate`}
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%', borderRadius: 3 }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'warning.light', width: 48, height: 48 }}>
-                  <UpdateIcon />
-                </Avatar>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Pending Updates
-                  </Typography>
-                  <Typography variant="h4" fontWeight="bold">
-                    {pendingUpdates}
-                  </Typography>
-                  {rejectedUpdates > 0 && (
-                    <Chip
-                      size="small"
-                      label={`${rejectedUpdates} rejected`}
-                      color="error"
-                      variant="outlined"
-                      sx={{ mt: 0.5 }}
-                    />
-                  )}
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
+          <KpiCard
+            label="Pending Updates"
+            value={pendingUpdates}
+            icon={<UpdateIcon />}
+            avatarBg="#FFBB2822"
+            badge={
+              rejectedUpdates > 0 ? (
+                <Chip
+                  size="small"
+                  label={`${rejectedUpdates} rejected`}
+                  color="error"
+                  variant="outlined"
+                  sx={{ mt: 0.5, fontWeight: 600 }}
+                />
+              ) : undefined
+            }
+          />
         </Grid>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
-          <Card sx={{ height: '100%', borderRadius: 3 }}>
-            <CardContent>
-              <Stack direction="row" alignItems="center" spacing={2}>
-                <Avatar sx={{ bgcolor: 'info.light', width: 48, height: 48 }}>
-                  <MeetingIcon />
-                </Avatar>
-                <Box>
-                  <Typography variant="body2" color="text.secondary">
-                    Meetings
-                  </Typography>
-                  <Typography variant="h4" fontWeight="bold">
-                    {totalMeetings}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {totalMeetingHours.toFixed(1)} hours logged
-                  </Typography>
-                </Box>
-              </Stack>
-            </CardContent>
-          </Card>
+          <KpiCard
+            label="Meetings"
+            value={totalMeetings}
+            icon={<MeetingIcon />}
+            avatarBg="#00C49F15"
+            caption={`${totalMeetingHours.toFixed(1)} hours logged`}
+          />
         </Grid>
       </Grid>
 
       {/* Charts Row 1 */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 3, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Task Status Distribution
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={taskStatusCounts}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {taskStatusCounts.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <ChartCard title="Task Status Distribution">
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={taskStatusCounts}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  dataKey="value"
+                ></Pie>
+                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </ChartCard>
         </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 3, height: '100%' }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Task Priority Breakdown
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={taskPriorityData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="priority" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="count" fill="#8884d8" name="Number of Tasks" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <ChartCard title="Task Priority Breakdown">
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={taskPriorityData} barSize={52}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e8efff" />
+                <XAxis dataKey="priority" tick={{ fill: '#4a6fa5', fontSize: 13 }} />
+                <YAxis allowDecimals={false} tick={{ fill: '#4a6fa5', fontSize: 13 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
+                <Legend />
+                <Bar dataKey="count" name="Tasks" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </ChartCard>
         </Grid>
       </Grid>
 
       {/* Charts Row 2 */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Update Activity (Last 7 Days)
-              </Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={updateActivity}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="updates"
-                    stroke="#8884d8"
-                    name="Updates Submitted"
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <ChartCard title="Update Activity (Last 7 Days)">
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={updateActivity}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e8efff" />
+                <XAxis dataKey="date" tick={{ fill: '#4a6fa5', fontSize: 12 }} />
+                <YAxis allowDecimals={false} tick={{ fill: '#4a6fa5', fontSize: 12 }} />
+                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
+                <Legend />
+                <Line
+                  type="monotone"
+                  dataKey="updates"
+                  stroke={PRIMARY_BLUE}
+                  strokeWidth={2.5}
+                  dot={{ fill: PRIMARY_BLUE, r: 4 }}
+                  name="Updates Submitted"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
         </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Meeting Hours by Project
-              </Typography>
-              {meetingHoursPerProject.length === 0 ? (
-                <Typography color="text.secondary" sx={{ textAlign: 'center', py: 5 }}>
-                  No meeting data yet.
-                </Typography>
-              ) : (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={meetingHoursPerProject} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" unit="h" />
-                    <YAxis type="category" dataKey="project" width={100} />
-                    <Tooltip formatter={(value) => `${value} hours`} />
-                    <Legend />
-                    <Bar dataKey="hours" fill="#82ca9d" name="Hours Spent" />
-                  </BarChart>
-                </ResponsiveContainer>
-              )}
-            </CardContent>
-          </Card>
+          <ChartCard title="Meeting Hours by Project">
+            {meetingHoursPerProject.length === 0 ? (
+              <Box sx={{ textAlign: 'center', py: 6 }}>
+                <Typography color="text.secondary">No meeting data yet.</Typography>
+              </Box>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={meetingHoursPerProject} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e8efff" />
+                  <XAxis type="number" unit="h" tick={{ fill: '#4a6fa5', fontSize: 12 }} />
+                  <YAxis
+                    type="category"
+                    dataKey="project"
+                    width={100}
+                    tick={{ fill: '#4a6fa5', fontSize: 11 }}
+                  />
+                  <Tooltip
+                    formatter={(value) => `${value} hours`}
+                    contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }}
+                  />
+                  <Legend />
+                  <Bar dataKey="hours" fill="#00C49F" name="Hours Spent" radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </ChartCard>
         </Grid>
       </Grid>
 
-      {/* Recent Updates & Overdue Tasks */}
-      <Grid container spacing={3}>
+      {/* Bottom Row: Recent Updates & Overdue/High Priority */}
+      <Grid container spacing={2.5}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+          <Card
+            elevation={0}
+            sx={{ height: '100%', border: '1px solid #d0e0ff', borderRadius: '12px' }}
+          >
+            <CardContent sx={{ p: 2.5 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2 }}>
                 Recent Updates
               </Typography>
-              {myUpdates.slice(0, 5).map((update) => {
-                const task = tasks.find((t) => t.id === update.taskId);
-                return (
-                  <Box
-                    key={update.id}
-                    sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 2 }}
-                  >
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Chip
-                        label={update.type}
-                        size="small"
-                        color={
-                          update.type === 'Completed'
-                            ? 'success'
-                            : update.type === 'Delayed'
-                              ? 'error'
-                              : 'warning'
-                        }
-                      />
-                      <Typography variant="caption" color="text.secondary">
-                        {new Date(update.createdAt).toLocaleDateString()}
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body2" noWrap>
-                      {task?.title} – {update.description.substring(0, 80)}...
-                    </Typography>
-                    {update.status === 'rejected' && (
-                      <Chip label="Rejected" size="small" color="error" sx={{ mt: 0.5 }} />
-                    )}
-                  </Box>
-                );
-              })}
-              {myUpdates.length === 0 && (
+              {myUpdates.length === 0 ? (
                 <Typography color="text.secondary">No updates submitted yet.</Typography>
+              ) : (
+                myUpdates.slice(0, 5).map((update) => {
+                  const task = tasks.find((t) => t.id === update.taskId);
+                  return (
+                    <Box key={update.id}>
+                      <Box
+                        sx={{
+                          p: 1.5,
+                          bgcolor: PRIMARY_BLUE_LIGHT,
+                          borderRadius: 2,
+                          border: '1px solid #d0e0ff',
+                          mb: 1.5,
+                        }}
+                      >
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                          <Chip
+                            label={update.type}
+                            size="small"
+                            color={getUpdateTypeColor(update.type)}
+                            sx={{ fontWeight: 600 }}
+                          />
+                          <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                            {new Date(update.createdAt).toLocaleDateString()}
+                          </Typography>
+                          {update.status === 'rejected' && (
+                            <Chip
+                              label="Rejected"
+                              size="small"
+                              color="error"
+                              sx={{ fontWeight: 600 }}
+                            />
+                          )}
+                        </Stack>
+                        <Typography variant="body2" sx={{ color: '#2d3a5e' }} noWrap>
+                          {task?.title} — {update.description.substring(0, 80)}...
+                        </Typography>
+                      </Box>
+                    </Box>
+                  );
+                })
               )}
             </CardContent>
           </Card>
         </Grid>
+
         <Grid size={{ xs: 12, md: 6 }}>
-          <Card sx={{ borderRadius: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
+          <Card
+            elevation={0}
+            sx={{ height: '100%', border: '1px solid #d0e0ff', borderRadius: '12px' }}
+          >
+            <CardContent sx={{ p: 2.5 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2 }}>
                 Overdue / High Priority Tasks
               </Typography>
-              {myTasks
-                .filter(
-                  (task) =>
-                    (new Date(task.dueDate) < new Date() && task.status !== 'Done') ||
-                    task.priority === 'High',
-                )
-                .slice(0, 5)
-                .map((task) => (
-                  <Box key={task.id} sx={{ mb: 2, p: 1, bgcolor: 'action.hover', borderRadius: 2 }}>
-                    <Stack direction="row" spacing={1} alignItems="center">
-                      <Chip
-                        label={task.priority}
-                        size="small"
-                        color={task.priority === 'High' ? 'error' : 'default'}
-                      />
-                      <Typography variant="body2" fontWeight="medium">
+              {overduePriorityTasks.length === 0 ? (
+                <Paper
+                  elevation={0}
+                  sx={{ p: 2, textAlign: 'center', bgcolor: '#f0fff4', borderRadius: 2 }}
+                >
+                  <Typography color="success.main" fontWeight={600}>
+                    🎉 No overdue or high priority tasks!
+                  </Typography>
+                </Paper>
+              ) : (
+                overduePriorityTasks.slice(0, 5).map((task) => {
+                  const isOverdue = new Date(task.dueDate) < new Date() && task.status !== 'Done';
+                  return (
+                    <Box
+                      key={task.id}
+                      sx={{
+                        p: 1.5,
+                        bgcolor: isOverdue ? '#fff5f5' : PRIMARY_BLUE_LIGHT,
+                        border: `1px solid ${isOverdue ? '#ffcdd2' : '#d0e0ff'}`,
+                        borderRadius: 2,
+                        mb: 1.5,
+                      }}
+                    >
+                      <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 0.5 }}>
+                        <Chip
+                          label={task.priority}
+                          size="small"
+                          color={task.priority === 'High' ? 'error' : 'default'}
+                          sx={{ fontWeight: 600 }}
+                        />
+                        {isOverdue && (
+                          <Chip
+                            icon={<WarningIcon />}
+                            label="Overdue"
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                            sx={{ fontWeight: 600 }}
+                          />
+                        )}
+                      </Stack>
+                      <Typography variant="body2" sx={{ color: '#2d3a5e', fontWeight: 500 }}>
                         {task.title}
                       </Typography>
-                    </Stack>
-                    <Typography variant="caption" color="text.secondary">
-                      Due: {new Date(task.dueDate).toLocaleDateString()}
-                    </Typography>
-                    {new Date(task.dueDate) < new Date() && task.status !== 'Done' && (
-                      <Chip
-                        icon={<WarningIcon />}
-                        label="Overdue"
-                        size="small"
-                        color="error"
-                        variant="outlined"
-                        sx={{ ml: 1 }}
-                      />
-                    )}
-                  </Box>
-                ))}
-              {myTasks.filter(
-                (t) =>
-                  (new Date(t.dueDate) < new Date() && t.status !== 'Done') ||
-                  t.priority === 'High',
-              ).length === 0 && (
-                <Typography color="text.secondary">No overdue or high priority tasks.</Typography>
+                      <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                        Due: {new Date(task.dueDate).toLocaleDateString()}
+                      </Typography>
+                    </Box>
+                  );
+                })
               )}
             </CardContent>
           </Card>

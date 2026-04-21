@@ -9,9 +9,7 @@ const SearchTextField = ({ slotProps, ...rest }: TextFieldProps) => {
     <StyledTextField
       id="search-box"
       placeholder="Search"
-      sx={{
-        minWidth: 348,
-      }}
+      variant="outlined"
       slotProps={{
         ...slotProps,
         input: {

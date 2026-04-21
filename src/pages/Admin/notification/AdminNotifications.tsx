@@ -201,7 +201,7 @@ const AdminNotifications = () => {
         <Tabs
           value={tabValue}
           onChange={(_, v) => setTabValue(v)}
-          TabIndicatorProps={{ style: { display: 'none' } }} // Hide default underline
+          slotProps={{ indicator: { style: { display: 'none' } } }} // Hide default underline
         >
           <Tab
             label={`All (${notifications.length})`}

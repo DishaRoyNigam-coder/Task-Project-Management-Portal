@@ -20,9 +20,9 @@ import {
 import { useAuth } from 'context/AuthContext';
 
 interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
+  readonly children?: React.ReactNode;
+  readonly index: number;
+  readonly value: number;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -33,6 +33,21 @@ function TabPanel(props: TabPanelProps) {
     </div>
   );
 }
+
+// Consistent styling for all Switches (fixes Issue 8)
+const switchSx = {
+  '& .MuiSwitch-track': {
+    backgroundColor: '#c5d0e0', // light gray for off state
+    opacity: 1,
+  },
+  '& .MuiSwitch-thumb': {
+    backgroundColor: '#fff',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+  },
+  '& .Mui-checked + .MuiSwitch-track': {
+    backgroundColor: '#1E58E6', // primary blue when checked
+  },
+};
 
 const SettingsPage = () => {
   const { user } = useAuth();
@@ -183,7 +198,7 @@ const SettingsPage = () => {
                     label="New PIN"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    inputProps={{ maxLength: 6, pattern: '[0-9]*' }}
+                    slotProps={{ htmlInput: { maxLength: 6, pattern: '[0-9]*' } }}
                     sx={{
                       mb: 2,
                       '& .MuiOutlinedInput-root': {
@@ -200,7 +215,7 @@ const SettingsPage = () => {
                     label="Confirm PIN"
                     value={confirmPin}
                     onChange={(e) => setConfirmPin(e.target.value)}
-                    inputProps={{ maxLength: 6, pattern: '[0-9]*' }}
+                    slotProps={{ htmlInput: { maxLength: 6, pattern: '[0-9]*' } }}
                     sx={{
                       mb: 2,
                       '& .MuiOutlinedInput-root': {
@@ -237,7 +252,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnTaskAssigned: e.target.checked })
                     }
-                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
+                    sx={switchSx}
                   />
                 }
                 label="Task Assigned"
@@ -250,7 +265,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnPriorityChange: e.target.checked })
                     }
-                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
+                    sx={switchSx}
                   />
                 }
                 label="Task Priority Changed"
@@ -263,7 +278,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnUpdateRejected: e.target.checked })
                     }
-                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
+                    sx={switchSx}
                   />
                 }
                 label="Task Update Rejected"
@@ -276,7 +291,7 @@ const SettingsPage = () => {
                     onChange={(e) =>
                       setNotifPrefs({ ...notifPrefs, emailOnTaskOverdue: e.target.checked })
                     }
-                    sx={{ border: '1px solid lightblue', borderRadius: '24px', p: '2px' }}
+                    sx={switchSx}
                   />
                 }
                 label="Task Overdue Reminder"
@@ -305,7 +320,7 @@ const SettingsPage = () => {
                 fullWidth
                 value={sysPrefs.defaultProjectPhase}
                 onChange={(e) => setSysPrefs({ ...sysPrefs, defaultProjectPhase: e.target.value })}
-                SelectProps={{ native: true }}
+                slotProps={{ select: { native: true } }}
                 sx={{ mt: 1, mb: 2 }}
               >
                 {[
