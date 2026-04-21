@@ -35,27 +35,21 @@ const mockEmployees: Employee[] = [
 const projectPhases = ['Planning', 'Development', 'Testing', 'Deployment', 'Maintenance'];
 const statusOptions = ['Active', 'Completed', 'Archived'];
 
-// ─── Primary Blue (#1E58E6) – matches your theme palette: blue[400/500] ───────
+// ─── Primary Blue (#1E58E6) – matches your theme palette ─────────────────────
 const PRIMARY_BLUE = '#1E58E6';
 const PRIMARY_BLUE_DARK = '#1A4CC4';
-const PRIMARY_BLUE_LIGHT = '#E6F0FF'; // blue[50]
+const PRIMARY_BLUE_LIGHT = '#E6F0FF';
 
 // ─── Reusable sx: permanent blue outlined border on every field ───────────────
-// "jo jo changes hover effect par ho rhe h use permanent kr do"
-// → default border = blue, hover = deeper blue + bg, focused = glow
 const fieldSx = {
   '& .MuiOutlinedInput-root': {
     backgroundColor: PRIMARY_BLUE_LIGHT,
     borderRadius: '8px',
     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
-
-    // DEFAULT: always visible blue border
     '& fieldset': {
       borderColor: PRIMARY_BLUE,
       borderWidth: '1.5px',
     },
-
-    // HOVER: deeper blue + background change (now permanent feel)
     '&:hover': {
       backgroundColor: '#dce9ff',
       '& fieldset': {
@@ -63,8 +57,6 @@ const fieldSx = {
         borderWidth: '2px',
       },
     },
-
-    // FOCUSED: glow ring + deep blue border
     '&.Mui-focused': {
       backgroundColor: '#dce9ff',
       boxShadow: `0 0 0 3px ${PRIMARY_BLUE}28`,
@@ -74,8 +66,6 @@ const fieldSx = {
       },
     },
   },
-
-  // Label follows border color
   '& .MuiInputLabel-root': {
     color: '#4a6fa5',
     fontWeight: 500,
@@ -85,8 +75,6 @@ const fieldSx = {
       fontWeight: 600,
     },
   },
-
-  // Helper text
   '& .MuiFormHelperText-root': {
     marginTop: '4px',
     fontSize: '12px',
@@ -94,13 +82,27 @@ const fieldSx = {
   },
 };
 
-// Same sx but also styles the Select arrow icon
+// Fixed selectSx: ensures label and selected value are correctly positioned
 const selectSx = {
   ...fieldSx,
   '& .MuiOutlinedInput-root': {
     ...fieldSx['& .MuiOutlinedInput-root'],
+    '& .MuiSelect-select': {
+      padding: '14px 14px', // consistent vertical alignment
+      display: 'flex',
+      alignItems: 'center',
+    },
     '& .MuiSelect-icon': {
       color: PRIMARY_BLUE,
+      right: '12px',
+    },
+  },
+  // Prevent label from overlapping when not shrunk
+  '& .MuiInputLabel-root': {
+    ...fieldSx['& .MuiInputLabel-root'],
+    transform: 'translate(14px, 12px) scale(1)', // default position
+    '&.MuiInputLabel-shrink': {
+      transform: 'translate(14px, -8px) scale(0.75)',
     },
   },
 };
@@ -313,11 +315,12 @@ const ProjectFormPage = () => {
               />
             </Grid>
 
-            {/* Row 5: Project Phase | Status */}
+            {/* Row 5: Project Phase | Status – FIXED alignment */}
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth sx={selectSx}>
-                <InputLabel>Project Phase</InputLabel>
+                <InputLabel id="project-phase-label">Project Phase</InputLabel>
                 <Select
+                  labelId="project-phase-label"
                   variant="outlined"
                   value={formData.projectPhase}
                   label="Project Phase"
@@ -334,8 +337,9 @@ const ProjectFormPage = () => {
 
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth sx={selectSx}>
-                <InputLabel>Status</InputLabel>
+                <InputLabel id="status-label">Status</InputLabel>
                 <Select
+                  labelId="status-label"
                   variant="outlined"
                   value={formData.status}
                   label="Status"
