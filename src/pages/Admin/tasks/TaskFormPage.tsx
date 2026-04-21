@@ -81,7 +81,7 @@ const fieldSx = {
   },
 };
 
-// Select dropdowns: same + blue arrow icon
+// Select dropdowns: same + blue arrow icon + ensure label alignment
 const selectSx = {
   ...fieldSx,
   '& .MuiOutlinedInput-root': {
@@ -89,6 +89,19 @@ const selectSx = {
     '& .MuiSelect-icon': {
       color: PRIMARY_BLUE,
     },
+  },
+  // Ensure label and select value have consistent vertical alignment
+  '& .MuiInputLabel-root': {
+    ...fieldSx['& .MuiInputLabel-root'],
+    transform: 'translate(14px, 12px) scale(1)',
+    '&.MuiInputLabel-shrink': {
+      transform: 'translate(14px, -8px) scale(0.75)',
+    },
+  },
+  '& .MuiSelect-select': {
+    padding: '14px 14px !important',
+    display: 'flex',
+    alignItems: 'center',
   },
 };
 
@@ -215,8 +228,9 @@ const TaskFormPage = () => {
             {/* Row 1 – Select Project (full width) */}
             <Grid size={12}>
               <FormControl fullWidth sx={selectSx}>
-                <InputLabel>Project **</InputLabel>
+                <InputLabel id="project-label">Project **</InputLabel>
                 <Select
+                  labelId="project-label"
                   variant="outlined"
                   value={formData.projectId}
                   label="Project **"
@@ -251,29 +265,32 @@ const TaskFormPage = () => {
               />
             </Grid>
 
-            {/* Row 3 – Priority | Due Date */}
+            {/* Row 3 – Priority | Due Date – FIXED alignment */}
             <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth sx={selectSx}>
-                <InputLabel>Priority</InputLabel>
+                <InputLabel id="priority-label">Priority</InputLabel>
                 <Select
+                  labelId="priority-label"
                   variant="outlined"
                   value={formData.priority}
                   label="Priority"
                   onChange={(e) => handleChange('priority', e.target.value)}
                 >
                   {priorityOptions.map((p) => (
-                    <MenuItem key={p} value={p}>
-                      <Stack direction="row" alignItems="center" spacing={1}>
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            backgroundColor: getPriorityColor(p),
-                          }}
-                        />
-                        <span>{p}</span>
-                      </Stack>
+                    <MenuItem key={p} value={p} sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Box
+                        component="span"
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: getPriorityColor(p),
+                          mr: 1,
+                        }}
+                      />
+                      {p}
                     </MenuItem>
                   ))}
                 </Select>
