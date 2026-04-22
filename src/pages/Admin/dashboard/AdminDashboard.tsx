@@ -231,7 +231,6 @@ const AdminDashboard = () => {
   }, [tasks, projects]);
 
   // ── Completed Meetings (only completed meetings) ──
-  // Using type assertion because Meeting type may not have 'status' or 'completed'
   const completedMeetingsData = useMemo(() => {
     const realCompletedMeetings = meetings
       .filter((m) => {
@@ -334,11 +333,24 @@ const AdminDashboard = () => {
     orange: '#FFF3E0',
   };
 
+  // Uniform card style for consistent height
+  const uniformCardSx = {
+    p: 1.5,
+    mb: 1.5,
+    border: '1px solid #d0e0ff',
+    borderRadius: '10px',
+    backgroundColor: '#f8fbff',
+    minHeight: 140,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+  };
+
   return (
     <Box sx={{ p: { xs: 2, md: 3 } }}>
       {/* Page Header */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+        <Typography variant="h5" sx={{ fontWeight: 700 }}>
           Admin Dashboard
         </Typography>
         <Typography variant="body2" sx={{ color: '#4a6fa5', mt: 0.5 }}>
@@ -427,45 +439,32 @@ const AdminDashboard = () => {
           <SectionCard title="Completed Tasks" iconName="material-symbols:check-circle-outline">
             <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
               {completedTasksData.map((task) => (
-                <Paper
-                  key={task.id}
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    mb: 1.5,
-                    border: '1px solid #d0e0ff',
-                    borderRadius: '10px',
-                    backgroundColor: '#f8fbff',
-                  }}
-                >
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                    {task.taskName}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                    Project: {task.projectName}
-                  </Typography>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ mt: 0.5 }}
-                  >
-                    <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                <Paper key={task.id} elevation={0} sx={uniformCardSx}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+                      {task.taskName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                      Project: {task.projectName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
                       Developer: {task.developerName}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
                       {task.date} at {task.time}
                     </Typography>
-                  </Stack>
-                  <Chip
-                    label="Submitted"
-                    size="small"
-                    color="success"
-                    icon={
-                      <IconifyIcon icon="material-symbols:check-circle" sx={{ fontSize: 14 }} />
-                    }
-                    sx={{ mt: 1, height: 22, fontSize: '11px', fontWeight: 600 }}
-                  />
+                  </Box>
+                  <Box sx={{ mt: 'auto', pt: 1 }}>
+                    <Chip
+                      label="Submitted"
+                      size="small"
+                      color="success"
+                      icon={
+                        <IconifyIcon icon="material-symbols:check-circle" sx={{ fontSize: 14 }} />
+                      }
+                      sx={{ height: 22, fontSize: '11px', fontWeight: 600 }}
+                    />
+                  </Box>
                 </Paper>
               ))}
             </Box>
@@ -476,29 +475,19 @@ const AdminDashboard = () => {
           <SectionCard title="Delayed Tasks" iconName="material-symbols:error-outline">
             <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
               {delayedTasksData.map((task) => (
-                <Paper
-                  key={task.taskId}
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    mb: 1.5,
-                    border: '1px solid #d0e0ff',
-                    borderRadius: '10px',
-                    backgroundColor: '#f8fbff',
-                  }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#e53935' }}>
-                        {task.taskName}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                        Project: {task.projectName}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
-                        Developer: {task.developerName}
-                      </Typography>
-                    </Box>
+                <Paper key={task.taskId} elevation={0} sx={uniformCardSx}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#e53935' }}>
+                      {task.taskName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                      Project: {task.projectName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                      Developer: {task.developerName}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
                     <Tooltip title="Edit Task">
                       <IconButton
                         size="small"
@@ -508,7 +497,7 @@ const AdminDashboard = () => {
                         <IconifyIcon icon="material-symbols:edit" />
                       </IconButton>
                     </Tooltip>
-                  </Stack>
+                  </Box>
                 </Paper>
               ))}
             </Box>
@@ -522,29 +511,19 @@ const AdminDashboard = () => {
           <SectionCard title="Completed Meetings" iconName="material-symbols:event-available">
             <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
               {completedMeetingsData.map((meeting) => (
-                <Paper
-                  key={meeting.meetingId}
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    mb: 1.5,
-                    border: '1px solid #d0e0ff',
-                    borderRadius: '10px',
-                    backgroundColor: '#f8fbff',
-                  }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-                    <Box sx={{ flex: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                        {meeting.projectName} / {meeting.clientName}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                        Developer: {meeting.developerName}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
-                        {meeting.meetingTime}
-                      </Typography>
-                    </Box>
+                <Paper key={meeting.meetingId} elevation={0} sx={uniformCardSx}>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+                      {meeting.projectName} / {meeting.clientName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                      Developer: {meeting.developerName}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                      {meeting.meetingTime}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
                     <Tooltip title="View Meeting Details">
                       <IconButton
                         size="small"
@@ -554,7 +533,7 @@ const AdminDashboard = () => {
                         <IconifyIcon icon="material-symbols:link" />
                       </IconButton>
                     </Tooltip>
-                  </Stack>
+                  </Box>
                 </Paper>
               ))}
             </Box>
@@ -568,13 +547,8 @@ const AdminDashboard = () => {
                 <Paper
                   key={project.projectId}
                   elevation={0}
-                  onClick={() => navigate(`/projects/${project.projectId}`)}
                   sx={{
-                    p: 1.5,
-                    mb: 1.5,
-                    border: '1px solid #d0e0ff',
-                    borderRadius: '10px',
-                    backgroundColor: '#f8fbff',
+                    ...uniformCardSx,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
                     '&:hover': {
@@ -583,33 +557,36 @@ const AdminDashboard = () => {
                       transform: 'translateX(4px)',
                     },
                   }}
+                  onClick={() => navigate(`/projects/${project.projectId}`)}
                 >
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                    {project.projectName}
-                  </Typography>
-                  <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
-                    <Chip
-                      label={project.status}
-                      size="small"
-                      color={project.status === 'Delayed' ? 'error' : 'success'}
-                      sx={{ height: 22, fontSize: '11px', fontWeight: 600 }}
-                    />
-                    <Chip
-                      label={project.phase}
-                      size="small"
-                      variant="outlined"
-                      sx={{
-                        height: 22,
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        borderColor: PRIMARY_BLUE,
-                        color: PRIMARY_BLUE,
-                      }}
-                    />
-                  </Stack>
-                  <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
-                    Tasks: {project.completedTasks} completed
-                  </Typography>
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+                      {project.projectName}
+                    </Typography>
+                    <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
+                      <Chip
+                        label={project.status}
+                        size="small"
+                        color={project.status === 'Delayed' ? 'error' : 'success'}
+                        sx={{ height: 22, fontSize: '11px', fontWeight: 600 }}
+                      />
+                      <Chip
+                        label={project.phase}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          height: 22,
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          borderColor: PRIMARY_BLUE,
+                          color: PRIMARY_BLUE,
+                        }}
+                      />
+                    </Stack>
+                    <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                      Tasks: {project.completedTasks} completed
+                    </Typography>
+                  </Box>
                 </Paper>
               ))}
             </Box>
