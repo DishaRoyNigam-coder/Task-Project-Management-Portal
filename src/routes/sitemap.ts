@@ -42,18 +42,17 @@ const sitemap: MenuItem[] = [
     icon: 'material-symbols:folder-outline',
     items: [
       {
-        name: 'All Projects',
-        path: paths.allProjects,
+        name: 'Projects',
         icon: 'material-symbols:folder-outline',
         pathName: 'all-projects',
         active: true,
         items: [
           {
-            name: 'Project Detail',
-            path: paths.projects.detail,
-            pathName: 'project-detail',
-            icon: 'material-symbols:article',
-            active: false,
+            name: 'Project List',
+            path: paths.allProjects,
+            pathName: 'all-projects',
+            icon: 'material-symbols:list-alt',
+            active: true,
           },
           {
             name: 'Create / Edit Project',
@@ -61,6 +60,13 @@ const sitemap: MenuItem[] = [
             pathName: 'project-links-notes',
             icon: 'material-symbols:edit',
             active: true,
+          },
+          {
+            name: 'Project Detail',
+            path: paths.projects.detail,
+            pathName: 'project-detail',
+            icon: 'material-symbols:article',
+            active: false,
           },
           {
             name: 'Project Links & Notes',
