@@ -1,4 +1,4 @@
-// src/pages/Admin/projects/ProjectListPage.tsx
+// src/pages/Admin/AllProjects/AllProject.tsx
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
@@ -89,7 +89,10 @@ const AVATAR_COLORS = [
   '#ec4899',
   '#0ea5e9',
 ];
-const avatarColor = (name: string) => AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length];
+const avatarColor = (name: string) => {
+  const codePoint = name.codePointAt(0) ?? 0;
+  return AVATAR_COLORS[codePoint % AVATAR_COLORS.length];
+};
 
 const getInitials = (name: string) =>
   name
@@ -541,12 +544,14 @@ const ProjectListPage = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               size="small"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: 18, color: '#4a6fa5' }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ fontSize: 18, color: '#4a6fa5' }} />
+                    </InputAdornment>
+                  ),
+                },
               }}
               sx={{
                 flex: 1,
@@ -896,6 +901,13 @@ const ProjectListPage = () => {
                   const status = STATUS_STYLE[project.status] || STATUS_STYLE.Archived;
                   const prog = (project as any).progress ?? 0;
 
+                  // Extract deadline logic to avoid nested ternary
+                  const deadlineDate = (project as any).deadline;
+                  const isDeadlineOverdue =
+                    deadlineDate &&
+                    project.status !== 'Completed' &&
+                    new Date(deadlineDate) < new Date();
+
                   return (
                     <TableRow
                       key={project.id}
@@ -1081,24 +1093,16 @@ const ProjectListPage = () => {
 
                       {/* Deadline */}
                       <TableCell>
-                        {(project as any).deadline ? (
+                        {deadlineDate ? (
                           <Typography
                             sx={{
                               fontSize: '12.5px',
                               whiteSpace: 'nowrap',
-                              color:
-                                project.status !== 'Completed' &&
-                                new Date((project as any).deadline) < new Date()
-                                  ? '#dc2626'
-                                  : '#374151',
-                              fontWeight:
-                                project.status !== 'Completed' &&
-                                new Date((project as any).deadline) < new Date()
-                                  ? 600
-                                  : 400,
+                              color: isDeadlineOverdue ? '#dc2626' : '#374151',
+                              fontWeight: isDeadlineOverdue ? 600 : 400,
                             }}
                           >
-                            {formatDate((project as any).deadline)}
+                            {formatDate(deadlineDate)}
                           </Typography>
                         ) : (
                           <Typography sx={{ fontSize: '12.5px', color: '#9ca3af' }}>—</Typography>
@@ -1247,8 +1251,10 @@ const ProjectListPage = () => {
         onClose={() => setDeleteDialog({ open: false, id: '', name: '' })}
         maxWidth="xs"
         fullWidth
-        PaperProps={{
-          sx: { borderRadius: '14px', border: '1px solid #d0e0ff' },
+        slotProps={{
+          paper: {
+            sx: { borderRadius: '14px', border: '1px solid #d0e0ff' },
+          },
         }}
       >
         <DialogTitle sx={{ fontWeight: 700, color: '#0f2a6e', pb: 1 }}>Delete Project</DialogTitle>

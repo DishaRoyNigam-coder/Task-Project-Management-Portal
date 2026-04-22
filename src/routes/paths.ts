@@ -38,8 +38,10 @@ const paths = {
     meetings: '/projects/:projectId/meetings',
   },
   tasks: {
+    list: '/admin/tasks', // ✅ Added
     new: '/tasks/new',
     edit: '/tasks/:taskId/edit',
+    detail: '/admin/tasks/:taskId',
   },
   404: `/404`,
   // inside paths object

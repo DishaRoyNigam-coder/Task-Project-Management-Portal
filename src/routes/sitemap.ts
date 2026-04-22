@@ -55,9 +55,9 @@ const sitemap: MenuItem[] = [
             active: true,
           },
           {
-            name: 'Create / Edit Project',
+            name: 'Create New Project',
             path: paths.projects.new,
-            pathName: 'project-links-notes',
+            pathName: 'new-project',
             icon: 'material-symbols:edit',
             active: true,
           },
@@ -66,20 +66,6 @@ const sitemap: MenuItem[] = [
             path: paths.projects.detail,
             pathName: 'project-detail',
             icon: 'material-symbols:article',
-            active: false,
-          },
-          {
-            name: 'Project Links & Notes',
-            path: '/project-links-notes',
-            pathName: 'project-links',
-            icon: 'material-symbols:link',
-            active: false,
-          },
-          {
-            name: 'Meeting Log',
-            path: '#',
-            pathName: 'project-meetings',
-            icon: 'material-symbols:meeting-room',
             active: false,
           },
         ],
@@ -92,20 +78,20 @@ const sitemap: MenuItem[] = [
     icon: 'material-symbols:task-alt',
     items: [
       {
-        name: 'All Tasks',
+        name: 'Tasks',
         icon: 'material-symbols:task-alt',
         pathName: 'admin-tasks-root',
         active: true,
         items: [
           {
             name: 'Task List',
-            path: '/admin/tasks', // new page to be created
+            path: paths.tasks.list,
             pathName: 'admin-task-list',
-            icon: 'material-symbols:list-alt',
+            icon: 'material-symbols:format-list-bulleted',
             active: true, // set to true when page exists
           },
           {
-            name: 'Create / Assign Task',
+            name: 'Create / Assign New Task',
             path: paths.tasks.new,
             pathName: 'task-create',
             icon: 'material-symbols:add-task',
@@ -120,7 +106,7 @@ const sitemap: MenuItem[] = [
           },
           {
             name: 'Task Details',
-            path: '/admin/tasks/:id',
+            path: '/task-detail',
             pathName: 'admin-task-detail',
             icon: 'material-symbols:article',
             active: false, // future use

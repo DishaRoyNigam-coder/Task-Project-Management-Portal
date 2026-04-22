@@ -1,3 +1,4 @@
+// src/routes/router.tsx
 import { Suspense, lazy } from 'react';
 import { Outlet, RouteObject, createBrowserRouter, useLocation } from 'react-router';
 import App from 'App';
@@ -5,7 +6,6 @@ import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
 import AllProjects from 'pages/Admin/AllProjects/AllProject';
 import AdminDashboard from 'pages/Admin/dashboard/AdminDashboard';
-import ProjectDetailPage from 'pages/Admin/projects/ProjectDetailPage';
 import ProjectFormPage from 'pages/Admin/projects/ProjectFormPage';
 import TaskUpdatesReview from 'pages/Admin/taskUpdates/TaskUpdatesReview';
 import TaskFormPage from 'pages/Admin/tasks/TaskFormPage';
@@ -15,7 +15,6 @@ import ProjectLinksNotes from '../pages/Admin/projects/ProjectLinksNotes';
 import paths, { rootPaths } from './paths';
 
 // Lazy load user list and other pages
-
 const Starter = lazy(() => import('pages/others/Starter'));
 const Account = lazy(() => import('pages/others/Account'));
 const SettingsPage = lazy(() => import('../pages/Admin/settings/SettingsPage'));
@@ -39,6 +38,9 @@ const EmployeeMeetingLog = lazy(() => import('../pages/employee/EmployeeMeetingL
 const EmployeeNotifications = lazy(() => import('../pages/employee/EmployeeNotifications'));
 const EmployeeAccount = lazy(() => import('../pages/employee/EmployeeAccount'));
 const EmployeeProfile = lazy(() => import('../pages/employee/EmployeeProfile'));
+
+// ✅ Add this import for AdminTaskList
+const AdminTaskList = lazy(() => import('../pages/Admin/tasks/AdminTaskList'));
 
 export const SuspenseOutlet = () => {
   const location = useLocation();
@@ -75,10 +77,6 @@ export const routes: RouteObject[] = [
             element: <AllProjects />,
           },
           {
-            path: paths.projects.detail,
-            element: <ProjectDetailPage />,
-          },
-          {
             path: paths.projects.edit,
             element: <ProjectFormPage />,
           },
@@ -102,6 +100,7 @@ export const routes: RouteObject[] = [
             path: paths.starter,
             element: <Starter />,
           },
+
           {
             path: paths.projects.new,
             element: <ProjectFormPage />,
@@ -113,6 +112,11 @@ export const routes: RouteObject[] = [
           {
             path: paths.tasks.edit,
             element: <TaskFormPage />,
+          },
+          // ✅ Admin Task List route – using paths.tasks.list
+          {
+            path: paths.tasks.list,
+            element: <AdminTaskList />,
           },
 
           // Employee routes
