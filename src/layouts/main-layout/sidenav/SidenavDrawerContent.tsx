@@ -1,5 +1,5 @@
-import { useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router';
+// src/layouts/main-layout/sidenav/SidenavDrawerContent.tsx
+import { useMemo } from 'react';
 import { Divider, IconButton } from '@mui/material';
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -25,14 +25,13 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
     setConfig,
   } = useSettingsContext();
   const { user } = useAuth();
-  const { pathname } = useLocation();
 
-  // Choose sitemap based on user role, with path fallback
+  // Choose sitemap based strictly on user role
+  // Default to admin sitemap when user is not yet loaded (e.g., initial render)
   const currentSitemap = useMemo(() => {
-    if (user?.role === 'employee') return employeeSitemap;
-    if (pathname.startsWith('/employee')) return employeeSitemap; // fallback
-    return sitemap;
-  }, [user, pathname]);
+    if (!user) return sitemap; // safe fallback – admin dashboard is the main view
+    return user.role === 'employee' ? employeeSitemap : sitemap;
+  }, [user]);
 
   const expanded = useMemo(
     () => variant === 'temporary' || (variant === 'permanent' && !sidenavCollapsed),
@@ -44,12 +43,6 @@ const SidenavDrawerContent = ({ variant = 'permanent' }: SidenavDrawerContentPro
       openNavbarDrawer: !openNavbarDrawer,
     });
   };
-
-  // Optional: remove after verifying correct behavior
-  useEffect(() => {
-    console.log('User role:', user?.role);
-    console.log('Using sitemap:', currentSitemap === employeeSitemap ? 'employee' : 'admin');
-  }, [user, currentSitemap]);
 
   return (
     <>
