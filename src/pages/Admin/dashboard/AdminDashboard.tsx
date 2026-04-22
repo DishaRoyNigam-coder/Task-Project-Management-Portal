@@ -2,14 +2,6 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import {
-  CheckCircle as CompletedIcon,
-  MeetingRoom as MeetingIcon,
-  Warning as OverdueIcon,
-  FolderOpen as ProjectIcon,
-  Assignment as TaskIcon,
-  TrendingUp as TrendIcon,
-} from '@mui/icons-material';
-import {
   Avatar,
   Box,
   Card,
@@ -17,46 +9,41 @@ import {
   Chip,
   Divider,
   Grid,
+  IconButton,
   LinearProgress,
   Paper,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { useMeetings } from 'context/MeetingContext';
 import { useProjects } from 'context/ProjectContext';
 import { useTasks } from 'context/TaskContext';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
+import IconifyIcon from 'components/base/IconifyIcon';
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 const PRIMARY_BLUE = '#1E58E6';
 const PRIMARY_BLUE_LIGHT = '#E6F0FF';
 
-const PIE_COLORS = ['#1E58E6', '#00C49F', '#FFBB28', '#FF8042'];
-const BAR_COLORS = { High: '#f44336', Medium: '#ff9800', Low: '#2196f3' };
-
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
+// ─── KPI Card (using IconifyIcon) ─────────────────────────────────────────────
 interface KpiCardProps {
   label: string;
   value: string | number;
-  icon: React.ReactNode;
+  iconName: string;
   avatarBg: string;
   progress?: number;
   caption?: string;
   valueColor?: string;
 }
-const KpiCard = ({ label, value, icon, avatarBg, progress, caption, valueColor }: KpiCardProps) => (
+const KpiCard = ({
+  label,
+  value,
+  iconName,
+  avatarBg,
+  progress,
+  caption,
+  valueColor,
+}: KpiCardProps) => (
   <Card
     elevation={0}
     sx={{
@@ -70,7 +57,7 @@ const KpiCard = ({ label, value, icon, avatarBg, progress, caption, valueColor }
     <CardContent sx={{ p: 2.5 }}>
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1.5 }}>
         <Avatar sx={{ bgcolor: avatarBg, width: 48, height: 48, color: PRIMARY_BLUE }}>
-          {icon}
+          <IconifyIcon icon={iconName} />
         </Avatar>
         <Box>
           <Typography variant="body2" sx={{ color: '#4a6fa5', fontWeight: 500 }}>
@@ -107,30 +94,52 @@ const KpiCard = ({ label, value, icon, avatarBg, progress, caption, valueColor }
   </Card>
 );
 
-// ─── Chart Card ───────────────────────────────────────────────────────────────
-const ChartCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
+// ─── Section Card ─────────────────────────────────────────────────────────────
+const SectionCard = ({
+  title,
+  children,
+  iconName,
+}: {
+  title: string;
+  children: React.ReactNode;
+  iconName?: string;
+}) => (
   <Card
     elevation={0}
     sx={{
       height: '100%',
       border: '1px solid #d0e0ff',
       borderRadius: '12px',
+      display: 'flex',
+      flexDirection: 'column',
     }}
   >
-    <CardContent sx={{ p: 2.5 }}>
-      <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2 }}>
-        {title}
-      </Typography>
+    <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
+        {iconName && <IconifyIcon icon={iconName} sx={{ fontSize: 24, color: PRIMARY_BLUE }} />}
+        <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+          {title}
+        </Typography>
+      </Stack>
       {children}
     </CardContent>
   </Card>
 );
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-const getHealthColor = (health: string): 'success' | 'warning' | 'error' => {
-  if (health === 'Healthy') return 'success';
-  if (health === 'Attention') return 'warning';
-  return 'error';
+const formatDate = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const formatTime = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+};
+
+const getProjectPhase = (phase: string) => {
+  const phases = ['Planning', 'Design', 'Development', 'Testing', 'Deployment', 'Debugging'];
+  return phases.includes(phase) ? phase : 'Planning';
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -151,77 +160,164 @@ const AdminDashboard = () => {
     : 0;
   const totalMeetings = meetings.length;
 
-  // Task status pie
-  const taskStatusData = useMemo(() => {
-    const pending = tasks.filter((t) => t.status === 'Pending').length;
-    const inProgress = tasks.filter((t) => t.status === 'In progress').length;
-    const done = tasks.filter((t) => t.status === 'Done').length;
+  // ── Completed Tasks (status always "Submitted") ──
+  const completedTasksData = useMemo(() => {
+    const realCompleted = tasks
+      .filter((t) => t.status === 'Done')
+      .sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
+      .map((task) => {
+        const project = projects.find((p) => p.id === task.projectId);
+        return {
+          taskName: task.title,
+          projectName: project?.projectName || 'Unknown Project',
+          developerName: task.assignedTo?.name || 'Unassigned',
+          date: formatDate(task.updatedAt || task.dueDate),
+          time: formatTime(task.updatedAt || task.dueDate),
+          id: task.id,
+        };
+      });
+    if (realCompleted.length > 0) return realCompleted;
+    // Demo data
     return [
-      { name: 'Pending', value: pending, fill: PIE_COLORS[0] },
-      { name: 'In Progress', value: inProgress, fill: PIE_COLORS[1] },
-      { name: 'Done', value: done, fill: PIE_COLORS[2] },
-    ].filter((d) => d.value > 0);
-  }, [tasks]);
-
-  // Priority bar
-  const priorityData = useMemo(() => {
-    const high = tasks.filter((t) => t.priority === 'High').length;
-    const medium = tasks.filter((t) => t.priority === 'Medium').length;
-    const low = tasks.filter((t) => t.priority === 'Low').length;
-    return [
-      { priority: 'High', count: high, fill: BAR_COLORS.High },
-      { priority: 'Medium', count: medium, fill: BAR_COLORS.Medium },
-      { priority: 'Low', count: low, fill: BAR_COLORS.Low },
+      {
+        taskName: 'Mobile Banking App - Login UI',
+        projectName: 'Mobile Banking App',
+        developerName: 'Ekawati',
+        date: '03 Dec 2023',
+        time: '08:10 AM',
+        id: 'demo1',
+      },
+      {
+        taskName: 'API Integration for Payment Gateway',
+        projectName: 'E-commerce Platform',
+        developerName: 'John Doe',
+        date: '05 Dec 2023',
+        time: '02:30 PM',
+        id: 'demo2',
+      },
     ];
-  }, [tasks]);
+  }, [tasks, projects]);
 
-  // Weekly trend
-  const weeklyTrend = useMemo(() => {
-    const last7Days = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      return d.toISOString().slice(0, 10);
-    }).reverse();
-    return last7Days.map((date) => ({
-      date: date.slice(5),
-      completed: tasks.filter((t) => t.status === 'Done' && t.updatedAt?.slice(0, 10) === date)
-        .length,
-    }));
-  }, [tasks]);
+  // ── Delayed Tasks (with Edit button) ──
+  const delayedTasksData = useMemo(() => {
+    const realDelayed = tasks
+      .filter((t) => new Date(t.dueDate) < new Date() && t.status !== 'Done')
+      .sort((a, b) => (a.dueDate < b.dueDate ? -1 : 1))
+      .map((task) => {
+        const project = projects.find((p) => p.id === task.projectId);
+        return {
+          taskName: task.title,
+          projectName: project?.projectName || 'Unknown Project',
+          developerName: task.assignedTo?.name || 'Unassigned',
+          taskId: task.id,
+        };
+      });
+    if (realDelayed.length > 0) return realDelayed;
+    // Demo data
+    return [
+      {
+        taskName: 'Design login UI',
+        projectName: 'Mobile Banking App',
+        developerName: 'John Doe',
+        taskId: 'demo_delay1',
+      },
+      {
+        taskName: 'Implement API integration',
+        projectName: 'E-commerce Platform',
+        developerName: 'Jane Smith',
+        taskId: 'demo_delay2',
+      },
+    ];
+  }, [tasks, projects]);
 
-  // Meetings per project
-  const meetingsPerProject = useMemo(() => {
-    const projectMap = new Map<string, number>();
-    meetings.forEach((m) => {
-      if (m.projectId) {
+  // ── Completed Meetings (only completed meetings) ──
+  // Using type assertion because Meeting type may not have 'status' or 'completed'
+  const completedMeetingsData = useMemo(() => {
+    const realCompletedMeetings = meetings
+      .filter((m) => {
+        const meetingAny = m as any;
+        return meetingAny.status === 'Completed' || meetingAny.completed === true;
+      })
+      .map((m) => {
+        const meetingAny = m as any;
         const project = projects.find((p) => p.id === m.projectId);
-        if (project)
-          projectMap.set(project.projectName, (projectMap.get(project.projectName) || 0) + 1);
-      }
-    });
-    return Array.from(projectMap.entries()).map(([name, count]) => ({ name, count }));
+        const meetingDate =
+          meetingAny.date ||
+          meetingAny.meetingDate ||
+          meetingAny.createdAt ||
+          new Date().toISOString();
+        return {
+          developerName: meetingAny.createdBy || meetingAny.organizer || 'Admin',
+          projectName: project?.projectName || 'Unknown Project',
+          clientName: project?.clientName || 'Unknown Client',
+          meetingTime: formatDate(meetingDate) + ' at ' + formatTime(meetingDate),
+          meetingId: m.id,
+          link: `/meetings/${m.id}`,
+        };
+      });
+    if (realCompletedMeetings.length > 0) return realCompletedMeetings;
+    // Demo data
+    return [
+      {
+        developerName: 'Ekawati',
+        projectName: 'Mobile Banking App',
+        clientName: 'FinBank Corp',
+        meetingTime: '03 Dec 2023 at 10:00 AM',
+        meetingId: 'demo_meet1',
+        link: '/meetings/demo_meet1',
+      },
+      {
+        developerName: 'John Doe',
+        projectName: 'E-commerce Platform',
+        clientName: 'Retail Solutions',
+        meetingTime: '05 Dec 2023 at 02:30 PM',
+        meetingId: 'demo_meet2',
+        link: '/meetings/demo_meet2',
+      },
+    ];
   }, [meetings, projects]);
 
-  // Project health
-  const projectHealth = useMemo(() => {
-    return projects.map((project) => {
-      const projectTasks = tasks.filter((t) => t.projectId === project.id);
-      const total = projectTasks.length;
-      const completed = projectTasks.filter((t) => t.status === 'Done').length;
-      const overdue = projectTasks.filter(
-        (t) => new Date(t.dueDate) < new Date() && t.status !== 'Done',
-      ).length;
-      let health = 'Healthy';
-      if (overdue > 0) health = 'Attention';
-      if (overdue > 2 || (total > 0 && completed / total < 0.3)) health = 'At Risk';
-      return {
-        name: project.projectName,
-        health,
-        overdue,
-        completion: total ? (completed / total) * 100 : 0,
-      };
-    });
+  // ── Active Projects (with status: delayed/on time, phase, task completion) ──
+  const activeProjectsData = useMemo(() => {
+    const realActive = projects
+      .filter((p) => p.status === 'Active')
+      .map((project) => {
+        const projectTasks = tasks.filter((t) => t.projectId === project.id);
+        const totalTasks = projectTasks.length;
+        const completedTasksCount = projectTasks.filter((t) => t.status === 'Done').length;
+        const overdueTasksCount = projectTasks.filter(
+          (t) => new Date(t.dueDate) < new Date() && t.status !== 'Done',
+        ).length;
+        const status = overdueTasksCount > 0 ? 'Delayed' : 'On Time';
+        const phase = getProjectPhase(project.projectPhase);
+        return {
+          projectName: project.projectName,
+          status,
+          phase,
+          completedTasks: `${completedTasksCount}/${totalTasks}`,
+          projectId: project.id,
+        };
+      });
+    if (realActive.length > 0) return realActive;
+    // Demo data
+    return [
+      {
+        projectName: 'Mobile Banking App',
+        status: 'Delayed',
+        phase: 'Development',
+        completedTasks: '2/5',
+        projectId: 'demo_proj1',
+      },
+      {
+        projectName: 'E-commerce Platform',
+        status: 'On Time',
+        phase: 'Testing',
+        completedTasks: '4/6',
+        projectId: 'demo_proj2',
+      },
+    ];
   }, [projects, tasks]);
+
   const reportLinks = [
     { label: 'Project Overview', path: '/reports/project-overview' },
     { label: 'Delayed Tasks', path: '/reports/delayed-tasks' },
@@ -229,14 +325,13 @@ const AdminDashboard = () => {
     { label: 'Meeting Time', path: '/reports/meeting-time' },
   ];
 
-  // Solid pastel background colors for icons (fully opaque)
   const iconBgColors = {
-    blue: '#E6F0FF', // light blue for active projects, total tasks, etc.
-    green: '#E8F5E9', // light green for completed projects
-    red: '#FFEBEE', // light red for overdue tasks
-    yellow: '#FFF8E1', // light yellow for completion rate
-    teal: '#E0F2F1', // for meetings
-    orange: '#FFF3E0', // for in progress
+    blue: '#E6F0FF',
+    green: '#E8F5E9',
+    red: '#FFEBEE',
+    yellow: '#FFF8E1',
+    teal: '#E0F2F1',
+    orange: '#FFF3E0',
   };
 
   return (
@@ -251,13 +346,13 @@ const AdminDashboard = () => {
         </Typography>
       </Box>
 
-      {/* KPI Cards */}
+      {/* KPI Cards (first row) */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <KpiCard
             label="Active Projects"
             value={activeProjects}
-            icon={<ProjectIcon />}
+            iconName="material-symbols:folder-open"
             avatarBg={iconBgColors.blue}
           />
         </Grid>
@@ -265,7 +360,7 @@ const AdminDashboard = () => {
           <KpiCard
             label="Completed Projects"
             value={completedProjects}
-            icon={<CompletedIcon />}
+            iconName="material-symbols:check-circle"
             avatarBg={iconBgColors.green}
           />
         </Grid>
@@ -273,7 +368,7 @@ const AdminDashboard = () => {
           <KpiCard
             label="Overdue Tasks"
             value={overdueTasks}
-            icon={<OverdueIcon />}
+            iconName="material-symbols:warning"
             avatarBg={iconBgColors.red}
             valueColor={overdueTasks > 0 ? '#f44336' : '#0f2a6e'}
           />
@@ -282,7 +377,7 @@ const AdminDashboard = () => {
           <KpiCard
             label="Task Completion"
             value={`${Math.round(completionRate)}%`}
-            icon={<TrendIcon />}
+            iconName="material-symbols:trending-up"
             avatarBg={iconBgColors.yellow}
             progress={completionRate}
             caption={`${tasks.filter((t) => t.status === 'Done').length} of ${tasks.length} tasks done`}
@@ -290,13 +385,13 @@ const AdminDashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Row 2: Secondary KPIs */}
+      {/* Secondary KPIs (second row) */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <KpiCard
             label="Total Tasks"
             value={tasks.length}
-            icon={<TaskIcon />}
+            iconName="material-symbols:assignment"
             avatarBg={iconBgColors.blue}
           />
         </Grid>
@@ -304,7 +399,7 @@ const AdminDashboard = () => {
           <KpiCard
             label="Total Meetings"
             value={totalMeetings}
-            icon={<MeetingIcon />}
+            iconName="material-symbols:meeting-room"
             avatarBg={iconBgColors.teal}
           />
         </Grid>
@@ -312,7 +407,7 @@ const AdminDashboard = () => {
           <KpiCard
             label="Total Projects"
             value={projects.length}
-            icon={<ProjectIcon />}
+            iconName="material-symbols:folder"
             avatarBg={iconBgColors.yellow}
           />
         </Grid>
@@ -320,159 +415,207 @@ const AdminDashboard = () => {
           <KpiCard
             label="In Progress Tasks"
             value={tasks.filter((t) => t.status === 'In progress').length}
-            icon={<TrendIcon />}
+            iconName="material-symbols:play-circle"
             avatarBg={iconBgColors.orange}
           />
         </Grid>
       </Grid>
 
-      {/* Charts Row 1 */}
+      {/* Completed Tasks & Delayed Tasks */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <ChartCard title="Task Status Distribution">
-            <ResponsiveContainer width="100%" height={320}>
-              <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                <Pie
-                  data={taskStatusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
-                  outerRadius={75}
-                  dataKey="value"
-                  style={{ fontSize: '12px', fill: '#0f2a6e' }}
-                />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ChartCard title="Tasks by Priority">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={priorityData} barSize={48}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e8efff" />
-                <XAxis dataKey="priority" tick={{ fill: '#4a6fa5', fontSize: 13 }} />
-                <YAxis tick={{ fill: '#4a6fa5', fontSize: 13 }} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </Grid>
-      </Grid>
-
-      {/* Charts Row 2 */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ChartCard title="Daily Completed Tasks (Last 7 Days)">
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={weeklyTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e8efff" />
-                <XAxis dataKey="date" tick={{ fill: '#4a6fa5', fontSize: 12 }} />
-                <YAxis tick={{ fill: '#4a6fa5', fontSize: 12 }} allowDecimals={false} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
-                <Line
-                  type="monotone"
-                  dataKey="completed"
-                  stroke={PRIMARY_BLUE}
-                  strokeWidth={2.5}
-                  dot={{ fill: PRIMARY_BLUE, r: 4 }}
-                  name="Completed"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </Grid>
-
-        <Grid size={{ xs: 12, md: 6 }}>
-          <ChartCard title="Meetings per Project">
-            {meetingsPerProject.length === 0 ? (
-              <Box sx={{ textAlign: 'center', py: 6 }}>
-                <Typography color="text.secondary">No meeting data yet.</Typography>
-              </Box>
-            ) : (
-              <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={meetingsPerProject} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e8efff" />
-                  <XAxis type="number" tick={{ fill: '#4a6fa5', fontSize: 12 }} />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={110}
-                    tick={{ fill: '#4a6fa5', fontSize: 11 }}
-                  />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #d0e0ff' }} />
-                  <Bar dataKey="count" fill="#FFBB28" radius={[0, 6, 6, 0]} name="Meetings" />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </ChartCard>
-        </Grid>
-      </Grid>
-
-      {/* Project Health Summary */}
-      <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px', mb: 3 }}>
-        <CardContent sx={{ p: 2.5 }}>
-          <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 2.5 }}>
-            Project Health Summary
-          </Typography>
-          {projectHealth.length === 0 ? (
-            <Typography color="text.secondary">No projects found.</Typography>
-          ) : (
-            <Grid container spacing={2}>
-              {projectHealth.map((project) => (
-                <Grid size={{ xs: 12, sm: 6, md: 4 }} key={project.name}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 2,
-                      border: '1px solid #d0e0ff',
-                      borderRadius: '10px',
-                      bgcolor: PRIMARY_BLUE_LIGHT,
-                    }}
+          <SectionCard title="Completed Tasks" iconName="material-symbols:check-circle-outline">
+            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
+              {completedTasksData.map((task) => (
+                <Paper
+                  key={task.id}
+                  elevation={0}
+                  sx={{
+                    p: 1.5,
+                    mb: 1.5,
+                    border: '1px solid #d0e0ff',
+                    borderRadius: '10px',
+                    backgroundColor: '#f8fbff',
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+                    {task.taskName}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                    Project: {task.projectName}
+                  </Typography>
+                  <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{ mt: 0.5 }}
                   >
-                    <Typography
-                      variant="subtitle1"
-                      sx={{ fontWeight: 700, color: '#0f2a6e', mb: 1 }}
-                    >
-                      {project.name}
+                    <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                      Developer: {task.developerName}
                     </Typography>
-                    <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
-                      <Chip
-                        label={project.health}
-                        color={getHealthColor(project.health)}
-                        size="small"
-                        sx={{ fontWeight: 600 }}
-                      />
-                      <Typography variant="body2" sx={{ color: '#4a6fa5' }}>
-                        {project.overdue} overdue
+                    <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                      {task.date} at {task.time}
+                    </Typography>
+                  </Stack>
+                  <Chip
+                    label="Submitted"
+                    size="small"
+                    color="success"
+                    icon={
+                      <IconifyIcon icon="material-symbols:check-circle" sx={{ fontSize: 14 }} />
+                    }
+                    sx={{ mt: 1, height: 22, fontSize: '11px', fontWeight: 600 }}
+                  />
+                </Paper>
+              ))}
+            </Box>
+          </SectionCard>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <SectionCard title="Delayed Tasks" iconName="material-symbols:error-outline">
+            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
+              {delayedTasksData.map((task) => (
+                <Paper
+                  key={task.taskId}
+                  elevation={0}
+                  sx={{
+                    p: 1.5,
+                    mb: 1.5,
+                    border: '1px solid #d0e0ff',
+                    borderRadius: '10px',
+                    backgroundColor: '#f8fbff',
+                  }}
+                >
+                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#e53935' }}>
+                        {task.taskName}
                       </Typography>
-                    </Stack>
-                    <LinearProgress
-                      variant="determinate"
-                      value={project.completion}
+                      <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                        Project: {task.projectName}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                        Developer: {task.developerName}
+                      </Typography>
+                    </Box>
+                    <Tooltip title="Edit Task">
+                      <IconButton
+                        size="small"
+                        onClick={() => navigate(`/tasks/edit/${task.taskId}`)}
+                        sx={{ color: PRIMARY_BLUE }}
+                      >
+                        <IconifyIcon icon="material-symbols:edit" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Paper>
+              ))}
+            </Box>
+          </SectionCard>
+        </Grid>
+      </Grid>
+
+      {/* Completed Meetings & Active Projects */}
+      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <SectionCard title="Completed Meetings" iconName="material-symbols:event-available">
+            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
+              {completedMeetingsData.map((meeting) => (
+                <Paper
+                  key={meeting.meetingId}
+                  elevation={0}
+                  sx={{
+                    p: 1.5,
+                    mb: 1.5,
+                    border: '1px solid #d0e0ff',
+                    borderRadius: '10px',
+                    backgroundColor: '#f8fbff',
+                  }}
+                >
+                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+                        {meeting.projectName} / {meeting.clientName}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
+                        Developer: {meeting.developerName}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                        {meeting.meetingTime}
+                      </Typography>
+                    </Box>
+                    <Tooltip title="View Meeting Details">
+                      <IconButton
+                        size="small"
+                        onClick={() => navigate(meeting.link)}
+                        sx={{ color: PRIMARY_BLUE }}
+                      >
+                        <IconifyIcon icon="material-symbols:link" />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Paper>
+              ))}
+            </Box>
+          </SectionCard>
+        </Grid>
+
+        <Grid size={{ xs: 12, md: 6 }}>
+          <SectionCard title="Active Projects" iconName="material-symbols:rocket">
+            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
+              {activeProjectsData.map((project) => (
+                <Paper
+                  key={project.projectId}
+                  elevation={0}
+                  onClick={() => navigate(`/projects/${project.projectId}`)}
+                  sx={{
+                    p: 1.5,
+                    mb: 1.5,
+                    border: '1px solid #d0e0ff',
+                    borderRadius: '10px',
+                    backgroundColor: '#f8fbff',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    '&:hover': {
+                      backgroundColor: PRIMARY_BLUE_LIGHT,
+                      borderColor: PRIMARY_BLUE,
+                      transform: 'translateX(4px)',
+                    },
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+                    {project.projectName}
+                  </Typography>
+                  <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
+                    <Chip
+                      label={project.status}
+                      size="small"
+                      color={project.status === 'Delayed' ? 'error' : 'success'}
+                      sx={{ height: 22, fontSize: '11px', fontWeight: 600 }}
+                    />
+                    <Chip
+                      label={project.phase}
+                      size="small"
+                      variant="outlined"
                       sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: '#c5d8ff',
-                        '& .MuiLinearProgress-bar': { backgroundColor: PRIMARY_BLUE },
+                        height: 22,
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        borderColor: PRIMARY_BLUE,
+                        color: PRIMARY_BLUE,
                       }}
                     />
-                    <Typography
-                      variant="caption"
-                      sx={{ color: '#4a6fa5', mt: 0.5, display: 'block' }}
-                    >
-                      {Math.round(project.completion)}% complete
-                    </Typography>
-                  </Paper>
-                </Grid>
+                  </Stack>
+                  <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
+                    Tasks: {project.completedTasks} completed
+                  </Typography>
+                </Paper>
               ))}
-            </Grid>
-          )}
-        </CardContent>
-      </Card>
+            </Box>
+          </SectionCard>
+        </Grid>
+      </Grid>
 
       {/* Quick Links */}
       <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px' }}>

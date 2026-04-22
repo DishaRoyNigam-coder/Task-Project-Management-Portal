@@ -22,17 +22,16 @@ import { useTasks } from 'context/TaskContext';
 
 // Mock employee data with numeric IDs to match Task.assignedTo.id
 const mockEmployees = [
-  { id: 1, name: 'John Doe', email: 'john.doe@company.com', role: 'Developer' },
-  { id: 2, name: 'Jane Smith', email: 'jane.smith@company.com', role: 'Designer' },
-  { id: 3, name: 'Mike Johnson', email: 'mike.j@company.com', role: 'Backend Developer' },
-  { id: 4, name: 'Emily Davis', email: 'emily.davis@company.com', role: 'Frontend Developer' },
-  { id: 5, name: 'Robert Brown', email: 'robert.brown@company.com', role: 'QA Engineer' },
+  { id: 1, name: 'John Doe', role: 'Developer' },
+  { id: 2, name: 'Jane Smith', role: 'Designer' },
+  { id: 3, name: 'Mike Johnson', role: 'Backend Developer' },
+  { id: 4, name: 'Emily Davis', role: 'Frontend Developer' },
+  { id: 5, name: 'Robert Brown', role: 'QA Engineer' },
 ];
 
 interface EmployeePerformance {
   id: number;
   name: string;
-  email: string;
   role: string;
   totalTasks: number;
   completedTasks: number;
@@ -59,7 +58,6 @@ const UserList = () => {
       return {
         id: emp.id,
         name: emp.name,
-        email: emp.email,
         role: emp.role,
         totalTasks,
         completedTasks,
@@ -90,7 +88,6 @@ const UserList = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>Name</TableCell>
-                  <TableCell>Email</TableCell>
                   <TableCell>Role</TableCell>
                   <TableCell align="center">Total Tasks</TableCell>
                   <TableCell align="center">Completed</TableCell>
@@ -104,7 +101,6 @@ const UserList = () => {
                 {employeePerformance.map((emp) => (
                   <TableRow key={emp.id} hover>
                     <TableCell>{emp.name}</TableCell>
-                    <TableCell>{emp.email}</TableCell>
                     <TableCell>{emp.role}</TableCell>
                     <TableCell align="center">{emp.totalTasks}</TableCell>
                     <TableCell align="center">{emp.completedTasks}</TableCell>
@@ -140,7 +136,7 @@ const UserList = () => {
                 ))}
                 {employeePerformance.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} align="center">
+                    <TableCell colSpan={8} align="center">
                       No employees found.
                     </TableCell>
                   </TableRow>

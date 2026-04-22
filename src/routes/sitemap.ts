@@ -80,33 +80,50 @@ const sitemap: MenuItem[] = [
       },
     ],
   },
+  // ─── NEW: All Tasks section (dropdown) ──────────────────────────
   {
     id: 'tasks',
     icon: 'material-symbols:task-alt',
     items: [
       {
-        name: 'Task Management',
-        path: paths.tasks.new,
+        name: 'All Tasks',
         icon: 'material-symbols:task-alt',
-        pathName: 'task-management',
+        pathName: 'admin-tasks-root',
         active: true,
-      },
-      {
-        name: 'Task Updates Review',
-        path: '/task-updates',
-        icon: 'material-symbols:update',
-        pathName: 'task-updates',
-        active: true,
-      },
-      {
-        name: 'Create / Assign Task',
-        path: paths.tasks.new,
-        icon: 'material-symbols:add-task',
-        pathName: 'task-create',
-        active: true,
+        items: [
+          {
+            name: 'Task List',
+            path: '/admin/tasks', // new page to be created
+            pathName: 'admin-task-list',
+            icon: 'material-symbols:list-alt',
+            active: true, // set to true when page exists
+          },
+          {
+            name: 'Create / Assign Task',
+            path: paths.tasks.new,
+            pathName: 'task-create',
+            icon: 'material-symbols:add-task',
+            active: true,
+          },
+          {
+            name: 'Task Updates Review',
+            path: '/task-updates',
+            pathName: 'task-updates',
+            icon: 'material-symbols:update',
+            active: true,
+          },
+          {
+            name: 'Task Details',
+            path: '/admin/tasks/:id',
+            pathName: 'admin-task-detail',
+            icon: 'material-symbols:article',
+            active: false, // future use
+          },
+        ],
       },
     ],
   },
+  // ─── End of All Tasks section ──────────────────────────────────
   {
     id: 'employees',
     icon: 'material-symbols:groups',
