@@ -40,9 +40,8 @@ const EmployeeMeetingLog = lazy(() => import('../pages/employee/EmployeeMeetingL
 const EmployeeNotifications = lazy(() => import('../pages/employee/EmployeeNotifications'));
 const EmployeeAccount = lazy(() => import('../pages/employee/EmployeeAccount'));
 const EmployeeProfile = lazy(() => import('../pages/employee/EmployeeProfile'));
-
-// ✅ Add this import for AdminTaskList
-const AdminTaskList = lazy(() => import('../pages/Admin/tasks/AdminTaskList'));
+const TaskDetailPage = lazy(() => import('pages/Admin/tasks/TaskDetailPage'));
+const AdminTaskList = lazy(() => import('pages/Admin/tasks/AdminTaskList'));
 
 // ✅ Add this import for EmployeeAttendance
 const EmployeeAttendance = lazy(() => import('pages/Admin/attendance/EmployeeAttendance'));
@@ -106,6 +105,10 @@ export const routes: RouteObject[] = [
             element: <TaskUpdatesReview />,
           },
           {
+            path: paths.tasks.list,
+            element: <AdminTaskList />,
+          },
+          {
             path: paths.starter,
             element: <Starter />,
           },
@@ -123,10 +126,10 @@ export const routes: RouteObject[] = [
             path: paths.tasks.edit,
             element: <TaskFormPage />,
           },
-          // ✅ Admin Task List route – using paths.tasks.list
           {
-            path: paths.tasks.list,
-            element: <AdminTaskList />,
+            // This route handles displaying a specific task's details.
+            path: paths.tasks.detail,
+            element: <TaskDetailPage />,
           },
 
           // ✅ Attendance route

@@ -431,22 +431,6 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
   );
 };
 
-// Helper function for status icons (extracted nested ternary)
-const getStatusIcon = (status: string): string => {
-  switch (status) {
-    case 'Present':
-      return '✅';
-    case 'Absent':
-      return '❌';
-    case 'Late':
-      return '⏰';
-    case 'Leave':
-      return '🏖️';
-    default:
-      return '';
-  }
-};
-
 const EmployeeAttendance = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -714,105 +698,6 @@ const EmployeeAttendance = () => {
             </CardContent>
           </Card>
         </Grid>
-      </Grid>
-
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        {['Present', 'Absent', 'Late', 'Leave'].map((status) => {
-          const employees = todayRecords.filter((r) => r.status === status);
-          const cfg = STATUS_CONFIG[status as AttendanceStatus];
-          return (
-            <Grid key={status} size={{ xs: 12, sm: 6, md: 3 }}>
-              <Card
-                elevation={0}
-                sx={{
-                  border: `1px solid ${cfg.color}40`,
-                  borderRadius: '12px',
-                  height: '100%',
-                  background: `linear-gradient(135deg, ${cfg.bg} 0%, #ffffff 100%)`,
-                }}
-              >
-                <CardContent sx={{ p: 2 }}>
-                  <Stack
-                    direction="row"
-                    justifyContent="space-between"
-                    alignItems="center"
-                    sx={{ mb: 1.5 }}
-                  >
-                    <Typography
-                      variant="subtitle2"
-                      sx={{ fontWeight: 700, color: cfg.color, fontSize: '0.82rem' }}
-                    >
-                      {getStatusIcon(status)} {status}
-                    </Typography>
-                    <Chip
-                      label={employees.length}
-                      size="small"
-                      sx={{
-                        bgcolor: cfg.color,
-                        color: '#fff',
-                        fontWeight: 700,
-                        height: 22,
-                        fontSize: '0.75rem',
-                      }}
-                    />
-                  </Stack>
-                  <Stack spacing={0.75}>
-                    {employees.slice(0, 3).map((r) => (
-                      <Stack key={r.id} direction="row" alignItems="center" spacing={1}>
-                        <Avatar
-                          sx={{
-                            width: 26,
-                            height: 26,
-                            fontSize: '0.65rem',
-                            fontWeight: 700,
-                            bgcolor: cfg.color + '30',
-                            color: cfg.color,
-                          }}
-                        >
-                          {r.avatarInitials}
-                        </Avatar>
-                        <Box>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontWeight: 600,
-                              color: '#1a2b5e',
-                              lineHeight: 1.2,
-                              display: 'block',
-                            }}
-                          >
-                            {r.employeeName}
-                          </Typography>
-                          {r.checkIn !== '--' && (
-                            <Typography
-                              variant="caption"
-                              sx={{ color: '#4a6fa5', fontSize: '0.65rem' }}
-                            >
-                              In: {r.checkIn}
-                            </Typography>
-                          )}
-                        </Box>
-                      </Stack>
-                    ))}
-                    {employees.length > 3 && (
-                      <Typography
-                        variant="caption"
-                        sx={{ color: cfg.color, fontWeight: 600, pl: 0.5 }}
-                      >
-                        +{employees.length - 3} more
-                      </Typography>
-                    )}
-                    {employees.length === 0 && (
-                      <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                        No employees
-                      </Typography>
-                    )}
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
       </Grid>
 
       <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px' }}>

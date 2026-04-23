@@ -11,6 +11,7 @@ import {
   HourglassEmpty,
   PendingActions,
   Search as SearchIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 import {
   Alert,
@@ -633,7 +634,10 @@ const AdminTaskList = () => {
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
                               maxWidth: 160,
+                              cursor: 'pointer',
+                              '&:hover': { color: '#1E58E6', textDecoration: 'underline' },
                             }}
+                            onClick={() => navigate(paths.tasks.detail.replace(':taskId', task.id))}
                           >
                             {task.title}
                           </Typography>
@@ -760,6 +764,23 @@ const AdminTaskList = () => {
                       {/* Actions */}
                       <TableCell>
                         <Stack direction="row" gap={0.5}>
+                          <Tooltip title="View Detail">
+                            <IconButton
+                              size="small"
+                              onClick={() =>
+                                navigate(paths.tasks.detail.replace(':taskId', task.id))
+                              }
+                              sx={{
+                                color: '#1E58E6',
+                                bgcolor: '#e6f0ff',
+                                '&:hover': { bgcolor: '#ccdeff' },
+                                width: 30,
+                                height: 30,
+                              }}
+                            >
+                              <VisibilityIcon sx={{ fontSize: 15 }} />
+                            </IconButton>
+                          </Tooltip>
                           <Tooltip title="Assign to Admin">
                             <IconButton
                               size="small"
