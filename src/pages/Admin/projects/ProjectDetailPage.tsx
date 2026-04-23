@@ -268,10 +268,26 @@ const ProjectDetailPage = () => {
 
           <Grid container spacing={2}>
             {[
-              { icon: <PersonIcon sx={{ fontSize: 16 }} />, label: 'Client', value: project.clientName },
-              { icon: <CalendarIcon sx={{ fontSize: 16 }} />, label: 'Created', value: formatDate(project.createdAt) },
-              { icon: <CalendarIcon sx={{ fontSize: 16 }} />, label: 'Updated', value: formatDate(project.updatedAt) },
-              { icon: <PersonIcon sx={{ fontSize: 16 }} />, label: 'Created by', value: project.createdBy },
+              {
+                icon: <PersonIcon sx={{ fontSize: 16 }} />,
+                label: 'Client',
+                value: project.clientName,
+              },
+              {
+                icon: <CalendarIcon sx={{ fontSize: 16 }} />,
+                label: 'Created',
+                value: formatDate(project.createdAt),
+              },
+              {
+                icon: <CalendarIcon sx={{ fontSize: 16 }} />,
+                label: 'Updated',
+                value: formatDate(project.updatedAt),
+              },
+              {
+                icon: <PersonIcon sx={{ fontSize: 16 }} />,
+                label: 'Created by',
+                value: project.createdBy,
+              },
             ].map(({ icon, label, value }) => (
               <Grid size={{ xs: 12, sm: 6, md: 3 }} key={label}>
                 <Stack direction="row" alignItems="center" spacing={1}>
