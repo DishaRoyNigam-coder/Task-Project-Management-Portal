@@ -1,4 +1,4 @@
-// src/pages/dashboard/AdminDashboard.tsx — Professional blue-themed dashboard
+// src/pages/dashboard/AdminDashboard.tsx — Equal‑height item cards, inline meeting date badge
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import {
@@ -11,9 +11,7 @@ import {
   Grid,
   IconButton,
   LinearProgress,
-  Paper,
   Stack,
-  Tooltip,
   Typography,
 } from '@mui/material';
 import { useMeetings } from 'context/MeetingContext';
@@ -25,7 +23,15 @@ import IconifyIcon from 'components/base/IconifyIcon';
 const PRIMARY_BLUE = '#1E58E6';
 const PRIMARY_BLUE_LIGHT = '#E6F0FF';
 
-// ─── KPI Card (using IconifyIcon) ─────────────────────────────────────────────
+// ─── Refined colour palette for cards (softer, modern) ───────────────────────
+const COLORS = {
+  green: { bg: '#E8F5E9', main: '#2E7D32', icon: '#2E7D32' },
+  red: { bg: '#FFEBEE', main: '#D32F2F', icon: '#D32F2F' },
+  blue: { bg: '#E3F2FD', main: '#1565C0', icon: '#1565C0' },
+  purple: { bg: '#F3E5F5', main: '#7B1FA2', icon: '#7B1FA2' },
+};
+
+// ─── KPI Card ────────────────────────────────────────────────────────────────
 interface KpiCardProps {
   label: string;
   value: string | number;
@@ -94,36 +100,57 @@ const KpiCard = ({
   </Card>
 );
 
-// ─── Section Card ─────────────────────────────────────────────────────────────
-const SectionCard = ({
-  title,
-  children,
-  iconName,
-}: {
-  title: string;
-  children: React.ReactNode;
-  iconName?: string;
-}) => (
+// ─── Section Card (wrapper for each column) ─────────────────────────────────
+const SectionCard = ({ title, color, icon, children }: any) => (
   <Card
-    elevation={0}
     sx={{
+      borderRadius: 4,
+      boxShadow: '0 8px 24px rgba(0,0,0,0.04)',
       height: '100%',
-      border: '1px solid #d0e0ff',
-      borderRadius: '12px',
-      display: 'flex',
-      flexDirection: 'column',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+      '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 12px 28px rgba(0,0,0,0.08)' },
     }}
   >
-    <CardContent sx={{ p: 2.5, flexGrow: 1 }}>
-      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-        {iconName && <IconifyIcon icon={iconName} sx={{ fontSize: 24, color: PRIMARY_BLUE }} />}
-        <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
+    <CardContent sx={{ p: 2.5 }}>
+      <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2.5 }}>
+        <Avatar sx={{ bgcolor: color.bg, color: color.icon, width: 40, height: 40 }}>
+          <IconifyIcon icon={icon} />
+        </Avatar>
+        <Typography variant="h6" sx={{ fontWeight: 700, color: color.main }}>
           {title}
         </Typography>
       </Stack>
-      {children}
+      <Box>{children}</Box>
     </CardContent>
   </Card>
+);
+
+// ─── Item Card – fixed height, consistent padding, flexible content ─────────
+const ItemCard = ({ children, onClick }: any) => (
+  <Box
+    onClick={onClick}
+    sx={{
+      p: 2,
+      mb: 2,
+      borderRadius: 2,
+      backgroundColor: '#ffffff',
+      border: '1px solid #eef2f8',
+      transition: 'all 0.2s',
+      cursor: onClick ? 'pointer' : 'default',
+      minHeight: 110,
+      display: 'flex',
+      alignItems: 'center',
+      '&:hover': onClick
+        ? {
+            backgroundColor: '#f5f9ff',
+            borderColor: PRIMARY_BLUE_LIGHT,
+            transform: 'translateX(4px)',
+          }
+        : {},
+    }}
+  >
+    {children}
+  </Box>
 );
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -142,7 +169,12 @@ const getProjectPhase = (phase: string) => {
   return phases.includes(phase) ? phase : 'Planning';
 };
 
-// ─── Component ────────────────────────────────────────────────────────────────
+const getMeetingDayMonth = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return { day: d.getDate(), month: d.toLocaleString('en-US', { month: 'short' }).toUpperCase() };
+};
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { projects } = useProjects();
@@ -160,7 +192,7 @@ const AdminDashboard = () => {
     : 0;
   const totalMeetings = meetings.length;
 
-  // ── Completed Tasks (status always "Submitted") ──
+  // ── Completed Tasks (status = 'Done') ──
   const completedTasksData = useMemo(() => {
     const realCompleted = tasks
       .filter((t) => t.status === 'Done')
@@ -168,37 +200,33 @@ const AdminDashboard = () => {
       .map((task) => {
         const project = projects.find((p) => p.id === task.projectId);
         return {
-          taskName: task.title,
-          projectName: project?.projectName || 'Unknown Project',
-          developerName: task.assignedTo?.name || 'Unassigned',
-          date: formatDate(task.updatedAt || task.dueDate),
-          time: formatTime(task.updatedAt || task.dueDate),
+          title: task.title,
+          project: project?.projectName || 'Unknown Project',
+          developer: task.assignedTo?.name || 'Unassigned',
+          date: `${formatDate(task.updatedAt || task.dueDate)} at ${formatTime(task.updatedAt || task.dueDate)}`,
           id: task.id,
         };
       });
     if (realCompleted.length > 0) return realCompleted;
-    // Demo data
     return [
       {
-        taskName: 'Mobile Banking App - Login UI',
-        projectName: 'Mobile Banking App',
-        developerName: 'Ekawati',
-        date: '03 Dec 2023',
-        time: '08:10 AM',
+        title: 'Mobile Banking App - Login UI',
+        project: 'Mobile Banking App',
+        developer: 'Ekawati',
+        date: '03 Dec 2023 at 08:10 AM',
         id: 'demo1',
       },
       {
-        taskName: 'API Integration for Payment Gateway',
-        projectName: 'E-commerce Platform',
-        developerName: 'John Doe',
-        date: '05 Dec 2023',
-        time: '02:30 PM',
+        title: 'API Integration for Payment Gateway',
+        project: 'E-commerce Platform',
+        developer: 'John Doe',
+        date: '05 Dec 2023 at 02:30 PM',
         id: 'demo2',
       },
     ];
   }, [tasks, projects]);
 
-  // ── Delayed Tasks (with Edit button) ──
+  // ── Delayed Tasks (due date passed and not Done) ──
   const delayedTasksData = useMemo(() => {
     const realDelayed = tasks
       .filter((t) => new Date(t.dueDate) < new Date() && t.status !== 'Done')
@@ -206,77 +234,68 @@ const AdminDashboard = () => {
       .map((task) => {
         const project = projects.find((p) => p.id === task.projectId);
         return {
-          taskName: task.title,
-          projectName: project?.projectName || 'Unknown Project',
-          developerName: task.assignedTo?.name || 'Unassigned',
-          taskId: task.id,
+          title: task.title,
+          project: project?.projectName || 'Unknown Project',
+          developer: task.assignedTo?.name || 'Unassigned',
+          id: task.id,
         };
       });
     if (realDelayed.length > 0) return realDelayed;
-    // Demo data
     return [
       {
-        taskName: 'Design login UI',
-        projectName: 'Mobile Banking App',
-        developerName: 'John Doe',
-        taskId: 'demo_delay1',
+        title: 'Design login UI',
+        project: 'Mobile Banking App',
+        developer: 'John Doe',
+        id: 'demo_delay1',
       },
       {
-        taskName: 'Implement API integration',
-        projectName: 'E-commerce Platform',
-        developerName: 'Jane Smith',
-        taskId: 'demo_delay2',
+        title: 'Implement API integration',
+        project: 'Mobile Banking App',
+        developer: 'Jane Smith',
+        id: 'demo_delay2',
       },
     ];
   }, [tasks, projects]);
 
-  // ── Completed Meetings (only completed meetings) ──
+  // ── Completed Meetings (status = 'Completed') ──
   const completedMeetingsData = useMemo(() => {
     const realCompletedMeetings = meetings
-      .filter((m) => {
-        const meetingAny = m as any;
-        return meetingAny.status === 'Completed' || meetingAny.completed === true;
-      })
+      .filter((m) => (m as any).status === 'Completed' || (m as any).completed === true)
       .map((m) => {
-        const meetingAny = m as any;
         const project = projects.find((p) => p.id === m.projectId);
         const meetingDate =
-          meetingAny.date ||
-          meetingAny.meetingDate ||
-          meetingAny.createdAt ||
+          (m as any).date ||
+          (m as any).meetingDate ||
+          (m as any).createdAt ||
           new Date().toISOString();
         return {
-          developerName: meetingAny.createdBy || meetingAny.organizer || 'Admin',
-          projectName: project?.projectName || 'Unknown Project',
-          clientName: project?.clientName || 'Unknown Client',
-          meetingTime: formatDate(meetingDate) + ' at ' + formatTime(meetingDate),
-          meetingId: m.id,
-          link: `/meetings/${m.id}`,
+          title: `${project?.projectName || 'Unknown Project'} / ${project?.clientName || 'Unknown Client'}`,
+          developer: (m as any).createdBy || (m as any).organizer || 'Admin',
+          date: meetingDate,
+          formattedDate: `${formatDate(meetingDate)} at ${formatTime(meetingDate)}`,
+          id: m.id,
         };
       });
     if (realCompletedMeetings.length > 0) return realCompletedMeetings;
-    // Demo data
     return [
       {
-        developerName: 'Ekawati',
-        projectName: 'Mobile Banking App',
-        clientName: 'FinBank Corp',
-        meetingTime: '03 Dec 2023 at 10:00 AM',
-        meetingId: 'demo_meet1',
-        link: '/meetings/demo_meet1',
+        title: 'Mobile Banking App / FinBank Corp',
+        developer: 'Ekawati',
+        date: '2023-12-03T10:00:00',
+        formattedDate: '03 Dec 2023 at 10:00 AM',
+        id: 'demo_meet1',
       },
       {
-        developerName: 'John Doe',
-        projectName: 'E-commerce Platform',
-        clientName: 'Retail Solutions',
-        meetingTime: '05 Dec 2023 at 02:30 PM',
-        meetingId: 'demo_meet2',
-        link: '/meetings/demo_meet2',
+        title: 'E-commerce Platform / Retail Solutions',
+        developer: 'John Doe',
+        date: '2023-12-05T14:30:00',
+        formattedDate: '05 Dec 2023 at 02:30 PM',
+        id: 'demo_meet2',
       },
     ];
   }, [meetings, projects]);
 
-  // ── Active Projects (with status: delayed/on time, phase, task completion) ──
+  // ── Active Projects (with status, phase, task completion) ──
   const activeProjectsData = useMemo(() => {
     const realActive = projects
       .filter((p) => p.status === 'Active')
@@ -290,29 +309,28 @@ const AdminDashboard = () => {
         const status = overdueTasksCount > 0 ? 'Delayed' : 'On Time';
         const phase = getProjectPhase(project.projectPhase);
         return {
-          projectName: project.projectName,
+          name: project.projectName,
           status,
           phase,
-          completedTasks: `${completedTasksCount}/${totalTasks}`,
-          projectId: project.id,
+          progress: `${completedTasksCount}/${totalTasks}`,
+          id: project.id,
         };
       });
     if (realActive.length > 0) return realActive;
-    // Demo data
     return [
       {
-        projectName: 'Mobile Banking App',
+        name: 'Mobile Banking App',
         status: 'Delayed',
         phase: 'Development',
-        completedTasks: '2/5',
-        projectId: 'demo_proj1',
+        progress: '0/2',
+        id: 'demo_proj1',
       },
       {
-        projectName: 'E-commerce Platform',
+        name: 'E-commerce Platform',
         status: 'On Time',
         phase: 'Testing',
-        completedTasks: '4/6',
-        projectId: 'demo_proj2',
+        progress: '4/6',
+        id: 'demo_proj2',
       },
     ];
   }, [projects, tasks]);
@@ -333,24 +351,11 @@ const AdminDashboard = () => {
     orange: '#FFF3E0',
   };
 
-  // Uniform card style for consistent height
-  const uniformCardSx = {
-    p: 1.5,
-    mb: 1.5,
-    border: '1px solid #d0e0ff',
-    borderRadius: '10px',
-    backgroundColor: '#f8fbff',
-    minHeight: 140,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  };
-
   return (
-    <Box sx={{ p: { xs: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 2, md: 3 }, bgcolor: '#fafcff', minHeight: '100vh' }}>
       {/* Page Header */}
       <Box sx={{ mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+        <Typography variant="h5" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
           Admin Dashboard
         </Typography>
         <Typography variant="body2" sx={{ color: '#4a6fa5', mt: 0.5 }}>
@@ -398,7 +403,7 @@ const AdminDashboard = () => {
       </Grid>
 
       {/* Secondary KPIs (second row) */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+      <Grid container spacing={2.5} sx={{ mb: 4 }}>
         <Grid size={{ xs: 12, sm: 6, md: 3 }}>
           <KpiCard
             label="Total Tasks"
@@ -433,142 +438,163 @@ const AdminDashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Completed Tasks & Delayed Tasks */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+      {/* Four‑Card Section with equal‑height item cards */}
+      <Grid container spacing={3}>
+        {/* Completed Tasks Card */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <SectionCard title="Completed Tasks" iconName="material-symbols:check-circle-outline">
-            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
-              {completedTasksData.map((task) => (
-                <Paper key={task.id} elevation={0} sx={uniformCardSx}>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                      {task.taskName}
+          <SectionCard title="Completed Tasks" color={COLORS.green} icon="mdi:check-circle-outline">
+            {completedTasksData.map((task) => (
+              <ItemCard key={task.id}>
+                <Stack direction="row" spacing={2} alignItems="center" width="100%">
+                  <Avatar
+                    sx={{
+                      bgcolor: COLORS.green.bg,
+                      color: COLORS.green.icon,
+                      width: 40,
+                      height: 40,
+                    }}
+                  >
+                    <IconifyIcon icon="mdi:clipboard-check" />
+                  </Avatar>
+                  <Box flex={1}>
+                    <Typography fontWeight={700} color="#1a2b5e">
+                      {task.title}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      Project: {task.projectName}
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Project: {task.project}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      Developer: {task.developerName}
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Developer: {task.developer}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      {task.date} at {task.time}
+                    <Typography variant="caption" color="text.secondary">
+                      {task.date}
                     </Typography>
-                  </Box>
-                  <Box sx={{ mt: 'auto', pt: 1 }}>
                     <Chip
                       label="Submitted"
                       size="small"
-                      color="success"
-                      icon={
-                        <IconifyIcon icon="material-symbols:check-circle" sx={{ fontSize: 14 }} />
-                      }
-                      sx={{ height: 22, fontSize: '11px', fontWeight: 600 }}
+                      sx={{ mt: 1, bgcolor: '#E8F5E9', color: '#2E7D32', fontWeight: 600 }}
+                      icon={<IconifyIcon icon="mdi:check-circle" width={14} />}
                     />
                   </Box>
-                </Paper>
-              ))}
-            </Box>
+                </Stack>
+              </ItemCard>
+            ))}
           </SectionCard>
         </Grid>
 
+        {/* Delayed Tasks Card */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <SectionCard title="Delayed Tasks" iconName="material-symbols:error-outline">
-            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
-              {delayedTasksData.map((task) => (
-                <Paper key={task.taskId} elevation={0} sx={uniformCardSx}>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#e53935' }}>
-                      {task.taskName}
+          <SectionCard title="Delayed Tasks" color={COLORS.red} icon="mdi:clock-alert-outline">
+            {delayedTasksData.map((task) => (
+              <ItemCard key={task.id}>
+                <Stack direction="row" spacing={2} alignItems="center" width="100%">
+                  <Avatar
+                    sx={{ bgcolor: COLORS.red.bg, color: COLORS.red.icon, width: 40, height: 40 }}
+                  >
+                    <IconifyIcon icon="mdi:alert-circle" />
+                  </Avatar>
+                  <Box flex={1}>
+                    <Typography fontWeight={700} color="#d32f2f">
+                      {task.title}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      Project: {task.projectName}
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Project: {task.project}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      Developer: {task.developerName}
-                    </Typography>
-                  </Box>
-                  <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
-                    <Tooltip title="Edit Task">
-                      <IconButton
-                        size="small"
-                        onClick={() => navigate(`/tasks/edit/${task.taskId}`)}
-                        sx={{ color: PRIMARY_BLUE }}
-                      >
-                        <IconifyIcon icon="material-symbols:edit" />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </Paper>
-              ))}
-            </Box>
-          </SectionCard>
-        </Grid>
-      </Grid>
-
-      {/* Completed Meetings & Active Projects */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid size={{ xs: 12, md: 6 }}>
-          <SectionCard title="Completed Meetings" iconName="material-symbols:event-available">
-            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
-              {completedMeetingsData.map((meeting) => (
-                <Paper key={meeting.meetingId} elevation={0} sx={uniformCardSx}>
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                      {meeting.projectName} / {meeting.clientName}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      Developer: {meeting.developerName}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5', display: 'block' }}>
-                      {meeting.meetingTime}
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Developer: {task.developer}
                     </Typography>
                   </Box>
-                  <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
-                    <Tooltip title="View Meeting Details">
-                      <IconButton
-                        size="small"
-                        onClick={() => navigate(meeting.link)}
-                        sx={{ color: PRIMARY_BLUE }}
-                      >
-                        <IconifyIcon icon="material-symbols:link" />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                </Paper>
-              ))}
-            </Box>
+                  <IconButton
+                    onClick={() => navigate(`/tasks/edit/${task.id}`)}
+                    sx={{ color: PRIMARY_BLUE }}
+                  >
+                    <IconifyIcon icon="mdi:pencil" />
+                  </IconButton>
+                </Stack>
+              </ItemCard>
+            ))}
           </SectionCard>
         </Grid>
 
+        {/* Completed Meetings Card – with inline date badge */}
         <Grid size={{ xs: 12, md: 6 }}>
-          <SectionCard title="Active Projects" iconName="material-symbols:rocket">
-            <Box sx={{ maxHeight: 360, overflowY: 'auto', pr: 1 }}>
-              {activeProjectsData.map((project) => (
-                <Paper
-                  key={project.projectId}
-                  elevation={0}
-                  sx={{
-                    ...uniformCardSx,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    '&:hover': {
-                      backgroundColor: PRIMARY_BLUE_LIGHT,
-                      borderColor: PRIMARY_BLUE,
-                      transform: 'translateX(4px)',
-                    },
-                  }}
-                  onClick={() => navigate(`/projects/${project.projectId}`)}
-                >
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                      {project.projectName}
+          <SectionCard title="Completed Meetings" color={COLORS.blue} icon="mdi:calendar-check">
+            {completedMeetingsData.map((meeting) => {
+              const { day, month } = getMeetingDayMonth(meeting.date);
+              return (
+                <ItemCard key={meeting.id}>
+                  <Stack direction="row" spacing={2} alignItems="center" width="100%">
+                    {/* Inline date badge: day and month on the same line */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'baseline',
+                        gap: 0.5,
+                        bgcolor: COLORS.blue.bg,
+                        borderRadius: 2,
+                        px: 1.5,
+                        py: 0.75,
+                        minWidth: 56,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Typography fontWeight={700} color={COLORS.blue.main}>
+                        {day}
+                      </Typography>
+                      <Typography variant="caption" fontWeight={600} color={COLORS.blue.main}>
+                        {month}
+                      </Typography>
+                    </Box>
+                    <Box flex={1}>
+                      <Typography fontWeight={700} color="#1a2b5e">
+                        {meeting.title}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        Developer: {meeting.developer}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {meeting.formattedDate}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      onClick={() => navigate(`/meetings/${meeting.id}`)}
+                      sx={{ color: PRIMARY_BLUE }}
+                    >
+                      <IconifyIcon icon="mdi:link" />
+                    </IconButton>
+                  </Stack>
+                </ItemCard>
+              );
+            })}
+          </SectionCard>
+        </Grid>
+
+        {/* Active Projects Card */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <SectionCard title="Active Projects" color={COLORS.purple} icon="mdi:rocket-launch">
+            {activeProjectsData.map((project) => (
+              <ItemCard key={project.id} onClick={() => navigate(`/projects/${project.id}`)}>
+                <Stack direction="row" spacing={2} alignItems="center" width="100%">
+                  <Avatar
+                    sx={{
+                      bgcolor: COLORS.purple.bg,
+                      color: COLORS.purple.icon,
+                      width: 40,
+                      height: 40,
+                    }}
+                  >
+                    <IconifyIcon icon="mdi:application" />
+                  </Avatar>
+                  <Box flex={1}>
+                    <Typography fontWeight={700} color="#1a2b5e">
+                      {project.name}
                     </Typography>
-                    <Stack direction="row" spacing={1} sx={{ mt: 0.5, mb: 0.5 }}>
+                    <Stack direction="row" spacing={1} mt={0.5} mb={0.5}>
                       <Chip
                         label={project.status}
                         size="small"
                         color={project.status === 'Delayed' ? 'error' : 'success'}
-                        sx={{ height: 22, fontSize: '11px', fontWeight: 600 }}
+                        sx={{ height: 22, fontSize: '0.7rem', fontWeight: 600 }}
                       />
                       <Chip
                         label={project.phase}
@@ -576,26 +602,26 @@ const AdminDashboard = () => {
                         variant="outlined"
                         sx={{
                           height: 22,
-                          fontSize: '11px',
+                          fontSize: '0.7rem',
                           fontWeight: 600,
                           borderColor: PRIMARY_BLUE,
                           color: PRIMARY_BLUE,
                         }}
                       />
                     </Stack>
-                    <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
-                      Tasks: {project.completedTasks} completed
+                    <Typography variant="caption" color="text.secondary">
+                      Tasks: {project.progress} completed
                     </Typography>
                   </Box>
-                </Paper>
-              ))}
-            </Box>
+                </Stack>
+              </ItemCard>
+            ))}
           </SectionCard>
         </Grid>
       </Grid>
 
       {/* Quick Links */}
-      <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px' }}>
+      <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '16px', mt: 4 }}>
         <CardContent sx={{ p: 2.5 }}>
           <Typography variant="h6" sx={{ fontWeight: 700, color: '#0f2a6e', mb: 1.5 }}>
             Quick Report Links
