@@ -1,17 +1,4 @@
 // src/pages/Admin/attendance/EmployeeAttendance.tsx
-// ─────────────────────────────────────────────────────────────────────────────
-// Drop-in attendance page for the Task-Project Management Portal.
-// Matches existing design language: MUI v7, Iconify, Recharts, PRIMARY_BLUE theme.
-//
-// INTEGRATION:
-//   1. Copy this file to  src/pages/Admin/attendance/EmployeeAttendance.tsx
-//   2. In src/routes/paths.ts  → add inside the object:
-//         attendance: '/admin/attendance',
-//   3. In src/routes/router.tsx → add import + route:
-//         import EmployeeAttendance from 'pages/Admin/attendance/EmployeeAttendance';
-//         { path: paths.attendance, element: <EmployeeAttendance /> },
-//   4. In src/routes/sitemap.ts → add a menu item (see snippet at bottom of this file)
-// ─────────────────────────────────────────────────────────────────────────────
 import { useMemo, useState } from 'react';
 import {
   EventBusy as AbsentIcon,
@@ -67,7 +54,6 @@ import {
   YAxis,
 } from 'recharts';
 
-// ─── Theme tokens (identical to AdminDashboard) ───────────────────────────────
 const PRIMARY_BLUE = '#1E58E6';
 const PRIMARY_BLUE_LIGHT = '#E6F0FF';
 const SUCCESS_GREEN = '#00C49F';
@@ -75,7 +61,6 @@ const WARNING_AMBER = '#FFBB28';
 const ERROR_RED = '#FF4842';
 const INFO_PURPLE = '#9B59B6';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
 type AttendanceStatus = 'Present' | 'Absent' | 'Late' | 'Leave' | 'Half Day';
 
 interface AttendanceRecord {
@@ -84,15 +69,14 @@ interface AttendanceRecord {
   employeeName: string;
   role: string;
   avatarInitials: string;
-  date: string; // YYYY-MM-DD
-  checkIn: string; // HH:MM or '--'
-  checkOut: string; // HH:MM or '--'
-  duration: string; // e.g. "8h 30m" or '--'
+  date: string;
+  checkIn: string;
+  checkOut: string;
+  duration: string;
   status: AttendanceStatus;
   department: string;
 }
 
-// ─── Mock Data ────────────────────────────────────────────────────────────────
 const DEPARTMENTS = ['Engineering', 'Design', 'QA', 'Product', 'DevOps'];
 
 const EMPLOYEES = [
@@ -130,7 +114,7 @@ function generateRecords(): AttendanceRecord[] {
     const date = new Date(today);
     date.setDate(today.getDate() - dayOffset);
     const dayOfWeek = date.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // skip weekends
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue;
 
     const dateStr = date.toISOString().split('T')[0];
 
@@ -178,7 +162,6 @@ function generateRecords(): AttendanceRecord[] {
 
 const ALL_RECORDS = generateRecords();
 
-// ─── Weekly trend for chart ───────────────────────────────────────────────────
 function buildWeeklyTrend(records: AttendanceRecord[]) {
   const weeks: Record<string, { present: number; absent: number; late: number; leave: number }> =
     {};
@@ -198,7 +181,6 @@ function buildWeeklyTrend(records: AttendanceRecord[]) {
     .map(([week, v]) => ({ week, ...v }));
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 const STATUS_CONFIG: Record<
   AttendanceStatus,
   { color: string; bg: string; muiColor: 'success' | 'error' | 'warning' | 'info' | 'default' }
@@ -217,8 +199,6 @@ const DEPT_COLORS: Record<string, string> = {
   Product: WARNING_AMBER,
   DevOps: INFO_PURPLE,
 };
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
 
 interface KpiCardProps {
   label: string;
@@ -310,7 +290,6 @@ const KpiCard = ({
   </Card>
 );
 
-// Mini calendar heatmap for the month
 const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
   const today = new Date();
   const year = today.getFullYear();
@@ -319,7 +298,6 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  // Aggregate status counts per day across all employees
   const dayStats: Record<number, Record<AttendanceStatus, number>> = {};
   records.forEach((r) => {
     const d = new Date(r.date);
@@ -352,7 +330,7 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
   };
 
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const blanks = Array(firstDay).fill(null);
+  const blanks = new Array(firstDay).fill(null);
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   return (
@@ -372,7 +350,7 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
       </Grid>
       <Grid container columns={7} spacing={0.5}>
         {blanks.map((_, i) => (
-          <Grid key={`blank-${i}`} size={1} />
+          <Grid key={`blank-${firstDay}-${i}`} size={1} />
         ))}
         {days.map((day) => {
           const isToday = day === today.getDate();
@@ -381,6 +359,16 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
           const tooltipText = stats
             ? `P:${stats.Present} A:${stats.Absent} L:${stats.Late}`
             : 'No data';
+
+          // Extract nested ternary for text color
+          let textColor = '#2d3748';
+          if (isToday) textColor = PRIMARY_BLUE;
+          else if (isWeekend) textColor = '#b0bec5';
+
+          // Extract nested ternary for border style
+          let borderStyle = `1px solid ${getDayBorderColor(day)}`;
+          if (isToday) borderStyle = `2px solid ${PRIMARY_BLUE}`;
+          else if (isWeekend) borderStyle = '1px solid #e8ecf0';
 
           return (
             <Grid key={day} size={1}>
@@ -394,9 +382,7 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
                     justifyContent: 'center',
                     cursor: 'default',
                     backgroundColor: isWeekend ? '#f5f7fa' : getDayColor(day),
-                    border: isToday
-                      ? `2px solid ${PRIMARY_BLUE}`
-                      : `1px solid ${isWeekend ? '#e8ecf0' : getDayBorderColor(day)}`,
+                    border: borderStyle,
                     transition: 'transform 0.15s',
                     '&:hover': { transform: 'scale(1.12)', zIndex: 1 },
                   }}
@@ -406,7 +392,7 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
                     sx={{
                       fontSize: '0.68rem',
                       fontWeight: isToday ? 800 : 500,
-                      color: isToday ? PRIMARY_BLUE : isWeekend ? '#b0bec5' : '#2d3748',
+                      color: textColor,
                     }}
                   >
                     {day}
@@ -418,7 +404,6 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
         })}
       </Grid>
 
-      {/* Legend */}
       <Stack direction="row" spacing={2} sx={{ mt: 2 }} flexWrap="wrap">
         {[
           { label: 'High (>80%)', bg: '#d4f7e7', border: SUCCESS_GREEN },
@@ -446,77 +431,22 @@ const AttendanceCalendar = ({ records }: { records: AttendanceRecord[] }) => {
   );
 };
 
-// ─── Department breakdown bar ─────────────────────────────────────────────────
-const DeptBreakdown = ({ records }: { records: AttendanceRecord[] }) => {
-  const deptStats = useMemo(() => {
-    const map: Record<string, { present: number; total: number }> = {};
-    records.forEach((r) => {
-      if (!map[r.department]) map[r.department] = { present: 0, total: 0 };
-      map[r.department].total++;
-      if (r.status === 'Present' || r.status === 'Late') map[r.department].present++;
-    });
-    return Object.entries(map).map(([dept, v]) => ({
-      dept,
-      rate: v.total ? Math.round((v.present / v.total) * 100) : 0,
-    }));
-  }, [records]);
-
-  return (
-    <Stack spacing={1.5}>
-      {deptStats.map(({ dept, rate }) => (
-        <Box key={dept}>
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ mb: 0.4 }}
-          >
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor: DEPT_COLORS[dept] ?? PRIMARY_BLUE,
-                }}
-              />
-              <Typography
-                variant="body2"
-                sx={{ fontWeight: 600, color: '#1a2b5e', fontSize: '0.8rem' }}
-              >
-                {dept}
-              </Typography>
-            </Stack>
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 700,
-                color: rate > 75 ? SUCCESS_GREEN : rate > 55 ? WARNING_AMBER : ERROR_RED,
-              }}
-            >
-              {rate}%
-            </Typography>
-          </Stack>
-          <LinearProgress
-            variant="determinate"
-            value={rate}
-            sx={{
-              height: 7,
-              borderRadius: 4,
-              bgcolor: '#eef2ff',
-              '& .MuiLinearProgress-bar': {
-                bgcolor: DEPT_COLORS[dept] ?? PRIMARY_BLUE,
-                borderRadius: 4,
-              },
-            }}
-          />
-        </Box>
-      ))}
-    </Stack>
-  );
+// Helper function for status icons (extracted nested ternary)
+const getStatusIcon = (status: string): string => {
+  switch (status) {
+    case 'Present':
+      return '✅';
+    case 'Absent':
+      return '❌';
+    case 'Late':
+      return '⏰';
+    case 'Leave':
+      return '🏖️';
+    default:
+      return '';
+  }
 };
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
 const EmployeeAttendance = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -526,7 +456,6 @@ const EmployeeAttendance = () => {
 
   const today = new Date().toISOString().split('T')[0];
 
-  // ── Today's records ──────────────────────────────────────────────────────
   const todayRecords = useMemo(() => ALL_RECORDS.filter((r) => r.date === today), []);
 
   const kpiStats = useMemo(() => {
@@ -539,7 +468,6 @@ const EmployeeAttendance = () => {
     return { present, absent, onLeave, late, halfDay, total };
   }, [todayRecords]);
 
-  // ── Filtered table records ───────────────────────────────────────────────
   const filteredRecords = useMemo(() => {
     return ALL_RECORDS.filter((r) => {
       const matchSearch =
@@ -556,7 +484,7 @@ const EmployeeAttendance = () => {
 
   const handleChangePage = (_: unknown, newPage: number) => setPage(newPage);
   const handleChangeRowsPerPage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(e.target.value, 10));
+    setRowsPerPage(Number.parseInt(e.target.value, 10));
     setPage(0);
   };
 
@@ -569,7 +497,6 @@ const EmployeeAttendance = () => {
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 }, bgcolor: '#f7f9fe', minHeight: '100vh' }}>
-      {/* ── Page Header ───────────────────────────────────────────────── */}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
         justifyContent="space-between"
@@ -630,7 +557,6 @@ const EmployeeAttendance = () => {
         </Stack>
       </Stack>
 
-      {/* ── KPI Cards ──────────────────────────────────────────────────── */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, sm: 6, md: 2.4 }}>
           <KpiCard
@@ -693,10 +619,9 @@ const EmployeeAttendance = () => {
         </Grid>
       </Grid>
 
-      {/* ── Middle Row: Calendar + Dept Breakdown + Trend Chart ─────────── */}
+      {/* Middle Row: Calendar and Weekly Trend only (removed By Department card) */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        {/* Calendar Heatmap */}
-        <Grid size={{ xs: 12, md: 4 }}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Card
             elevation={0}
             sx={{ border: '1px solid #d0e0ff', borderRadius: '12px', height: '100%' }}
@@ -720,33 +645,7 @@ const EmployeeAttendance = () => {
           </Card>
         </Grid>
 
-        {/* Department Breakdown */}
-        <Grid size={{ xs: 12, md: 3 }}>
-          <Card
-            elevation={0}
-            sx={{ border: '1px solid #d0e0ff', borderRadius: '12px', height: '100%' }}
-          >
-            <CardHeader
-              title={
-                <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0f2a6e' }}>
-                  🏢 By Department
-                </Typography>
-              }
-              subheader={
-                <Typography variant="caption" sx={{ color: '#4a6fa5' }}>
-                  Attendance rates per team
-                </Typography>
-              }
-              sx={{ pb: 0 }}
-            />
-            <CardContent>
-              <DeptBreakdown records={ALL_RECORDS} />
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Weekly Trend Chart */}
-        <Grid size={{ xs: 12, md: 5 }}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Card
             elevation={0}
             sx={{ border: '1px solid #d0e0ff', borderRadius: '12px', height: '100%' }}
@@ -817,7 +716,6 @@ const EmployeeAttendance = () => {
         </Grid>
       </Grid>
 
-      {/* ── Today's Status Cards Row ──────────────────────────────────────── */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
         {['Present', 'Absent', 'Late', 'Leave'].map((status) => {
           const employees = todayRecords.filter((r) => r.status === status);
@@ -844,10 +742,7 @@ const EmployeeAttendance = () => {
                       variant="subtitle2"
                       sx={{ fontWeight: 700, color: cfg.color, fontSize: '0.82rem' }}
                     >
-                      {status === 'Present' && '✅'}
-                      {status === 'Absent' && '❌'}
-                      {status === 'Late' && '⏰'}
-                      {status === 'Leave' && '🏖️'} {status}
+                      {getStatusIcon(status)} {status}
                     </Typography>
                     <Chip
                       label={employees.length}
@@ -920,7 +815,6 @@ const EmployeeAttendance = () => {
         })}
       </Grid>
 
-      {/* ── Attendance Table ──────────────────────────────────────────────── */}
       <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px' }}>
         <CardHeader
           title={
@@ -935,7 +829,6 @@ const EmployeeAttendance = () => {
           }
           action={
             <Stack direction="row" spacing={1.5} sx={{ pt: 1 }}>
-              {/* Search */}
               <OutlinedInput
                 size="small"
                 value={searchQuery}
@@ -952,13 +845,10 @@ const EmployeeAttendance = () => {
                 sx={{
                   width: 200,
                   '& .MuiOutlinedInput-notchedOutline': { borderColor: '#d0e0ff' },
-                  '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: PRIMARY_BLUE },
                   borderRadius: '8px',
                   fontSize: '0.82rem',
                 }}
               />
-
-              {/* Status filter */}
               <FormControl size="small" sx={{ minWidth: 120 }}>
                 <InputLabel sx={{ fontSize: '0.82rem' }}>Status</InputLabel>
                 <Select
@@ -981,8 +871,6 @@ const EmployeeAttendance = () => {
                   ))}
                 </Select>
               </FormControl>
-
-              {/* Department filter */}
               <FormControl size="small" sx={{ minWidth: 140 }}>
                 <InputLabel sx={{ fontSize: '0.82rem' }}>Department</InputLabel>
                 <Select
@@ -1016,29 +904,23 @@ const EmployeeAttendance = () => {
           <Table size="small">
             <TableHead>
               <TableRow sx={{ bgcolor: '#f0f5ff' }}>
-                {[
-                  'Employee',
-                  'Department',
-                  'Date',
-                  'Check In',
-                  'Check Out',
-                  'Duration',
-                  'Status',
-                ].map((col) => (
-                  <TableCell
-                    key={col}
-                    sx={{
-                      fontWeight: 700,
-                      color: '#1a2b5e',
-                      fontSize: '0.78rem',
-                      borderBottom: '2px solid #d0e0ff',
-                      py: 1.25,
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {col}
-                  </TableCell>
-                ))}
+                {['Employee', 'Role', 'Date', 'Check In', 'Check Out', 'Duration', 'Status'].map(
+                  (col) => (
+                    <TableCell
+                      key={col}
+                      sx={{
+                        fontWeight: 700,
+                        color: '#1a2b5e',
+                        fontSize: '0.78rem',
+                        borderBottom: '2px solid #d0e0ff',
+                        py: 1.25,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {col}
+                    </TableCell>
+                  ),
+                )}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -1053,7 +935,6 @@ const EmployeeAttendance = () => {
                       '& td': { borderBottom: '1px solid #e8f0fe', py: 1.1 },
                     }}
                   >
-                    {/* Employee */}
                     <TableCell>
                       <Stack direction="row" alignItems="center" spacing={1.25}>
                         <Avatar
@@ -1084,8 +965,6 @@ const EmployeeAttendance = () => {
                         </Box>
                       </Stack>
                     </TableCell>
-
-                    {/* Department */}
                     <TableCell>
                       <Chip
                         label={r.department}
@@ -1099,8 +978,6 @@ const EmployeeAttendance = () => {
                         }}
                       />
                     </TableCell>
-
-                    {/* Date */}
                     <TableCell>
                       <Typography variant="caption" sx={{ color: '#2d3748', fontWeight: 500 }}>
                         {new Date(r.date).toLocaleDateString('en-US', {
@@ -1110,8 +987,6 @@ const EmployeeAttendance = () => {
                         })}
                       </Typography>
                     </TableCell>
-
-                    {/* Check In */}
                     <TableCell>
                       <Typography
                         variant="caption"
@@ -1124,8 +999,6 @@ const EmployeeAttendance = () => {
                         {r.checkIn}
                       </Typography>
                     </TableCell>
-
-                    {/* Check Out */}
                     <TableCell>
                       <Typography
                         variant="caption"
@@ -1138,18 +1011,17 @@ const EmployeeAttendance = () => {
                         {r.checkOut}
                       </Typography>
                     </TableCell>
-
-                    {/* Duration */}
                     <TableCell>
                       <Typography
                         variant="caption"
-                        sx={{ color: r.duration === '--' ? '#94a3b8' : '#2d3748', fontWeight: 500 }}
+                        sx={{
+                          color: r.duration === '--' ? '#94a3b8' : '#2d3748',
+                          fontWeight: 500,
+                        }}
                       >
                         {r.duration}
                       </Typography>
                     </TableCell>
-
-                    {/* Status Chip */}
                     <TableCell>
                       <Chip
                         label={r.status}
@@ -1167,7 +1039,6 @@ const EmployeeAttendance = () => {
                   </TableRow>
                 );
               })}
-
               {paginatedRecords.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={7} align="center" sx={{ py: 4 }}>
@@ -1196,7 +1067,6 @@ const EmployeeAttendance = () => {
         />
       </Card>
 
-      {/* ── Status Summary Bar Chart ────────────────────────────────────── */}
       <Card elevation={0} sx={{ border: '1px solid #d0e0ff', borderRadius: '12px', mt: 3 }}>
         <CardHeader
           title={
@@ -1243,35 +1113,3 @@ const EmployeeAttendance = () => {
 };
 
 export default EmployeeAttendance;
-
-/*
-──────────────────────────────────────────────────────────────────────────────
-INTEGRATION SNIPPETS
-──────────────────────────────────────────────────────────────────────────────
-
-1. src/routes/paths.ts — add inside the `const paths = { ... }` object:
-   attendance: '/admin/attendance',
-
-2. src/routes/router.tsx — add with other admin imports:
-   import EmployeeAttendance from 'pages/Admin/attendance/EmployeeAttendance';
-   // inside the main-layout children array:
-   { path: paths.attendance, element: <EmployeeAttendance /> },
-
-3. src/routes/sitemap.ts — add a new menu block:
-   {
-     id: 'attendance',
-     icon: 'material-symbols:calendar-month',
-     items: [
-       {
-         name: 'Attendance',
-         path: '/admin/attendance',
-         icon: 'material-symbols:calendar-month',
-         pathName: 'attendance',
-         active: true,
-       },
-     ],
-   },
-
-4. src/routes/employeeSitemap.ts — same block for the employee sidebar.
-──────────────────────────────────────────────────────────────────────────────
-*/
