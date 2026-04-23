@@ -267,44 +267,62 @@ const progressColor = (pct: number) => {
   return '#ef4444';
 };
 
-// ─── Consistent field styling (matches ProjectDetailPage) ─────────────────────
-const fieldSx = {
+// ─── PERMANENT BORDER STYLING (applied directly to components) ────────────────
+// These styles are applied inline to ensure they are never overridden.
+// The border is always visible: 1.5px solid PRIMARY_BLUE, radius 12px.
+
+const textFieldBorderSx = {
   '& .MuiOutlinedInput-root': {
+    borderRadius: '12px',
     backgroundColor: PRIMARY_BLUE_LIGHT,
-    borderRadius: '8px',
     transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
-    '& fieldset': { borderColor: PRIMARY_BLUE, borderWidth: '1.5px' },
+    '& fieldset': {
+      borderColor: PRIMARY_BLUE,
+      borderWidth: '1.5px',
+    },
     '&:hover': {
       backgroundColor: '#dce9ff',
-      '& fieldset': { borderColor: PRIMARY_BLUE_DARK, borderWidth: '2px' },
+      '& fieldset': {
+        borderColor: PRIMARY_BLUE_DARK,
+        borderWidth: '2px',
+      },
     },
     '&.Mui-focused': {
       backgroundColor: '#dce9ff',
       boxShadow: `0 0 0 3px ${PRIMARY_BLUE}28`,
-      '& fieldset': { borderColor: PRIMARY_BLUE, borderWidth: '2px' },
+      '& fieldset': {
+        borderColor: PRIMARY_BLUE,
+        borderWidth: '2px',
+      },
     },
   },
   '& .MuiInputLabel-root': {
     color: '#4a6fa5',
     fontWeight: 500,
     fontSize: '14px',
-    '&.Mui-focused': { color: PRIMARY_BLUE, fontWeight: 600 },
+    '&.Mui-focused': {
+      color: PRIMARY_BLUE,
+      fontWeight: 600,
+    },
   },
 };
 
-const selectSx = {
-  ...fieldSx,
+const selectBorderSx = {
+  ...textFieldBorderSx,
   '& .MuiOutlinedInput-root': {
-    ...fieldSx['& .MuiOutlinedInput-root'],
+    ...textFieldBorderSx['& .MuiOutlinedInput-root'],
     '& .MuiSelect-select': {
       padding: '14px 14px',
       display: 'flex',
       alignItems: 'center',
     },
-    '& .MuiSelect-icon': { color: PRIMARY_BLUE, right: '12px' },
+    '& .MuiSelect-icon': {
+      color: PRIMARY_BLUE,
+      right: '12px',
+    },
   },
   '& .MuiInputLabel-root': {
-    ...fieldSx['& .MuiInputLabel-root'],
+    ...textFieldBorderSx['& .MuiInputLabel-root'],
     transform: 'translate(14px, 12px) scale(1)',
     '&.MuiInputLabel-shrink': {
       transform: 'translate(14px, -8px) scale(0.75)',
@@ -556,7 +574,7 @@ const ProjectListPage = () => {
         </Grid>
       </Grid>
 
-      {/* ── Filter Toolbar (consistent styling) ── */}
+      {/* ── Filter Toolbar ── */}
       <Card
         elevation={0}
         sx={{
@@ -582,7 +600,7 @@ const ProjectListPage = () => {
               </Typography>
             </Stack>
 
-            {/* Search */}
+            {/* Search TextField - permanent blue border */}
             <TextField
               placeholder="Search project or client…"
               value={search}
@@ -597,17 +615,18 @@ const ProjectListPage = () => {
                   ),
                 },
               }}
-              sx={{ flex: 1, minWidth: 200, ...fieldSx }}
+              sx={{ flex: 1, minWidth: 200, ...textFieldBorderSx }}
             />
 
             {/* Phase filter */}
-            <FormControl size="small" sx={{ minWidth: 150, ...selectSx }}>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
               <InputLabel id="phase-filter-label">Phase</InputLabel>
               <Select
                 labelId="phase-filter-label"
                 value={phaseFilter}
                 label="Phase"
                 onChange={(e) => setPhaseFilter(e.target.value)}
+                sx={selectBorderSx}
               >
                 <MenuItem value="">All Phases</MenuItem>
                 {['Planning', 'Development', 'Testing', 'Deployment', 'Maintenance'].map((p) => (
@@ -619,13 +638,14 @@ const ProjectListPage = () => {
             </FormControl>
 
             {/* Status filter */}
-            <FormControl size="small" sx={{ minWidth: 150, ...selectSx }}>
+            <FormControl size="small" sx={{ minWidth: 150 }}>
               <InputLabel id="status-filter-label">Status</InputLabel>
               <Select
                 labelId="status-filter-label"
                 value={statusFilter}
                 label="Status"
                 onChange={(e) => setStatusFilter(e.target.value)}
+                sx={selectBorderSx}
               >
                 <MenuItem value="">All Status</MenuItem>
                 {['Active', 'Completed', 'Archived'].map((s) => (
@@ -636,7 +656,7 @@ const ProjectListPage = () => {
               </Select>
             </FormControl>
 
-            {/* Reset */}
+            {/* Reset button */}
             <Button
               variant="text"
               onClick={resetFilters}
@@ -657,12 +677,11 @@ const ProjectListPage = () => {
         </CardContent>
       </Card>
 
-      {/* ── Project Table ── */}
+      {/* ── Project Table ── (unchanged) */}
       <Card
         elevation={0}
         sx={{ border: '1px solid #d0e0ff', borderRadius: '14px', overflow: 'hidden' }}
       >
-        {/* Table header bar */}
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -910,8 +929,6 @@ const ProjectListPage = () => {
                       >
                         {String(idx + 1).padStart(2, '0')}
                       </TableCell>
-
-                      {/* Project name + avatar */}
                       <TableCell>
                         <Stack direction="row" alignItems="center" spacing={1.5}>
                           <Avatar
@@ -949,15 +966,11 @@ const ProjectListPage = () => {
                           </Box>
                         </Stack>
                       </TableCell>
-
-                      {/* Client */}
                       <TableCell>
                         <Typography sx={{ fontSize: '13px', color: '#374151', fontWeight: 500 }}>
                           {project.clientName}
                         </Typography>
                       </TableCell>
-
-                      {/* Team */}
                       <TableCell>
                         <AvatarGroup
                           max={4}
@@ -993,8 +1006,6 @@ const ProjectListPage = () => {
                           ))}
                         </AvatarGroup>
                       </TableCell>
-
-                      {/* Phase */}
                       <TableCell>
                         <Chip
                           label={project.projectPhase}
@@ -1010,8 +1021,6 @@ const ProjectListPage = () => {
                           }}
                         />
                       </TableCell>
-
-                      {/* Status */}
                       <TableCell>
                         <Stack direction="row" alignItems="center" spacing={0.75}>
                           <Box
@@ -1038,8 +1047,6 @@ const ProjectListPage = () => {
                           />
                         </Stack>
                       </TableCell>
-
-                      {/* Progress */}
                       <TableCell sx={{ minWidth: 120 }}>
                         <Box>
                           <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
@@ -1067,8 +1074,6 @@ const ProjectListPage = () => {
                           />
                         </Box>
                       </TableCell>
-
-                      {/* Start date */}
                       <TableCell>
                         <Typography
                           sx={{ fontSize: '12.5px', color: '#374151', whiteSpace: 'nowrap' }}
@@ -1076,8 +1081,6 @@ const ProjectListPage = () => {
                           {formatDate(project.createdAt)}
                         </Typography>
                       </TableCell>
-
-                      {/* Deadline */}
                       <TableCell>
                         {deadlineDate ? (
                           <Typography
@@ -1094,8 +1097,6 @@ const ProjectListPage = () => {
                           <Typography sx={{ fontSize: '12.5px', color: '#9ca3af' }}>—</Typography>
                         )}
                       </TableCell>
-
-                      {/* Actions */}
                       <TableCell align="center" sx={{ pr: 3 }}>
                         <Stack direction="row" spacing={0.75} justifyContent="center">
                           <Tooltip title="View Detail" arrow>
@@ -1178,7 +1179,6 @@ const ProjectListPage = () => {
           </Table>
         </TableContainer>
 
-        {/* Table footer */}
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -1216,7 +1216,7 @@ const ProjectListPage = () => {
         </Stack>
       </Card>
 
-      {/* ── Delete Confirmation Dialog ── */}
+      {/* Delete Dialog */}
       <Dialog
         open={deleteDialog.open}
         onClose={() => setDeleteDialog({ open: false, id: '', name: '' })}
@@ -1267,7 +1267,6 @@ const ProjectListPage = () => {
         </DialogActions>
       </Dialog>
 
-      {/* ── Snackbar ── */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3500}

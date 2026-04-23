@@ -27,7 +27,6 @@ import {
   Divider,
   Grid,
   IconButton,
-  LinearProgress,
   List,
   ListItem,
   ListItemAvatar,
@@ -79,58 +78,6 @@ const STATIC_PROJECT = {
   ],
 };
 
-type StaticTask = {
-  id: string;
-  title: string;
-  priority: 'High' | 'Medium' | 'Low';
-  dueDate: string;
-  assignedTo: string;
-  status: 'Pending' | 'In progress' | 'Done';
-};
-
-const STATIC_TASKS: StaticTask[] = [
-  {
-    id: 't1',
-    title: 'Design login UI',
-    priority: 'High' as const,
-    dueDate: '2025-04-20',
-    assignedTo: 'John Doe',
-    status: 'Done' as const,
-  },
-  {
-    id: 't2',
-    title: 'Implement API integration',
-    priority: 'Medium' as const,
-    dueDate: '2025-04-28',
-    assignedTo: 'Jane Smith',
-    status: 'In progress' as const,
-  },
-  {
-    id: 't3',
-    title: 'Write unit tests',
-    priority: 'Low' as const,
-    dueDate: '2025-05-05',
-    assignedTo: 'Mike Johnson',
-    status: 'Pending' as const,
-  },
-  {
-    id: 't4',
-    title: 'Security audit',
-    priority: 'High' as const,
-    dueDate: '2025-05-10',
-    assignedTo: 'Emily Davis',
-    status: 'Pending' as const,
-  },
-  {
-    id: 't5',
-    title: 'UAT with client',
-    priority: 'Medium' as const,
-    dueDate: '2025-05-20',
-    assignedTo: 'John Doe',
-    status: 'Pending' as const,
-  },
-];
-
 const STATIC_LINKS = [
   { id: 'l1', linkTitle: 'Figma Design File', linkUrl: 'https://figma.com/file/abc' },
   { id: 'l2', linkTitle: 'Staging Environment', linkUrl: 'https://staging.finbank.com' },
@@ -149,24 +96,6 @@ const getLinkColor = (url: string) => {
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
-
-const priorityColor = (p: string) => {
-  if (p === 'High') return 'error';
-  if (p === 'Medium') return 'warning';
-  return 'info';
-};
-
-const statusColor = (s: string) => {
-  if (s === 'Done') return '#43a047';
-  if (s === 'In progress') return PRIMARY_BLUE;
-  return '#9e9e9e';
-};
-
-const statusBg = (s: string) => {
-  if (s === 'Done') return '#e8f5e9';
-  if (s === 'In progress') return PRIMARY_BLUE_LIGHT;
-  return '#f5f5f5';
-};
 
 // ─── Reusable Section Card ────────────────────────────────────────────────────
 const SectionCard = ({
@@ -205,7 +134,7 @@ const SectionCard = ({
   </Card>
 );
 
-// ─── fieldSx (same as ProjectFormPage) ───────────────────────────────────────
+// ─── fieldSx for dialogs (consistent styling) ────────────────────────────────
 const fieldSx = {
   '& .MuiOutlinedInput-root': {
     backgroundColor: PRIMARY_BLUE_LIGHT,
@@ -234,18 +163,11 @@ const getProjectStatusStyles = (status: string) => {
   return { bg: '#f5f5f5', color: '#616161', border: '#e0e0e0' };
 };
 
-const cycleTaskStatus = (status: string): 'Pending' | 'In progress' | 'Done' => {
-  if (status === 'Pending') return 'In progress';
-  if (status === 'In progress') return 'Done';
-  return 'Pending';
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
 const ProjectDetailPage = () => {
   const navigate = useNavigate();
   const project = STATIC_PROJECT;
 
-  const [tasks, setTasks] = useState(STATIC_TASKS);
   const [links, setLinks] = useState(STATIC_LINKS);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [editingLink, setEditingLink] = useState<any>(null);
@@ -255,9 +177,6 @@ const ProjectDetailPage = () => {
     message: '',
     severity: 'success' as 'success' | 'error',
   });
-
-  const completedCount = tasks.filter((t) => t.status === 'Done').length;
-  const completionPct = Math.round((completedCount / tasks.length) * 100);
 
   // ── Link handlers ──
   const openLinkModal = (link?: any) => {
@@ -288,17 +207,6 @@ const ProjectDetailPage = () => {
       setLinks((prev) => prev.filter((l) => l.id !== id));
       setSnackbar({ open: true, message: 'Link deleted', severity: 'success' });
     }
-  };
-
-  // ── Task status cycle ──
-  const cycleStatus = (id: string) => {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== id) return t;
-        const next = cycleTaskStatus(t.status);
-        return { ...t, status: next };
-      }),
-    );
   };
 
   // ─── Render ──────────────────────────────────────────────────────────────
@@ -334,7 +242,6 @@ const ProjectDetailPage = () => {
             >
               {project.projectName}
             </Typography>
-            {/* Status Chip */}
             <Chip
               label={project.status}
               size="small"
@@ -346,7 +253,6 @@ const ProjectDetailPage = () => {
                 border: `1.5px solid ${getProjectStatusStyles(project.status).border}`,
               }}
             />
-            {/* Phase Chip */}
             <Chip
               label={project.projectPhase}
               size="small"
@@ -360,29 +266,12 @@ const ProjectDetailPage = () => {
             />
           </Stack>
 
-          {/* Info Row */}
           <Grid container spacing={2}>
             {[
-              {
-                icon: <PersonIcon sx={{ fontSize: 16 }} />,
-                label: 'Client',
-                value: project.clientName,
-              },
-              {
-                icon: <CalendarIcon sx={{ fontSize: 16 }} />,
-                label: 'Created',
-                value: formatDate(project.createdAt),
-              },
-              {
-                icon: <CalendarIcon sx={{ fontSize: 16 }} />,
-                label: 'Updated',
-                value: formatDate(project.updatedAt),
-              },
-              {
-                icon: <PersonIcon sx={{ fontSize: 16 }} />,
-                label: 'Created by',
-                value: project.createdBy,
-              },
+              { icon: <PersonIcon sx={{ fontSize: 16 }} />, label: 'Client', value: project.clientName },
+              { icon: <CalendarIcon sx={{ fontSize: 16 }} />, label: 'Created', value: formatDate(project.createdAt) },
+              { icon: <CalendarIcon sx={{ fontSize: 16 }} />, label: 'Updated', value: formatDate(project.updatedAt) },
+              { icon: <PersonIcon sx={{ fontSize: 16 }} />, label: 'Created by', value: project.createdBy },
             ].map(({ icon, label, value }) => (
               <Grid size={{ xs: 12, sm: 6, md: 3 }} key={label}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -415,10 +304,9 @@ const ProjectDetailPage = () => {
         </CardContent>
       </Card>
 
-      {/* ── Main Grid ── */}
+      {/* ── Main Content (full width, no Tasks column) ── */}
       <Grid container spacing={2.5}>
-        {/* ── LEFT COLUMN ── */}
-        <Grid size={{ xs: 12, md: 8 }}>
+        <Grid size={{ xs: 12 }}>
           {/* Team Members */}
           <SectionCard title="Team Members">
             <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap>
@@ -498,7 +386,6 @@ const ProjectDetailPage = () => {
               </Button>
             }
           >
-            {/* Drive Button */}
             <Button
               variant="contained"
               startIcon={<FolderIcon />}
@@ -626,199 +513,6 @@ const ProjectDetailPage = () => {
               </Typography>
             </Box>
           </SectionCard>
-        </Grid>
-
-        {/* ── RIGHT COLUMN – Tasks ── */}
-        <Grid size={{ xs: 12, md: 4 }}>
-          <Card
-            elevation={0}
-            sx={{
-              border: '1px solid #d0e0ff',
-              borderRadius: '14px',
-              position: 'sticky',
-              top: 16,
-              overflow: 'hidden',
-            }}
-          >
-            <CardContent sx={{ p: 2.5, overflow: 'hidden' }}>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                sx={{ mb: 2 }}
-              >
-                <Typography sx={{ fontWeight: 700, color: '#0f2a6e', fontSize: '15px' }}>
-                  Tasks
-                </Typography>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
-                  onClick={() => navigate(paths.tasks?.new || '/')}
-                  sx={{
-                    borderColor: PRIMARY_BLUE,
-                    color: PRIMARY_BLUE,
-                    borderRadius: '8px',
-                    textTransform: 'none',
-                    fontWeight: 600,
-                    fontSize: '12px',
-                    '&:hover': {
-                      backgroundColor: PRIMARY_BLUE_LIGHT,
-                      borderColor: PRIMARY_BLUE_DARK,
-                    },
-                  }}
-                >
-                  Add
-                </Button>
-              </Stack>
-
-              {/* Completion bar */}
-              <Box
-                sx={{
-                  backgroundColor: '#f8fbff',
-                  border: '1px solid #d0e0ff',
-                  borderRadius: '10px',
-                  p: 1.5,
-                  mb: 2,
-                }}
-              >
-                <Stack
-                  direction="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  sx={{ mb: 0.75 }}
-                >
-                  <Typography sx={{ fontSize: '12px', color: '#4a6fa5', fontWeight: 500 }}>
-                    Completion
-                  </Typography>
-                  <Typography sx={{ fontSize: '14px', fontWeight: 700, color: PRIMARY_BLUE }}>
-                    {completionPct}%
-                  </Typography>
-                </Stack>
-                <LinearProgress
-                  variant="determinate"
-                  value={completionPct}
-                  sx={{
-                    height: 8,
-                    borderRadius: 4,
-                    backgroundColor: '#d0e0ff',
-                    '& .MuiLinearProgress-bar': {
-                      backgroundColor: PRIMARY_BLUE,
-                      borderRadius: 4,
-                    },
-                  }}
-                />
-                <Typography sx={{ fontSize: '11px', color: '#4a6fa5', mt: 0.5 }}>
-                  {completedCount} of {tasks.length} tasks done
-                </Typography>
-              </Box>
-
-              <Divider sx={{ mb: 1.5, borderColor: '#d0e0ff' }} />
-
-              {/* Task list */}
-              <Stack spacing={1}>
-                {tasks.map((task) => (
-                  <Box
-                    key={task.id}
-                    sx={{
-                      p: 1.5,
-                      border: '1px solid #d0e0ff',
-                      borderRadius: '10px',
-                      backgroundColor: '#f8fbff',
-                      '&:hover': { backgroundColor: PRIMARY_BLUE_LIGHT, borderColor: PRIMARY_BLUE },
-                      transition: 'all 0.15s ease',
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: '#0f2a6e',
-                        mb: 0.75,
-                        wordBreak: 'break-word',
-                        overflow: 'hidden',
-                        textDecoration: task.status === 'Done' ? 'line-through' : 'none',
-                        opacity: task.status === 'Done' ? 0.6 : 1,
-                      }}
-                    >
-                      {task.title}
-                    </Typography>
-
-                    <Stack
-                      direction="row"
-                      spacing={0.75}
-                      flexWrap="wrap"
-                      useFlexGap
-                      sx={{ mb: 0.75 }}
-                    >
-                      {/* Priority chip */}
-                      <Chip
-                        label={task.priority}
-                        size="small"
-                        color={priorityColor(task.priority) as any}
-                        sx={{ height: 20, fontSize: '10px', fontWeight: 700, borderRadius: '6px' }}
-                      />
-                      {/* Status chip – clickable to cycle */}
-                      <Tooltip title="Click to change status">
-                        <Chip
-                          label={task.status}
-                          size="small"
-                          clickable
-                          onClick={() => cycleStatus(task.id)}
-                          sx={{
-                            height: 20,
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            borderRadius: '6px',
-                            backgroundColor: statusBg(task.status),
-                            color: statusColor(task.status),
-                            border: `1px solid ${statusColor(task.status)}`,
-                            cursor: 'pointer',
-                          }}
-                        />
-                      </Tooltip>
-                    </Stack>
-
-                    <Stack direction="row" justifyContent="space-between" alignItems="center">
-                      <Typography sx={{ fontSize: '11px', color: '#4a6fa5' }}>
-                        👤 {task.assignedTo}
-                      </Typography>
-                      <Typography sx={{ fontSize: '11px', color: '#4a6fa5' }}>
-                        📅 {task.dueDate}
-                      </Typography>
-                    </Stack>
-                  </Box>
-                ))}
-              </Stack>
-
-              {/* Team avatars summary */}
-              <Divider sx={{ my: 1.5, borderColor: '#d0e0ff' }} />
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
-                <Typography sx={{ fontSize: '12px', color: '#4a6fa5', fontWeight: 500 }}>
-                  Team
-                </Typography>
-                <AvatarGroup
-                  max={4}
-                  sx={{
-                    '& .MuiAvatar-root': {
-                      width: 28,
-                      height: 28,
-                      fontSize: '11px',
-                      border: `2px solid #fff`,
-                    },
-                  }}
-                >
-                  {project.teamMembers.map((m) => (
-                    <Tooltip key={m.id} title={m.name}>
-                      <Avatar sx={{ backgroundColor: m.color, fontSize: '11px', fontWeight: 700 }}>
-                        {m.initials}
-                      </Avatar>
-                    </Tooltip>
-                  ))}
-                </AvatarGroup>
-              </Stack>
-            </CardContent>
-          </Card>
         </Grid>
       </Grid>
 
