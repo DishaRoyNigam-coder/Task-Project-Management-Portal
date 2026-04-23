@@ -6,6 +6,9 @@ import AuthLayout from 'layouts/auth-layout';
 import MainLayout from 'layouts/main-layout';
 import AllProjects from 'pages/Admin/AllProjects/AllProject';
 import AdminDashboard from 'pages/Admin/dashboard/AdminDashboard';
+// Lazy load user list and other pages
+// Add this line with the other imports
+import ProjectDetailPage from 'pages/Admin/projects/ProjectDetailPage';
 import ProjectFormPage from 'pages/Admin/projects/ProjectFormPage';
 import TaskUpdatesReview from 'pages/Admin/taskUpdates/TaskUpdatesReview';
 import TaskFormPage from 'pages/Admin/tasks/TaskFormPage';
@@ -14,7 +17,6 @@ import PageLoader from 'components/loading/PageLoader';
 import ProjectLinksNotes from '../pages/Admin/projects/ProjectLinksNotes';
 import paths, { rootPaths } from './paths';
 
-// Lazy load user list and other pages
 const Starter = lazy(() => import('pages/others/Starter'));
 const Account = lazy(() => import('pages/others/Account'));
 const SettingsPage = lazy(() => import('../pages/Admin/settings/SettingsPage'));
@@ -41,6 +43,9 @@ const EmployeeProfile = lazy(() => import('../pages/employee/EmployeeProfile'));
 
 // ✅ Add this import for AdminTaskList
 const AdminTaskList = lazy(() => import('../pages/Admin/tasks/AdminTaskList'));
+
+// ✅ Add this import for EmployeeAttendance
+const EmployeeAttendance = lazy(() => import('pages/Admin/attendance/EmployeeAttendance'));
 
 export const SuspenseOutlet = () => {
   const location = useLocation();
@@ -81,6 +86,10 @@ export const routes: RouteObject[] = [
             element: <ProjectFormPage />,
           },
           {
+            path: paths.projects.detail,
+            element: <ProjectDetailPage />,
+          },
+          {
             path: paths.users,
             element: <UserList />,
           },
@@ -109,6 +118,7 @@ export const routes: RouteObject[] = [
             path: paths.tasks.new,
             element: <TaskFormPage />,
           },
+
           {
             path: paths.tasks.edit,
             element: <TaskFormPage />,
@@ -117,6 +127,12 @@ export const routes: RouteObject[] = [
           {
             path: paths.tasks.list,
             element: <AdminTaskList />,
+          },
+
+          // ✅ Attendance route
+          {
+            path: paths.attendance,
+            element: <EmployeeAttendance />,
           },
 
           // Employee routes

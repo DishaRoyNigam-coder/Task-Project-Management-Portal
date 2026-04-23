@@ -130,50 +130,23 @@ const sitemap: MenuItem[] = [
     ],
   },
   {
-    id: 'reports',
-    icon: 'material-symbols:bar-chart',
+    id: 'attendance',
+    icon: 'material-symbols:calendar-month',
     items: [
       {
-        name: 'Project Overview',
-        path: paths.reports.projectOverview,
-        pathName: 'project-overview',
-        icon: 'material-symbols:overview',
-        active: true,
-      },
-      {
-        name: 'Delayed Tasks',
-        path: paths.reports.delayedTasks,
-        icon: 'material-symbols:warning',
-        pathName: 'delayed-tasks',
-        active: true,
-      },
-      {
-        name: 'Project Health',
-        path: paths.reports.projectHealth,
-        pathName: 'project-health',
-        icon: 'material-symbols:health-and-safety',
-        active: true,
-      },
-      {
-        name: 'Meeting Time by Project',
-        path: paths.reports.meetingTime,
-        icon: 'material-symbols:meeting-room',
-        pathName: 'meeting-time',
+        name: 'Attendance', // ✅ name goes inside the SubMenuItem
+        path: paths.attendance,
+        icon: 'material-symbols:calendar-month',
+        pathName: 'attendance',
         active: true,
       },
     ],
   },
+
   {
     id: 'system',
     icon: 'material-symbols:settings',
     items: [
-      {
-        name: 'Notifications',
-        path: paths.system.notifications,
-        icon: 'material-symbols:notifications',
-        pathName: 'notifications',
-        active: true,
-      },
       {
         name: 'Settings',
         path: paths.system.settings,

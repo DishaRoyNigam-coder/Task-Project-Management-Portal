@@ -30,6 +30,8 @@ const paths = {
   allProjects: `/projects`,
   employeeDashboard: `/employee/dashboard`,
   employeeProjects: `/employee/projects/:id`,
+  attendance: '/admin/attendance', // <-- add this line
+
   projects: {
     new: '/projects/new',
     edit: '/projects/:id/edit',

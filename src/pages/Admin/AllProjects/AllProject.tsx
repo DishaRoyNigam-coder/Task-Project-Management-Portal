@@ -55,7 +55,7 @@ import {
 import { useProjects } from 'context/ProjectContext';
 import paths from 'routes/paths';
 
-// ─── Theme tokens (matches every other page) ──────────────────────────────────
+// ─── Theme tokens ──────────────────────────────────────────────────────────────
 const PRIMARY_BLUE = '#1E58E6';
 const PRIMARY_BLUE_DARK = '#1A4CC4';
 const PRIMARY_BLUE_LIGHT = '#E6F0FF';
@@ -78,7 +78,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; dot: string; bor
   Archived: { bg: '#f3f4f6', color: '#6b7280', dot: '#9ca3af', border: '#d1d5db' },
 };
 
-// ─── Avatar colour palette (deterministic from initials) ─────────────────────
+// ─── Avatar colour palette ────────────────────────────────────────────────────
 const AVATAR_COLORS = [
   '#1E58E6',
   '#7c3aed',
@@ -267,7 +267,52 @@ const progressColor = (pct: number) => {
   return '#ef4444';
 };
 
-// ─── Summary Stat Card ────────────────────────────────────────────────────────
+// ─── Consistent field styling (matches ProjectDetailPage) ─────────────────────
+const fieldSx = {
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: PRIMARY_BLUE_LIGHT,
+    borderRadius: '8px',
+    transition: 'background-color 0.2s ease, box-shadow 0.2s ease',
+    '& fieldset': { borderColor: PRIMARY_BLUE, borderWidth: '1.5px' },
+    '&:hover': {
+      backgroundColor: '#dce9ff',
+      '& fieldset': { borderColor: PRIMARY_BLUE_DARK, borderWidth: '2px' },
+    },
+    '&.Mui-focused': {
+      backgroundColor: '#dce9ff',
+      boxShadow: `0 0 0 3px ${PRIMARY_BLUE}28`,
+      '& fieldset': { borderColor: PRIMARY_BLUE, borderWidth: '2px' },
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: '#4a6fa5',
+    fontWeight: 500,
+    fontSize: '14px',
+    '&.Mui-focused': { color: PRIMARY_BLUE, fontWeight: 600 },
+  },
+};
+
+const selectSx = {
+  ...fieldSx,
+  '& .MuiOutlinedInput-root': {
+    ...fieldSx['& .MuiOutlinedInput-root'],
+    '& .MuiSelect-select': {
+      padding: '14px 14px',
+      display: 'flex',
+      alignItems: 'center',
+    },
+    '& .MuiSelect-icon': { color: PRIMARY_BLUE, right: '12px' },
+  },
+  '& .MuiInputLabel-root': {
+    ...fieldSx['& .MuiInputLabel-root'],
+    transform: 'translate(14px, 12px) scale(1)',
+    '&.MuiInputLabel-shrink': {
+      transform: 'translate(14px, -8px) scale(0.75)',
+    },
+  },
+};
+
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 const StatCard = ({
   label,
   value,
@@ -386,7 +431,6 @@ const ProjectListPage = () => {
         return 0;
       });
     }
-
     return list;
   }, [rawProjects, search, phaseFilter, statusFilter, sortField, sortDir]);
 
@@ -512,7 +556,7 @@ const ProjectListPage = () => {
         </Grid>
       </Grid>
 
-      {/* ── Filter Toolbar ── */}
+      {/* ── Filter Toolbar (consistent styling) ── */}
       <Card
         elevation={0}
         sx={{
@@ -553,38 +597,14 @@ const ProjectListPage = () => {
                   ),
                 },
               }}
-              sx={{
-                flex: 1,
-                minWidth: 200,
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: PRIMARY_BLUE_LIGHT,
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  '& fieldset': { borderColor: '#d0e0ff' },
-                  '&:hover fieldset': { borderColor: PRIMARY_BLUE },
-                  '&.Mui-focused fieldset': { borderColor: PRIMARY_BLUE },
-                },
-              }}
+              sx={{ flex: 1, minWidth: 200, ...fieldSx }}
             />
 
             {/* Phase filter */}
-            <FormControl
-              size="small"
-              sx={{
-                minWidth: 150,
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: PRIMARY_BLUE_LIGHT,
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  '& fieldset': { borderColor: '#d0e0ff' },
-                  '&:hover fieldset': { borderColor: PRIMARY_BLUE },
-                  '&.Mui-focused fieldset': { borderColor: PRIMARY_BLUE },
-                },
-                '& .MuiInputLabel-root': { color: '#4a6fa5', fontSize: '13px' },
-              }}
-            >
-              <InputLabel>Phase</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 150, ...selectSx }}>
+              <InputLabel id="phase-filter-label">Phase</InputLabel>
               <Select
+                labelId="phase-filter-label"
                 value={phaseFilter}
                 label="Phase"
                 onChange={(e) => setPhaseFilter(e.target.value)}
@@ -599,23 +619,10 @@ const ProjectListPage = () => {
             </FormControl>
 
             {/* Status filter */}
-            <FormControl
-              size="small"
-              sx={{
-                minWidth: 150,
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: PRIMARY_BLUE_LIGHT,
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  '& fieldset': { borderColor: '#d0e0ff' },
-                  '&:hover fieldset': { borderColor: PRIMARY_BLUE },
-                  '&.Mui-focused fieldset': { borderColor: PRIMARY_BLUE },
-                },
-                '& .MuiInputLabel-root': { color: '#4a6fa5', fontSize: '13px' },
-              }}
-            >
-              <InputLabel>Status</InputLabel>
+            <FormControl size="small" sx={{ minWidth: 150, ...selectSx }}>
+              <InputLabel id="status-filter-label">Status</InputLabel>
               <Select
+                labelId="status-filter-label"
                 value={statusFilter}
                 label="Status"
                 onChange={(e) => setStatusFilter(e.target.value)}
@@ -685,7 +692,6 @@ const ProjectListPage = () => {
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: '#f8faff' }}>
-                {/* # */}
                 <TableCell
                   sx={{
                     fontWeight: 700,
@@ -700,14 +706,10 @@ const ProjectListPage = () => {
                 >
                   #
                 </TableCell>
-
-                {/* Sortable columns */}
-                {(
-                  [
-                    { field: 'projectName' as SortField, label: 'Project' },
-                    { field: 'clientName' as SortField, label: 'Client' },
-                  ] as const
-                ).map(({ field, label }) => (
+                {[
+                  { field: 'projectName' as SortField, label: 'Project' },
+                  { field: 'clientName' as SortField, label: 'Client' },
+                ].map(({ field, label }) => (
                   <TableCell
                     key={field}
                     onClick={() => handleSort(field)}
@@ -729,8 +731,6 @@ const ProjectListPage = () => {
                     </Stack>
                   </TableCell>
                 ))}
-
-                {/* Team */}
                 <TableCell
                   sx={{
                     fontWeight: 700,
@@ -743,8 +743,6 @@ const ProjectListPage = () => {
                 >
                   Team
                 </TableCell>
-
-                {/* Phase sortable */}
                 <TableCell
                   onClick={() => handleSort('projectPhase')}
                   sx={{
@@ -764,8 +762,6 @@ const ProjectListPage = () => {
                     <SortIcon dir={sortField === 'projectPhase' ? sortDir : null} />
                   </Stack>
                 </TableCell>
-
-                {/* Status sortable */}
                 <TableCell
                   onClick={() => handleSort('status')}
                   sx={{
@@ -785,8 +781,6 @@ const ProjectListPage = () => {
                     <SortIcon dir={sortField === 'status' ? sortDir : null} />
                   </Stack>
                 </TableCell>
-
-                {/* Progress sortable */}
                 <TableCell
                   onClick={() => handleSort('progress')}
                   sx={{
@@ -807,8 +801,6 @@ const ProjectListPage = () => {
                     <SortIcon dir={sortField === 'progress' ? sortDir : null} />
                   </Stack>
                 </TableCell>
-
-                {/* Dates */}
                 <TableCell
                   onClick={() => handleSort('createdAt')}
                   sx={{
@@ -829,7 +821,6 @@ const ProjectListPage = () => {
                     <SortIcon dir={sortField === 'createdAt' ? sortDir : null} />
                   </Stack>
                 </TableCell>
-
                 <TableCell
                   onClick={() => handleSort('deadline')}
                   sx={{
@@ -850,8 +841,6 @@ const ProjectListPage = () => {
                     <SortIcon dir={sortField === 'deadline' ? sortDir : null} />
                   </Stack>
                 </TableCell>
-
-                {/* Actions */}
                 <TableCell
                   align="center"
                   sx={{
@@ -900,8 +889,6 @@ const ProjectListPage = () => {
                   const phase = PHASE_STYLE[project.projectPhase] || PHASE_STYLE.Planning;
                   const status = STATUS_STYLE[project.status] || STATUS_STYLE.Archived;
                   const prog = (project as any).progress ?? 0;
-
-                  // Extract deadline logic to avoid nested ternary
                   const deadlineDate = (project as any).deadline;
                   const isDeadlineOverdue =
                     deadlineDate &&
@@ -918,7 +905,6 @@ const ProjectListPage = () => {
                         '&:last-child td': { borderBottom: 0 },
                       }}
                     >
-                      {/* # */}
                       <TableCell
                         sx={{ pl: 3, color: '#9ca3af', fontSize: '12.5px', fontWeight: 500 }}
                       >
@@ -952,7 +938,7 @@ const ProjectListPage = () => {
                                 '&:hover': { color: PRIMARY_BLUE, textDecoration: 'underline' },
                               }}
                               onClick={() =>
-                                navigate(`${paths.projects?.detail || '/'}/${project.id}`)
+                                navigate(paths.projects.detail.replace(':id', project.id))
                               }
                             >
                               {project.projectName}
@@ -1112,12 +1098,11 @@ const ProjectListPage = () => {
                       {/* Actions */}
                       <TableCell align="center" sx={{ pr: 3 }}>
                         <Stack direction="row" spacing={0.75} justifyContent="center">
-                          {/* View */}
                           <Tooltip title="View Detail" arrow>
                             <IconButton
                               size="small"
                               onClick={() =>
-                                navigate(`${paths.projects?.detail || '/'}/${project.id}`)
+                                navigate(paths.projects.detail.replace(':id', project.id))
                               }
                               sx={{
                                 width: 30,
@@ -1131,13 +1116,11 @@ const ProjectListPage = () => {
                               <VisibilityIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           </Tooltip>
-
-                          {/* Edit */}
                           <Tooltip title="Edit Project" arrow>
                             <IconButton
                               size="small"
                               onClick={() =>
-                                navigate(`${paths.projects?.edit || '/'}/${project.id}`)
+                                navigate(paths.projects.edit.replace(':id', project.id))
                               }
                               sx={{
                                 width: 30,
@@ -1151,13 +1134,11 @@ const ProjectListPage = () => {
                               <EditIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           </Tooltip>
-
-                          {/* Links */}
                           <Tooltip title="Links & Notes" arrow>
                             <IconButton
                               size="small"
                               onClick={() =>
-                                navigate(`${paths.projects?.links || '/'}/${project.id}`)
+                                navigate(paths.projects.links.replace(':projectId', project.id))
                               }
                               sx={{
                                 width: 30,
@@ -1171,8 +1152,6 @@ const ProjectListPage = () => {
                               <LinkIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           </Tooltip>
-
-                          {/* Delete */}
                           <Tooltip title="Delete Project" arrow>
                             <IconButton
                               size="small"
@@ -1204,12 +1183,7 @@ const ProjectListPage = () => {
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{
-            px: 2.5,
-            py: 1.5,
-            borderTop: '1px solid #d0e0ff',
-            backgroundColor: '#f8faff',
-          }}
+          sx={{ px: 2.5, py: 1.5, borderTop: '1px solid #d0e0ff', backgroundColor: '#f8faff' }}
         >
           <Typography sx={{ fontSize: '12.5px', color: '#4a6fa5' }}>
             Showing{' '}
@@ -1225,7 +1199,7 @@ const ProjectListPage = () => {
           <Button
             variant="outlined"
             size="small"
-            onClick={() => navigate(paths.projects?.new || '/')}
+            onClick={() => navigate(paths.projects.new)}
             startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
             sx={{
               borderColor: PRIMARY_BLUE,
@@ -1234,10 +1208,7 @@ const ProjectListPage = () => {
               textTransform: 'none',
               fontWeight: 600,
               fontSize: '12px',
-              '&:hover': {
-                backgroundColor: PRIMARY_BLUE_LIGHT,
-                borderColor: PRIMARY_BLUE_DARK,
-              },
+              '&:hover': { backgroundColor: PRIMARY_BLUE_LIGHT, borderColor: PRIMARY_BLUE_DARK },
             }}
           >
             Add Project
@@ -1251,11 +1222,7 @@ const ProjectListPage = () => {
         onClose={() => setDeleteDialog({ open: false, id: '', name: '' })}
         maxWidth="xs"
         fullWidth
-        slotProps={{
-          paper: {
-            sx: { borderRadius: '14px', border: '1px solid #d0e0ff' },
-          },
-        }}
+        slotProps={{ paper: { sx: { borderRadius: '14px', border: '1px solid #d0e0ff' } } }}
       >
         <DialogTitle sx={{ fontWeight: 700, color: '#0f2a6e', pb: 1 }}>Delete Project</DialogTitle>
         <Divider sx={{ borderColor: '#d0e0ff' }} />
